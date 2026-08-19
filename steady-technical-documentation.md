@@ -6,7 +6,7 @@ A single-file, client-side nutrition and body-recomposition tracker built as a C
 
 ## 1. Overview
 
-- **File**: one self-contained `.html` file (~2,300 lines) — inline `<style>`, inline `<script>`, no external dependencies except Google Fonts (Fraunces, Inter, JetBrains Mono).
+- **File**: one self-contained `.html` file (~2,440 lines) — inline `<style>`, inline `<script>`, no external dependencies except Google Fonts (Fraunces, Inter, JetBrains Mono).
 - **Runtime**: vanilla JavaScript, IIFE-wrapped, manual DOM string-templating (`innerHTML` re-renders, no virtual DOM).
 - **Persistence**: Anthropic's `window.storage` API — key/value, text/JSON only, personal (per-user, non-shared), active only once the artifact is **published**.
 - **AI**: calls `https://api.anthropic.com/v1/messages` directly from the browser (no API key required — handled by the platform), model `claude-sonnet-4-6`. Billed against the user's own Claude usage limits, not a separate cost.
@@ -57,7 +57,7 @@ All keys use `shared: false` (personal, private per user). None are shared.
 
 | Key | Shape | Notes |
 |---|---|---|
-| `profile` | `{ unit, sex, age, weight, height, activity, trainingsPerWeek, goal }` | One record, no history |
+| `profile` | `{ nickname?, unit, sex, age, weight, height, activity, trainingsPerWeek, goal }` | One record, no history. `nickname` is optional — when set, it's woven into AI prompts (§5.4) so the nutritionist can address the person by name |
 | `meals:<YYYY-MM-DD>` | `[{ id, name, calories, protein_g, carbs_g, fat_g, time, source, coachNote?, favorited?, favoriteRef? }]` | One key per day |
 | `activity:<YYYY-MM-DD>` | `[{ type, minutes }]` | Current format. See §3.1 for legacy formats still read for backward compatibility |
 | `note:<YYYY-MM-DD>` | `{ text, mealCount, calories }` | Daily AI summary + a snapshot signature used to detect staleness (§5.4) |
@@ -143,6 +143,16 @@ Two distinct interaction modes:
 
 All coach/nutritionist prompts share the same "gradual, steady progress, never suggest extreme restriction" framing regardless of entry point.
 
+**Name personalization**: a shared helper, `nameContext()`, prepends a short instruction to every one of the four AI-context builders above (today's chat, weekly chat, past-day summaries, individual meal tips) — but only if `state.profile.nickname` is set. It's phrased as "address them by name where it feels natural" rather than a hard requirement, so the AI isn't forced to use the name in every single reply. If no nickname is set, the function returns an empty string and every prompt behaves exactly as it did before this feature existed — no conditional branching needed at each call site.
+
+### 5.8 Chart tooltips
+Both the Trends bar charts (`chartBlock()`) and the body-measurements line chart (`buildMeasurementsChart()`) embed `data-tip` attributes on their SVG shapes, wired up by a shared `wireChartTooltips(container)` helper to a single floating tooltip element (`#chartTooltip`) that's styled and positioned in JS rather than relying on the browser's native (and non-touch-friendly) `<title>` tooltip.
+
+Two details worth knowing if extending this:
+- **Hit areas are deliberately oversized and separate from the visible shape.** A bar chart's actual colored `<rect>` can be just 1px tall on a near-zero day, so each bar also gets an invisible full-height `<rect class="chartbar-hit">` sitting behind it (the visible bar has `pointer-events: none` so it doesn't intercept anything); measurement points similarly get an invisible 9px-radius hit circle around the visible 3px dot. This matters far more on mobile, where "hover precisely on a 1px bar" isn't a realistic gesture.
+- **Wiring is scoped carefully to avoid duplicate listeners.** `renderMeasurementsCard()` can be called on its own (e.g., after saving/deleting a measurement from the modal) without the rest of the Trends page re-rendering — so it calls `wireChartTooltips(holder)` scoped to just its own container each time it runs, rather than the macro-chart wiring (called once, unscoped, right after the four `chartBlock()` calls are set) re-matching and double-binding listeners to elements that already have them.
+- **Works on both hover and tap**: each tooltip target has `mouseenter`/`mouseleave` *and* a `click` handler (which toggles the tooltip and calls `stopPropagation()` so a single document-level `click` listener can dismiss any open tooltip when tapping elsewhere).
+
 ### 5.5 Body measurements
 Single `measurements` object, not date-prefixed keys (kept as one key deliberately — entries are sparse, so per-date keys would be wasteful). UI is a lightweight card (chips + chart) on Trends with a full CRUD modal (`openMeasurementsModal` / `renderMeasurementsModal`) for add/edit/delete, since the inline card intentionally shows no raw data entry.
 
@@ -152,7 +162,7 @@ Two independent exporters:
 - **Recipes** (`exportRecipesCSV`): includes free-text `ingredients`, so it uses proper RFC 4180 CSV escaping (`csvEscape()`) — quoting fields containing commas/quotes/newlines and doubling internal quotes.
 
 ### 5.7 Data management
-`onKeepDaysClick(n)` deletes `meals:`, `note:`, `activity:`, `chat:`, `weekchat:` entries older than a cutoff date. `onDeleteAllClick()` does the same with no cutoff, plus wipes `profile`, `favorites`, `measurements`, and legacy index keys. **Deliberate exception**: `measurements` is excluded from the day-based retention trim (small, sparse, worth keeping long-term) but included in the full wipe.
+`onKeepDaysClick(n)` deletes `meals:`, `note:`, `activity:`, `chat:`, `weekchat:` entries older than a cutoff date. `onDeleteAllClick()` does the same with no cutoff, plus wipes `profile`, `favorites`, `measurements`, and legacy index keys, and resets `state.currentDate` back to today (a real bug, found and fixed: without this, deleting everything while viewing a past date left that stale date selected once a new profile was set up). **Deliberate exception**: `measurements` is excluded from the day-based retention trim (small, sparse, worth keeping long-term) but included in the full wipe.
 
 ---
 
@@ -177,13 +187,13 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 | Area | Key functions |
 |---|---|
 | Storage I/O | `loadProfile/saveProfile`, `loadMeals/saveMeals`, `loadActivities/saveActivities`, `loadDailyNote/saveDailyNote`, `loadChatMessages/saveChatMessages`, `loadWeekChatMessages/saveWeekChatMessages`, `loadFavorites/saveFavoritesStorage`, `loadMeasurements/saveMeasurementsStorage` |
-| Calculations | `computeTargets`, `goalAdjustment`, `totalsFromMeals`, `activitiesLabel`, `activityKcal` |
-| Rendering — Today | `renderLog`, `macroRow`, `renderMealList`, `renderAddForm`, `renderCoachChat` |
-| Rendering — Trends | `renderTrends`, `chartBlock`, `renderMeasurementsCard`, `renderMeasurementsModal`, `renderWeekChat` |
-| Rendering — Favorites | `renderFavoritesPage`, `renderFavList`, `renderFavEditArea` |
+| Calculations | `computeTargets`, `goalAdjustment`, `totalsFromMeals`, `activitiesLabel`, `activityKcal`, `nameContext` |
+| Rendering — Today | `renderLog`, `macroRow`, `renderMealList`, `renderAddForm`, `renderCoachChat`, `addActivity`/`removeActivity`/`updateActivityDuration` |
+| Rendering — Trends | `renderTrends`, `chartBlock`, `renderMeasurementsCard`, `openMeasurementsModal`/`renderMeasurementsModal`/`closeMeasurementsModal`, `buildMeasurementSeries`/`buildMeasurementsChart`, `renderWeekChat`, `showChartTooltip`/`hideChartTooltip`/`wireChartTooltips` |
+| Rendering — Favorites | `renderFavoritesPage`, `renderFavList`, `renderFavEditArea`, `toggleMealFavorite`, `exportRecipesCSV` |
 | Rendering — Profile/Setup | `renderSetup`, `renderProfileForm`, `renderProfileFormInto` |
-| AI calls | `callEstimate` (meal estimation), `callCoachText` (static summaries), `callCoachChat` (chat, daily + weekly) |
-| Data management | `onKeepDaysClick`, `onDeleteAllClick`, `deleteDataByPrefix` |
+| AI calls | `callEstimate` (meal estimation), `callCoachText` (static summaries), `callCoachChat` (chat, daily + weekly), `buildTodayContext`/`buildWeekContext` (context builders feeding both) |
+| Data management | `onKeepDaysClick`, `onDeleteAllClick`, `deleteDataByPrefix`, `deleteMeasurementEntry` |
 | Utilities | `mapWithConcurrency`, `shiftDate`, `todayStr`, `fmtDateLabel`, `fmtShortDate`, `escapeHtml`/`escapeAttr`, `csvEscape`, `showToast` |
 
 ---
@@ -194,3 +204,4 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 - **New global data**: follow the `favorites` / `measurements` pattern — one key, loaded once in `init()`.
 - **New AI feature**: reuse `callCoachText`/`callCoachChat` rather than writing a new `fetch` call — they already handle error surfacing (`errBody.error.message`) consistently.
 - **Changing a data shape**: always write a normalizing branch in the corresponding `load*()` function (see §3.1) rather than assuming a single shape — this app has changed its activity data model three times, and every change required this pattern to avoid silently orphaning existing users' data.
+- **When touching `switchDate()` or `init()`**: both must reload *every* piece of date-scoped state (meals, daily note, chat, activities). A real regression happened here — an edit to `switchDate()` accidentally dropped its `loadMeals()` call while other reloads were added around it, so the date label updated correctly on navigation but the meal list, totals, and macro bars silently kept showing whichever day was previously loaded. It went unnoticed for a while because everything *looked* like it was working. If you add a new per-day data type, add its reload call to both functions in the same edit, and manually re-verify by navigating across a couple of days afterward rather than assuming the pattern was followed correctly.
