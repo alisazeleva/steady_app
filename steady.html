@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_47.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_48.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -851,6 +851,7 @@
     try { await window.storage.delete('daily-index', false); } catch(e) {}
     try { await window.storage.delete('daily-index-built', false); } catch(e) {}
     state.profile = null;
+    state.currentDate = todayStr();
     state.meals = [];
     state.favorites = [];
     state.measurements = {};
