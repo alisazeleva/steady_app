@@ -1,0 +1,2465 @@
+
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_44.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  #steady-root {
+    --paper: #F3F6EC;
+    --paper-line: #DCE8D0;
+    --ink: #1D2411;
+    --ink-soft: #4A624B;
+    --moss: #628264;
+    --moss-deep: #1D2411;
+    --protein: #E3B4B1;
+    --carbs: #D9A441;
+    --fat: #806C61;
+    --over: #B0432A;
+    --card: #FFFFFF;
+    --shadow: 0 1px 2px rgba(29,36,17,0.08), 0 4px 14px rgba(29,36,17,0.07);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100%;
+    padding: 28px 18px 60px;
+    box-sizing: border-box;
+  }
+  #steady-root * { box-sizing: border-box; }
+  #steady-root .wrap { max-width: 640px; margin: 0 auto; }
+
+  /* ---- Header ---- */
+  #steady-root .masthead {
+    border-bottom: 3px solid var(--ink); padding-bottom: 16px; margin-bottom: 20px;
+  }
+  #steady-root .titlewrap {
+    display: flex; align-items: baseline; justify-content: flex-start; gap: 12px; flex-wrap: wrap;
+  }
+  #steady-root h1 {
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 40px; letter-spacing: -0.01em;
+    margin: 0; color: var(--ink);
+  }
+  #steady-root .titleflank {
+    font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600; flex: none;
+  }
+  #steady-root .navgroup {
+    display: flex; gap: 14px; align-items: flex-start; justify-content: flex-end;
+    flex-wrap: wrap; margin-top: 18px;
+  }
+  #steady-root .iconnav {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: none; border: none; cursor: pointer; padding: 0;
+  }
+  #steady-root .iconnav-circle {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--moss);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #steady-root .iconnav:hover .iconnav-circle { opacity: 0.85; }
+  #steady-root .iconnav-label {
+    font-size: 9.5px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  #steady-root .appfooter {
+    font-size: 11px; color: var(--ink-soft); line-height: 1.5; text-align: center;
+    margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--paper-line); opacity: 0.85;
+  }
+
+  /* ---- Date nav ---- */
+  #steady-root .datebar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 18px 0 20px;
+  }
+  #steady-root .datebar .date {
+    font-family: 'Fraunces', serif; font-size: 19px; font-weight: 500;
+  }
+  #steady-root .datebar .sub { font-size: 12px; color: var(--ink-soft); }
+  #steady-root .datepick {
+    font-family: 'Inter', sans-serif; font-size: 12px; border: 1px solid var(--paper-line);
+    border-radius: 3px; padding: 5px 6px; background: var(--card); color: var(--ink); cursor: pointer;
+  }
+  #steady-root .todaybtn {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--moss);
+    background: none; border: none; cursor: pointer; padding: 4px 2px; text-decoration: underline;
+  }
+  #steady-root .todaybtn:disabled { color: var(--ink-soft); text-decoration: none; cursor: default; }
+  #steady-root .datebar-tools { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-top: 18px; }
+  #steady-root .navbtn {
+    background: none; border: 1px solid var(--ink); color: var(--ink);
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 15px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  #steady-root .navbtn:hover { background: var(--ink); color: var(--paper); }
+  #steady-root .navbtn:disabled { opacity: 0.35; cursor: default; }
+  #steady-root .navbtn:disabled:hover { background: none; color: var(--ink); }
+  #steady-root .navbtn:focus-visible, #steady-root button:focus-visible, #steady-root input:focus-visible, #steady-root textarea:focus-visible, #steady-root select:focus-visible {
+    outline: 2px solid var(--moss); outline-offset: 2px;
+  }
+
+  /* ---- Cards ---- */
+  #steady-root .card {
+    background: var(--card); border: 1px solid var(--paper-line); border-radius: 3px;
+    box-shadow: var(--shadow); padding: 20px; margin-bottom: 18px;
+  }
+  #steady-root .card h2 {
+    font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; margin: 0 0 14px;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft);
+  }
+
+  /* ---- Nutrition-facts style ledger panel ---- */
+  #steady-root .facts { border: 1px solid var(--paper-line); }
+  #steady-root .facts .facts-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+  }
+  #steady-root .facts .facts-head .kcal-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 40px; font-weight: 700; line-height: 1;
+  }
+  #steady-root .facts .facts-head .kcal-label { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+  #steady-root .facts .facts-head .kcal-target { text-align: right; font-size: 12px; color: var(--ink-soft); }
+  #steady-root .facts .facts-head .kcal-target b { font-family: 'JetBrains Mono', monospace; color: var(--ink); font-size: 14px; }
+  #steady-root .kcal-bigbar { height: 12px; border-radius: 6px; background: var(--paper-line); overflow: hidden; margin: 14px 0 4px; }
+  #steady-root .kcal-bigbar > div { height: 100%; background: var(--moss); border-radius: 6px; transition: width 0.4s ease; }
+  #steady-root .macrorow {
+    display: grid; grid-template-columns: 90px 1fr 92px; align-items: center;
+    gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--paper-line);
+  }
+  #steady-root .macrorow:last-child { border-bottom: none; }
+  #steady-root .macrorow .mlabel { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  #steady-root .mlabel .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  #steady-root .macrorow .mbar { height: 7px; background: var(--paper-line); border-radius: 4px; overflow: hidden; }
+  #steady-root .macrorow .mbar > div { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  #steady-root .macrorow .mval { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; text-align: right; color: var(--ink-soft); }
+  #steady-root .macrorow .mval b { color: var(--ink); }
+
+  /* ---- Forms ---- */
+  #steady-root label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  #steady-root input[type=text], #steady-root input[type=number], #steady-root select, #steady-root textarea {
+    width: 100%; font-family: 'Inter', sans-serif; font-size: 14px; padding: 9px 10px;
+    border: 1px solid var(--paper-line); border-radius: 3px; background: var(--paper); color: var(--ink);
+  }
+  #steady-root textarea { resize: vertical; min-height: 64px; }
+  #steady-root .field { margin-bottom: 14px; }
+  #steady-root .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  #steady-root .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; margin-bottom: 14px; }
+  #steady-root .row3 .field { margin-bottom: 0; }
+  #steady-root .row3 .field label {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+  }
+  #steady-root .row3 select, #steady-root .row3 input {
+    height: 40px; width: 100%;
+  }
+
+  #steady-root .btn {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13.5px; cursor: pointer;
+    border-radius: 3px; padding: 10px 16px; border: 1px solid var(--moss); background: var(--moss); color: var(--card);
+    transition: opacity 0.15s;
+  }
+  #steady-root .btn:hover { opacity: 0.85; }
+  #steady-root .btn:disabled { opacity: 0.5; cursor: default; }
+  #steady-root .btn.small { padding: 6px 10px; font-size: 12px; }
+
+  #steady-root .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  #steady-root .tabbtn {
+    flex: 1; padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--paper-line); background: var(--paper); cursor: pointer; border-radius: 3px; color: var(--ink-soft);
+    display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px;
+  }
+  #steady-root .tabbtn.active { background: var(--moss); color: #fff; border-color: var(--moss); }
+  @media (max-width: 400px) {
+    #steady-root .tabbtn-label { display: none; }
+  }
+
+  #steady-root .photo-preview { max-width: 100%; max-height: 200px; border-radius: 4px; margin-top: 10px; display: none; border: 1px solid var(--paper-line); }
+
+  /* ---- Meal list ---- */
+  #steady-root .meal {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px dashed var(--paper-line); gap: 10px;
+  }
+  #steady-root .meal:last-child { border-bottom: none; }
+  #steady-root .meal .mname { font-weight: 600; font-size: 14px; }
+  #steady-root .meal .mtime { font-size: 11px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; }
+  #steady-root .meal .mmacros { font-size: 11.5px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
+  #steady-root .meal .mkcal { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  #steady-root .meal .del { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+  #steady-root .meal .del:hover { color: var(--protein); }
+  #steady-root .empty { color: var(--ink-soft); font-size: 13.5px; padding: 10px 0; font-style: italic; }
+  #steady-root .mealtip { margin-top: 2px; }
+  #steady-root .mealrow-actions { display: flex; gap: 6px; margin-top: 6px; }
+  #steady-root .icon-btn {
+    width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--moss); color: var(--card); border: 1px solid var(--moss); font-size: 12px; line-height: 1;
+    cursor: pointer; padding: 0;
+  }
+  #steady-root .icon-btn:hover { opacity: 0.85; }
+  #steady-root .icon-btn:disabled { opacity: 0.5; cursor: default; }
+  #steady-root .favlist { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  #steady-root .favlist:empty { display: none; }
+  #steady-root .favdropdown {
+    border: 1px solid var(--paper-line); border-radius: 4px; background: var(--card);
+    max-height: 240px; overflow-y: auto; margin-top: 6px;
+  }
+  #steady-root .favdropdown .favchip {
+    display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 0;
+    border-bottom: 1px solid var(--paper-line); font-size: 13px; background: none;
+  }
+  #steady-root .favdropdown .favchip:last-child { border-bottom: none; }
+  #steady-root .favdropdown .favname { flex: 1; }
+  #steady-root .favchip {
+    display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1px solid var(--paper-line);
+    border-radius: 20px; padding: 6px 8px 6px 14px; font-size: 12.5px;
+  }
+  #steady-root .favchip .favname { font-weight: 600; }
+  #steady-root .favchip .favkcal { color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+  #steady-root .favchip button { border: none; background: none; cursor: pointer; padding: 3px 6px; border-radius: 12px; font-size: 11.5px; font-weight: 600; }
+  #steady-root .favchip .favlog { background: var(--moss); color: #fff; }
+  #steady-root .favchip .favdel { color: var(--ink-soft); font-size: 14px; padding: 3px 4px; }
+  #steady-root .favchip .favdel:hover { color: var(--protein); }
+  #steady-root .editmeal { background: var(--paper); border: 1px solid var(--paper-line); border-radius: 4px; padding: 12px; margin: 8px 0; }
+  #steady-root .tipnote {
+    font-size: 12px; color: var(--moss-deep); background: #F3F6F1; border-radius: 4px;
+    padding: 8px 10px; margin: 6px 0 0; line-height: 1.5;
+  }
+  #steady-root .leftover {
+    margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--paper-line);
+    font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
+  }
+  #steady-root .leftover b { color: var(--ink); }
+  #steady-root .coachnote {
+    font-size: 13.5px; line-height: 1.65; margin: 0 0 12px; white-space: pre-wrap; color: var(--ink);
+  }
+  #steady-root .stalenote {
+    font-size: 12px; color: var(--over); font-style: italic; margin: -6px 0 12px;
+  }
+  #steady-root .chatlist {
+    display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;
+    max-height: 360px; overflow-y: auto;
+  }
+  #steady-root .chatbubble {
+    max-width: 85%; padding: 9px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.5;
+  }
+  #steady-root .chatbubble.user {
+    align-self: flex-end; background: var(--moss); color: var(--card); border-bottom-right-radius: 3px;
+  }
+  #steady-root .chatbubble.coach {
+    align-self: flex-start; background: var(--paper); color: var(--ink); border: 1px solid var(--paper-line);
+    border-bottom-left-radius: 3px;
+  }
+  #steady-root .chatinput-row { display: flex; gap: 8px; margin-top: 4px; }
+  #steady-root .chatinput-row input { flex: 1; }
+  #steady-root .chartblock { margin-bottom: 22px; }
+  #steady-root .chartblock:last-child { margin-bottom: 0; }
+  #steady-root .chartblock .chead {
+    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  #steady-root .pending {
+    border: 1px solid var(--moss); background: #F3F6F1; border-radius: 4px; padding: 14px; margin-top: 12px;
+  }
+  #steady-root .pending .p-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--moss-deep); font-weight: 700; margin-bottom: 10px; }
+  #steady-root .pending .note { font-size: 12px; color: var(--ink-soft); margin: 8px 0 12px; font-style: italic; }
+  #steady-root .pending .actions { display: flex; gap: 8px; margin-top: 12px; }
+
+  #steady-root .errmsg { color: var(--protein); font-size: 12.5px; margin-top: 8px; }
+  #steady-root .spinner {
+    display: inline-block; width: 13px; height: 13px; border: 2px solid var(--paper-line);
+    border-top-color: var(--moss); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #steady-root .setup-note {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 16px;
+  }
+  #steady-root .toggle-link { color: var(--moss-deep); cursor: pointer; text-decoration: underline; font-size: 12.5px; font-weight: 600; }
+  #steady-root details > summary { cursor: pointer; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; list-style: none; }
+  #steady-root details > summary::-webkit-details-marker { display: none; }
+  #steady-root .toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    max-width: 90%; background: var(--ink); color: var(--card); font-size: 13px;
+    padding: 10px 16px; border-radius: 20px; box-shadow: var(--shadow); z-index: 9999;
+    display: none;
+  }
+  #steady-root .toast.toast-error { background: var(--protein); color: var(--ink); }
+  #steady-root .toast.toast-ok { background: var(--moss); color: var(--card); }
+  #steady-root .modal-overlay {
+    position: fixed; inset: 0; background: rgba(29,36,17,0.45); z-index: 10000;
+    display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
+  }
+  #steady-root .modal-box {
+    background: var(--card); border-radius: 6px; padding: 22px; max-width: 480px; width: 100%;
+    max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(29,36,17,0.25);
+  }
+  #steady-root .modal-close {
+    background: none; border: none; color: var(--ink-soft); font-size: 20px; line-height: 1;
+    cursor: pointer; padding: 2px 4px;
+  }
+  #steady-root .measgrid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
+  }
+  @media (max-width: 460px) {
+    #steady-root .measgrid { grid-template-columns: 1fr 1fr; }
+  }
+  #steady-root .measrow {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px dashed var(--paper-line); font-size: 12.5px;
+  }
+  #steady-root .measrow:last-child { border-bottom: none; }
+  #steady-root .measrow-actions { display: flex; gap: 10px; flex-shrink: 0; }
+  #steady-root .measrow-actions span { cursor: pointer; }
+  #steady-root .measrow .medit { color: var(--moss); font-size: 14px; }
+  #steady-root .measrow .mdel { color: var(--ink-soft); font-size: 15px; }
+  #steady-root .measrow .mdel:hover { color: var(--protein); }
+  #steady-root .storage-warning {
+    background: var(--protein); color: var(--ink); border-radius: 4px; padding: 12px 14px;
+    margin-bottom: 18px; font-size: 13px; line-height: 1.5;
+  }
+  #steady-root .storage-warning b { display: block; margin-bottom: 4px; }
+  #steady-root .removePhotoBtn {
+    background: none; border: none; color: var(--ink-soft); font-size: 12px; font-weight: 600;
+    cursor: pointer; text-decoration: underline; margin-top: 6px; padding: 0;
+  }
+  #steady-root .databox { margin-top: 8px; }
+  #steady-root .activitychips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  #steady-root .activitychip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--moss); color: var(--card);
+    font-size: 12.5px; font-weight: 600; padding: 6px 6px 6px 12px; border-radius: 14px;
+  }
+  #steady-root .activitychip button {
+    background: none; border: none; color: var(--card); opacity: 0.85; cursor: pointer;
+    font-size: 13px; line-height: 1; padding: 2px;
+  }
+  #steady-root .activitychip button:hover { opacity: 1; }
+  #steady-root .restlabel { font-size: 12.5px; color: var(--ink-soft); font-style: italic; padding: 6px 0; }
+  #steady-root .addactbtn {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--moss); color: var(--card);
+    border: none; font-size: 16px; line-height: 1; cursor: pointer; display: inline-flex;
+    align-items: center; justify-content: center; padding: 0;
+  }
+  #steady-root .addactbtn:hover { opacity: 0.85; }
+  #steady-root .activitymenu {
+    border: 1px solid var(--paper-line); border-radius: 4px; margin-top: 10px; overflow: hidden;
+  }
+  #steady-root .activitymenu-item {
+    padding: 9px 12px; font-size: 13px; border-bottom: 1px solid var(--paper-line); cursor: pointer;
+  }
+  #steady-root .activitymenu-item:last-child { border-bottom: none; }
+  #steady-root .activitymenu-item:hover { background: var(--paper); }
+  #steady-root .activitymenu-row { display: flex; align-items: center; justify-content: space-between; cursor: default; gap: 10px; }
+  #steady-root .actdurinput {
+    width: 46px; font-size: 12px; padding: 4px 5px; border: 1px solid var(--paper-line);
+    border-radius: 3px; background: var(--card); color: var(--ink);
+  }
+  #steady-root .activitychip.editing { background: var(--paper); border: 1px solid var(--moss); padding: 4px 6px; }
+  #steady-root .activitychip.editing .actdurinput { background: var(--card); }
+  #steady-root .activitychip.editing button { color: var(--moss); font-size: 14px; font-weight: 700; }
+</style>
+
+</head><body><div id="steady-root">
+  <div class="wrap">
+    <div class="masthead">
+      <div class="titlewrap">
+        <span class="titleflank" style="text-align:right;">Your</span>
+        <h1>steady</h1>
+        <span class="titleflank" style="text-align:left;">Progress</span>
+      </div>
+      <div class="navgroup">
+        <button class="iconnav" id="todayNavBtn" aria-label="Today">
+          <span class="iconnav-circle"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="1.5" stroke="#FFFFFF" stroke-width="1.6"></rect><line x1="3" y1="8" x2="17" y2="8" stroke="#FFFFFF" stroke-width="1.6"></line><line x1="6.5" y1="2.5" x2="6.5" y2="5.5" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"></line><line x1="13.5" y1="2.5" x2="13.5" y2="5.5" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"></line><circle cx="10" cy="12.5" r="1.6" fill="#FFFFFF"></circle></svg></span>
+          <span class="iconnav-label">Today</span>
+        </button>
+        <button class="iconnav" id="trendsNavBtn" aria-label="Trends">
+          <span class="iconnav-circle"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="11" width="3" height="6" fill="#FFFFFF"></rect><rect x="8.5" y="7" width="3" height="10" fill="#FFFFFF"></rect><rect x="14" y="3" width="3" height="14" fill="#FFFFFF"></rect></svg></span>
+          <span class="iconnav-label">Trends</span>
+        </button>
+        <button class="iconnav" id="favNavBtn" aria-label="Favorites">
+          <span class="iconnav-circle"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2.5l2.35 4.76 5.25.76-3.8 3.7.9 5.23L10 14.5l-4.7 2.45.9-5.23-3.8-3.7 5.25-.76z" fill="#FFFFFF"></path></svg></span>
+          <span class="iconnav-label">Faves</span>
+        </button>
+        <button class="iconnav" id="profileBtn" aria-label="Profile">
+          <span class="iconnav-circle"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6.5" r="3.3" stroke="#FFFFFF" stroke-width="1.6"></circle><path d="M3.5 17c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"></path></svg></span>
+          <span class="iconnav-label">Profile</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="storageBanner">
+      <div class="storage-warning">
+        <b>Nothing you enter is being saved right now.</b>
+        This usually means the artifact isn’t published yet — saving only works once it is. Open the Publish controls for this artifact, publish it, then reload the page. If it’s already published, try a hard refresh.
+      </div>
+    </div>
+    <div id="app">
+      <div class="card">
+        <h2>Set up your targets</h2>
+        <p class="setup-note">A few numbers to work out a sensible starting point — a mild calorie target and a protein goal built around <b>gradual, steady</b> progress rather than a crash diet. You can adjust anything later.</p>
+        <div id="profileFormHolder">
+      <div class="field">
+        <label>Nickname</label>
+        <input type="text" id="f-nickname" value="" placeholder="What should we call you?">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Units</label>
+          <select id="f-unit">
+            <option value="metric" selected="">Metric (kg / cm)</option>
+            <option value="imperial">Imperial (lb / in)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select id="f-sex">
+            <option value="female" selected="">Female</option>
+            <option value="male">Male</option>
+          </select>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Age</label><input type="number" id="f-age" value="" min="14" max="100"></div>
+        <div class="field"><label id="f-weight-label">Weight (kg)</label><input type="number" id="f-weight" value="" min="1"></div>
+        <div class="field"><label id="f-height-label">Height (cm)</label><input type="number" id="f-height" value="" min="1"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Baseline daily activity</label>
+          <select id="f-activity">
+            <option value="sedentary">Sedentary (desk job)</option>
+            <option value="light" selected="">Light (on your feet some)</option>
+            <option value="moderate">Moderate (active job/lots of walking)</option>
+            <option value="active">Active (physical job)</option>
+            <option value="very_active">Very active</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Trainings per week</label>
+          <input type="number" id="f-trainings" value="3" min="0" max="7">
+        </div>
+      </div>
+      <div class="field">
+        <label>Goal</label>
+        <select id="f-goal">
+          <option value="recomp" selected="">Body recomposition (lose fat &amp; build muscle)</option>
+          <option value="lose">Lose weight</option>
+          <option value="gain">Gain weight / muscle</option>
+          <option value="maintain">Maintain weight</option>
+        </select>
+        <p class="setup-note" id="goal-hint" style="margin-top:8px; margin-bottom:0;">With that much training, recomposition works best in a mild, patient calorie deficit.</p>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+        <button class="btn" id="saveProfileBtn">Save</button>
+        
+      </div>
+      <div id="profileErr" class="errmsg" style="display:none;"></div>
+    </div>
+      </div>
+      <div class="card">
+        <h2>Just testing?</h2>
+        <p class="setup-note" style="margin-bottom:12px;">Load sample data — a profile, some meals, and a few weeks of history — so you can click through the app right away. Storage isn’t saving right now, so this won’t survive a reload — it's just for exploring the interface.</p>
+        <button class="btn small" id="loadDemoBtn">Load demo data</button>
+      </div>
+    </div>
+    <div class="appfooter">This is a personal project, provided as-is with no warranty. It is not medical or professional nutrition advice — estimates and suggestions are AI-generated and may be inaccurate. Consult a doctor or registered dietitian for personalized guidance. Use at your own risk.</div>
+  </div>
+  <div id="steadyToast" class="toast"></div>
+  <div id="measurementsModal" class="modal-overlay" style="display:none;"></div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('steady-root');
+  const app = document.getElementById('app');
+  const profileBtn = document.getElementById('profileBtn');
+
+  const MACRO_META = {
+    protein: { label: 'Protein', color: 'var(--protein)', kcalPerG: 4 },
+    carbs:   { label: 'Carbs',   color: 'var(--carbs)',   kcalPerG: 4 },
+    fat:     { label: 'Fat',     color: 'var(--fat)',     kcalPerG: 9 },
+  };
+
+  let state = {
+    profile: null,
+    currentDate: todayStr(),
+    meals: [],
+    view: 'log', // 'log' | 'profile' | 'trends'
+    pending: null, // pending AI estimate awaiting confirmation
+    loading: false,
+    error: null,
+    addMode: 'text', // 'text' | 'photo'
+    photoData: null, // {base64, mediaType, previewUrl}
+    dailyNote: null,
+    dailyNoteMeta: null,
+    dailyNoteLoading: false,
+    tipLoadingId: null,
+    activities: [],
+    activityMenuOpen: false,
+    editingActivityType: null,
+    editingMealId: null,
+    favorites: [],
+    weekChatMessages: [],
+    weekChatLoading: false,
+    storageOk: true,
+    chatMessages: [],
+    chatLoading: false,
+    editingFavoriteId: null,
+    addingFavorite: false,
+    favSearch: '',
+    favPageSearch: '',
+    measurements: {},
+    measurementsModalOpen: false,
+    editingMeasurementDate: null,
+  };
+
+  async function mapWithConcurrency(items, limit, fn){
+    const results = new Array(items.length);
+    let idx = 0;
+    async function worker(){
+      while (idx < items.length) {
+        const current = idx++;
+        results[current] = await fn(items[current], current);
+      }
+    }
+    const workers = Array.from({ length: Math.min(limit, items.length) }, worker);
+    await Promise.all(workers);
+    return results;
+  }
+
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function fmtDateLabel(dstr){
+    const [y,m,d] = dstr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    const isToday = dstr === todayStr();
+    const label = dt.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    return isToday ? 'Today · ' + label : label;
+  }
+  function shiftDate(dstr, days){
+    const [y,m,d] = dstr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    dt.setDate(dt.getDate() + days);
+    return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  }
+
+  // ---------------- Storage ----------------
+  async function loadProfile(){
+    try {
+      const res = await window.storage.get('profile', false);
+      state.profile = res ? JSON.parse(res.value) : null;
+    } catch(e) { state.profile = null; }
+  }
+  async function saveProfile(p){
+    await window.storage.set('profile', JSON.stringify(p), false);
+    state.profile = p;
+  }
+  async function loadMeals(dateStr){
+    try {
+      const res = await window.storage.get('meals:' + dateStr, false);
+      state.meals = res ? JSON.parse(res.value) : [];
+    } catch(e) { state.meals = []; }
+  }
+  async function saveMeals(dateStr, meals){
+    await window.storage.set('meals:' + dateStr, JSON.stringify(meals), false);
+  }
+  async function loadDailyNote(dateStr){
+    try {
+      const res = await window.storage.get('note:' + dateStr, false);
+      if (!res || !res.value) { state.dailyNote = null; state.dailyNoteMeta = null; return; }
+      const raw = res.value;
+      if (raw.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(raw);
+          state.dailyNote = parsed.text;
+          state.dailyNoteMeta = { mealCount: parsed.mealCount, calories: parsed.calories };
+        } catch(e) { state.dailyNote = raw; state.dailyNoteMeta = null; }
+      } else {
+        state.dailyNote = raw; // older plain-text note, no snapshot to compare against
+        state.dailyNoteMeta = null;
+      }
+    } catch(e) { state.dailyNote = null; state.dailyNoteMeta = null; }
+  }
+  async function saveDailyNote(dateStr, text, meta){
+    await window.storage.set('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories }), false);
+  }
+  async function loadChatMessages(dateStr){
+    try {
+      const res = await window.storage.get('chat:' + dateStr, false);
+      state.chatMessages = res ? JSON.parse(res.value) : [];
+    } catch(e) { state.chatMessages = []; }
+  }
+  async function saveChatMessages(dateStr, messages){
+    await window.storage.set('chat:' + dateStr, JSON.stringify(messages), false);
+  }
+  async function loadActivities(dateStr){
+    try {
+      const res = await window.storage.get('activity:' + dateStr, false);
+      if (!res || !res.value) return [];
+      const raw = res.value;
+      if (raw.trim().startsWith('[')) {
+        let parsed;
+        try { parsed = JSON.parse(raw); } catch(e) { return []; }
+        // array of {type, minutes} — current format
+        if (parsed.length && typeof parsed[0] === 'object') return parsed;
+        // array of plain type strings — previous version, apply default durations
+        return parsed.map(type => ({ type, minutes: ACTIVITY_DEFAULT_MIN[type] || 30 }));
+      }
+      // single legacy string format — oldest version
+      const legacyMap = { rest: [], light: ['walk'], strength: ['strength'], cardio: ['cardio'] };
+      const types = legacyMap[raw] !== undefined ? legacyMap[raw] : [];
+      return types.map(type => ({ type, minutes: ACTIVITY_DEFAULT_MIN[type] || 30 }));
+    } catch(e) { return []; }
+  }
+  async function saveActivities(dateStr, activities){
+    await window.storage.set('activity:' + dateStr, JSON.stringify(activities), false);
+  }
+
+  function totalsFromMeals(meals){
+    return meals.reduce((acc,m) => {
+      acc.calories += m.calories||0; acc.protein += m.protein_g||0;
+      acc.carbs += m.carbs_g||0; acc.fat += m.fat_g||0;
+      return acc;
+    }, { calories:0, protein:0, carbs:0, fat:0 });
+  }
+  async function loadFavorites(){
+    try {
+      const res = await window.storage.get('favorites', false);
+      state.favorites = res ? JSON.parse(res.value) : [];
+    } catch(e) { state.favorites = []; }
+  }
+  async function saveFavoritesStorage(favs){
+    await window.storage.set('favorites', JSON.stringify(favs), false);
+  }
+  async function loadMeasurements(){
+    try {
+      const res = await window.storage.get('measurements', false);
+      return res ? JSON.parse(res.value) : {};
+    } catch(e) { return {}; }
+  }
+  async function saveMeasurementsStorage(measurements){
+    await window.storage.set('measurements', JSON.stringify(measurements), false);
+  }
+  async function loadWeekChatMessages(dateStr){
+    try {
+      const res = await window.storage.get('weekchat:' + dateStr, false);
+      state.weekChatMessages = res ? JSON.parse(res.value) : [];
+    } catch(e) { state.weekChatMessages = []; }
+  }
+  async function saveWeekChatMessages(dateStr, messages){
+    await window.storage.set('weekchat:' + dateStr, JSON.stringify(messages), false);
+  }
+
+  // ---------------- Targets calc ----------------
+  const ACTIVITY_KCAL_PER_MIN = { strength: 6, cardio: 10, walk: 4, hike: 7, stretching: 2.5, yoga: 3 };
+  const ACTIVITY_DEFAULT_MIN = { strength: 45, cardio: 30, walk: 30, hike: 60, stretching: 15, yoga: 30 };
+  const ACTIVITY_LABELS = { strength: 'Strength', cardio: 'Cardio', walk: 'Walk', hike: 'Hike', stretching: 'Stretching', yoga: 'Yoga' };
+  const ACTIVITY_ORDER = ['strength', 'cardio', 'walk', 'hike', 'stretching', 'yoga'];
+  const GOAL_LABELS = { recomp: 'body recomposition', lose: 'losing weight', gain: 'gaining weight/muscle', maintain: 'maintaining weight' };
+
+  function goalAdjustment(goal, trainingsPerWeek){
+    switch(goal){
+      case 'recomp': return (trainingsPerWeek || 0) >= 3 ? -0.08 : 0;
+      case 'lose': return -0.15;
+      case 'gain': return 0.08;
+      case 'maintain':
+      default: return 0;
+    }
+  }
+
+  function activitiesLabel(activities){
+    if (!activities || !activities.length) return 'Rest day';
+    return activities.map(a => `${ACTIVITY_LABELS[a.type] || a.type} (${a.minutes}m)`).join(' + ');
+  }
+
+  function activityKcal(a){
+    return Math.round((a.minutes || 0) * (ACTIVITY_KCAL_PER_MIN[a.type] || 0));
+  }
+
+  function computeTargets(p, activities){
+    activities = activities || [];
+    // Mifflin-St Jeor BMR
+    const wKg = p.unit === 'imperial' ? p.weight * 0.453592 : p.weight;
+    const hCm = p.unit === 'imperial' ? p.height * 2.54 : p.height;
+    let bmr = 10*wKg + 6.25*hCm - 5*p.age + (p.sex === 'male' ? 5 : -161);
+    const actMap = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
+    const tdee = bmr * (actMap[p.activity] || 1.375);
+    const adj = goalAdjustment(p.goal, p.trainingsPerWeek);
+    const baseCalories = Math.round(tdee * (1 + adj));
+    const extraKcal = activities.reduce((sum, a) => sum + activityKcal(a), 0);
+    const calories = baseCalories + extraKcal;
+    let proteinG = Math.round(1.9 * wKg); // g/kg, mid-range for recomposition
+    if (activities.some(a => a.type === 'strength')) proteinG += 5; // small bump on lifting days
+    const fatG = Math.round((baseCalories * 0.27) / 9); // fat held steady; extra goes mostly to carbs
+    const remaining = calories - (proteinG*4 + fatG*9);
+    const carbsG = Math.max(0, Math.round(remaining / 4));
+    return { calories, proteinG, carbsG, fatG, tdee: Math.round(tdee), wKg, activities, extraKcal };
+  }
+
+  // ---------------- Rendering ----------------
+  function updateStorageBanner(){
+    const el = document.getElementById('storageBanner');
+    if (!el) return;
+    if (state.storageOk) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="storage-warning">
+        <b>Nothing you enter is being saved right now.</b>
+        This usually means the artifact isn&rsquo;t published yet &mdash; saving only works once it is. Open the Publish controls for this artifact, publish it, then reload the page. If it&rsquo;s already published, try a hard refresh.
+      </div>
+    `;
+  }
+
+
+  function render(){
+    updateStorageBanner();
+    if (!state.profile) { renderSetup(); return; }
+    if (state.view === 'profile') { renderProfileForm(state.profile); return; }
+    if (state.view === 'trends') { renderTrends(); return; }
+    if (state.view === 'favorites') { renderFavoritesPage(); return; }
+    renderLog();
+  }
+
+  function renderSetup(){
+    app.innerHTML = `
+      <div class="card">
+        <h2>Set up your targets</h2>
+        <p class="setup-note">A few numbers to work out a sensible starting point &mdash; a mild calorie target and a protein goal built around <b>gradual, steady</b> progress rather than a crash diet. You can adjust anything later.</p>
+        <div id="profileFormHolder"></div>
+      </div>
+      <div class="card">
+        <h2>Just testing?</h2>
+        <p class="setup-note" style="margin-bottom:12px;">Load sample data &mdash; a profile, some meals, and a few weeks of history &mdash; so you can click through the app right away. ${state.storageOk ? "It'll save normally." : "Storage isn&rsquo;t saving right now, so this won&rsquo;t survive a reload &mdash; it's just for exploring the interface."}</p>
+        <button class="btn small" id="loadDemoBtn">Load demo data</button>
+      </div>
+    `;
+    renderProfileFormInto(document.getElementById('profileFormHolder'), null);
+    document.getElementById('loadDemoBtn').addEventListener('click', loadDemoData);
+  }
+
+  async function loadDemoData(){
+    const demoProfile = { unit: 'metric', sex: 'female', age: 29, weight: 65, height: 168, activity: 'light', trainingsPerWeek: 4, goal: 'recomp' };
+    state.profile = demoProfile;
+    try { await saveProfile(demoProfile); } catch(e) {}
+
+    const todayMeals = [
+      { id: 'demo_1', name: 'Greek yogurt, berries & granola', calories: 320, protein_g: 22, carbs_g: 38, fat_g: 9, time: '8:15 AM', source: 'text' },
+      { id: 'demo_2', name: 'Grilled chicken salad, olive oil', calories: 480, protein_g: 42, carbs_g: 20, fat_g: 24, time: '1:00 PM', source: 'text' },
+      { id: 'demo_3', name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4, time: '4:30 PM', source: 'favorite', favorited: true, favoriteRef: 'demo_fav_1' },
+    ];
+    state.meals = todayMeals;
+    try { await saveMeals(state.currentDate, state.meals); } catch(e) {}
+
+    state.favorites = [
+      { id: 'demo_fav_1', name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4 },
+      { id: 'demo_fav_2', name: 'Overnight oats & peanut butter', calories: 410, protein_g: 18, carbs_g: 52, fat_g: 14 },
+    ];
+    try { await saveFavoritesStorage(state.favorites); } catch(e) {}
+
+    state.activities = [{ type: 'strength', minutes: 45 }];
+    try { await saveActivities(state.currentDate, state.activities); } catch(e) {}
+
+    const activityCycle = [
+      [],
+      [{ type: 'walk', minutes: 30 }],
+      [{ type: 'strength', minutes: 45 }],
+      [{ type: 'cardio', minutes: 25 }],
+      [{ type: 'strength', minutes: 40 }, { type: 'walk', minutes: 20 }],
+      [{ type: 'yoga', minutes: 30 }],
+    ];
+    for (let i = 1; i <= 13; i++) {
+      const d = shiftDate(todayStr(), -i);
+      const cal = 1750 + Math.round(Math.random() * 500);
+      const pro = 110 + Math.round(Math.random() * 40);
+      const carb = 150 + Math.round(Math.random() * 90);
+      const fat = 55 + Math.round(Math.random() * 25);
+      const meals = [{ id: 'demo_hist_' + d, name: 'Sample logged meal', calories: cal, protein_g: pro, carbs_g: carb, fat_g: fat, time: '12:00 PM', source: 'text' }];
+      const activities = activityCycle[i % activityCycle.length];
+      try { await saveMeals(d, meals); } catch(e) {}
+      try { await saveActivities(d, activities); } catch(e) {}
+    }
+
+    state.view = 'log';
+    showToast(state.storageOk ? 'Demo data loaded.' : 'Demo data loaded — won\'t survive a reload until storage is fixed.', false);
+    render();
+  }
+
+  function renderProfileForm(existing){
+    app.innerHTML = `
+      <div class="card"><h2>Profile &amp; targets</h2><div id="profileFormHolder"></div></div>
+      <div class="card">
+        <h2>Manage your data</h2>
+        <div class="field databox">
+          <label>Keep only the last N days</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="keepDaysInput" min="1" value="90" style="flex:1;">
+            <button class="btn small" id="keepDaysBtn">Delete older entries</button>
+          </div>
+        </div>
+        <div style="margin-top:16px; padding-top:14px; border-top:1px dashed var(--paper-line);">
+          <button class="btn small" id="deleteAllBtn" style="background:var(--protein); border-color:var(--protein); color:var(--ink);">Delete all data</button>
+          <p class="setup-note" style="margin-top:8px; margin-bottom:0;">Permanently erases every meal, note, favorite, and your profile. This can&rsquo;t be undone.</p>
+        </div>
+      </div>
+    `;
+    renderProfileFormInto(document.getElementById('profileFormHolder'), existing);
+    document.getElementById('keepDaysBtn').addEventListener('click', onKeepDaysClick);
+    document.getElementById('deleteAllBtn').addEventListener('click', onDeleteAllClick);
+  }
+
+  async function deleteDataByPrefix(prefix, olderThanDate){
+    try {
+      const listRes = await window.storage.list(prefix, false);
+      const keys = (listRes && listRes.keys) ? listRes.keys : [];
+      for (const k of keys) {
+        if (olderThanDate) {
+          const dateStr = k.slice(prefix.length);
+          if (dateStr >= olderThanDate) continue;
+        }
+        try { await window.storage.delete(k, false); } catch(e) {}
+      }
+    } catch(e) {}
+  }
+
+  async function onKeepDaysClick(){
+    const n = Number(document.getElementById('keepDaysInput').value);
+    if (!n || n < 1) { showToast('Enter a valid number of days.', true); return; }
+    if (!confirm(`Delete all logged data older than ${n} day(s)? This can't be undone.`)) return;
+    const cutoff = shiftDate(todayStr(), -(n - 1));
+    await deleteDataByPrefix('meals:', cutoff);
+    await deleteDataByPrefix('note:', cutoff);
+    await deleteDataByPrefix('activity:', cutoff);
+    await deleteDataByPrefix('weekchat:', cutoff);
+    await deleteDataByPrefix('chat:', cutoff);
+    showToast(`Deleted entries older than ${n} day(s).`, false);
+    await loadMeals(state.currentDate);
+    await loadDailyNote(state.currentDate);
+  }
+
+  async function onDeleteAllClick(){
+    if (!confirm("Delete ALL your data in steady — every meal, note, favorite, and your profile? This can't be undone.")) return;
+    if (!confirm('Really sure? This is permanent.')) return;
+    await deleteDataByPrefix('meals:', null);
+    await deleteDataByPrefix('note:', null);
+    await deleteDataByPrefix('activity:', null);
+    await deleteDataByPrefix('weekchat:', null);
+    await deleteDataByPrefix('chat:', null);
+    try { await window.storage.delete('favorites', false); } catch(e) {}
+    try { await window.storage.delete('profile', false); } catch(e) {}
+    try { await window.storage.delete('measurements', false); } catch(e) {}
+    try { await window.storage.delete('daily-index', false); } catch(e) {}
+    try { await window.storage.delete('daily-index-built', false); } catch(e) {}
+    state.profile = null;
+    state.meals = [];
+    state.favorites = [];
+    state.measurements = {};
+    state.dailyNote = null;
+    state.weekChatMessages = [];
+    state.chatMessages = [];
+    state.view = 'log';
+    showToast('All data deleted.', false);
+    render();
+  }
+
+  function renderProfileFormInto(holder, existing){
+    const p = existing || { unit: 'metric', sex: 'female', activity: 'light', goal: 'recomp', trainingsPerWeek: 3 };
+    holder.innerHTML = `
+      <div class="field">
+        <label>Nickname</label>
+        <input type="text" id="f-nickname" value="${escapeAttr(p.nickname || '')}" placeholder="What should we call you?">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Units</label>
+          <select id="f-unit">
+            <option value="metric" ${p.unit==='metric'?'selected':''}>Metric (kg / cm)</option>
+            <option value="imperial" ${p.unit==='imperial'?'selected':''}>Imperial (lb / in)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select id="f-sex">
+            <option value="female" ${p.sex==='female'?'selected':''}>Female</option>
+            <option value="male" ${p.sex==='male'?'selected':''}>Male</option>
+          </select>
+        </div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Age</label><input type="number" id="f-age" value="${p.age ?? ''}" min="14" max="100"></div>
+        <div class="field"><label id="f-weight-label">Weight (${p.unit==='imperial'?'lb':'kg'})</label><input type="number" id="f-weight" value="${p.weight ?? ''}" min="1"></div>
+        <div class="field"><label id="f-height-label">Height (${p.unit==='imperial'?'in':'cm'})</label><input type="number" id="f-height" value="${p.height ?? ''}" min="1"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Baseline daily activity</label>
+          <select id="f-activity">
+            <option value="sedentary" ${p.activity==='sedentary'?'selected':''}>Sedentary (desk job)</option>
+            <option value="light" ${p.activity==='light'?'selected':''}>Light (on your feet some)</option>
+            <option value="moderate" ${p.activity==='moderate'?'selected':''}>Moderate (active job/lots of walking)</option>
+            <option value="active" ${p.activity==='active'?'selected':''}>Active (physical job)</option>
+            <option value="very_active" ${p.activity==='very_active'?'selected':''}>Very active</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Trainings per week</label>
+          <input type="number" id="f-trainings" value="${p.trainingsPerWeek ?? 3}" min="0" max="7">
+        </div>
+      </div>
+      <div class="field">
+        <label>Goal</label>
+        <select id="f-goal">
+          <option value="recomp" ${p.goal==='recomp'?'selected':''}>Body recomposition (lose fat &amp; build muscle)</option>
+          <option value="lose" ${p.goal==='lose'?'selected':''}>Lose weight</option>
+          <option value="gain" ${p.goal==='gain'?'selected':''}>Gain weight / muscle</option>
+          <option value="maintain" ${p.goal==='maintain'?'selected':''}>Maintain weight</option>
+        </select>
+        <p class="setup-note" id="goal-hint" style="margin-top:8px; margin-bottom:0;"></p>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+        <button class="btn" id="saveProfileBtn">Save</button>
+        ${existing ? '<button class="btn" id="cancelProfileBtn">Cancel</button>' : ''}
+      </div>
+      <div id="profileErr" class="errmsg" style="display:none;"></div>
+    `;
+
+    function updateHint(){
+      const goal = document.getElementById('f-goal').value;
+      const trainings = Number(document.getElementById('f-trainings').value) || 0;
+      const hint = document.getElementById('goal-hint');
+      const tips = {
+        recomp: trainings >= 3
+          ? 'With that much training, recomposition works best in a mild, patient calorie deficit.'
+          : 'With lighter training volume, maintenance calories usually suit recomposition better than a deficit.',
+        lose: 'A moderate, sustainable deficit — enough to lose fat steadily without extreme restriction.',
+        gain: 'A mild calorie surplus, aimed at gaining muscle without excess fat.',
+        maintain: 'Calories set at maintenance — no deliberate loss or gain.'
+      };
+      hint.textContent = tips[goal] || '';
+    }
+    document.getElementById('f-goal').addEventListener('change', updateHint);
+    document.getElementById('f-trainings').addEventListener('change', updateHint);
+    updateHint();
+
+    document.getElementById('f-unit').addEventListener('change', (e) => {
+      const isImp = e.target.value === 'imperial';
+      document.getElementById('f-weight-label').textContent = 'Weight (' + (isImp?'lb':'kg') + ')';
+      document.getElementById('f-height-label').textContent = 'Height (' + (isImp?'in':'cm') + ')';
+    });
+
+    if (existing && document.getElementById('cancelProfileBtn')) {
+      document.getElementById('cancelProfileBtn').addEventListener('click', () => { state.view = 'log'; render(); });
+    }
+
+    document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+      const errEl = document.getElementById('profileErr');
+      const newP = {
+        nickname: document.getElementById('f-nickname').value.trim(),
+        unit: document.getElementById('f-unit').value,
+        sex: document.getElementById('f-sex').value,
+        age: Number(document.getElementById('f-age').value),
+        weight: Number(document.getElementById('f-weight').value),
+        height: Number(document.getElementById('f-height').value),
+        activity: document.getElementById('f-activity').value,
+        trainingsPerWeek: Number(document.getElementById('f-trainings').value) || 0,
+        goal: document.getElementById('f-goal').value,
+      };
+      if (!newP.age || !newP.weight || !newP.height) {
+        errEl.textContent = 'Please fill in age, weight, and height.';
+        errEl.style.display = 'block';
+        return;
+      }
+      try {
+        await saveProfile(newP);
+        state.view = 'log';
+        render();
+      } catch(e) {
+        errEl.textContent = 'Could not save profile — please try again.';
+        errEl.style.display = 'block';
+      }
+    });
+  }
+
+  function renderLog(){
+    const t = computeTargets(state.profile, state.activities);
+    const totals = state.meals.reduce((acc,m) => {
+      acc.calories += m.calories||0; acc.protein += m.protein_g||0;
+      acc.carbs += m.carbs_g||0; acc.fat += m.fat_g||0;
+      return acc;
+    }, { calories:0, protein:0, carbs:0, fat:0 });
+
+    const pct = (val, target) => target > 0 ? Math.min(100, Math.round((val/target)*100)) : 0;
+    const kcalRemaining = t.calories - totals.calories;
+
+    app.innerHTML = `
+      <div class="datebar-tools">
+        <input type="date" id="datePicker" class="datepick" value="${state.currentDate}" max="${todayStr()}">
+        <button class="todaybtn" id="jumpToday" ${state.currentDate === todayStr() ? 'disabled' : ''}>Today</button>
+      </div>
+      <div class="datebar">
+        <button class="navbtn" id="prevDay" aria-label="Previous day">&#8249;</button>
+        <div style="text-align:center;">
+          <div class="date">${fmtDateLabel(state.currentDate)}</div>
+        </div>
+        <button class="navbtn" id="nextDay" aria-label="Next day" ${state.currentDate === todayStr() ? 'disabled' : ''}>&#8250;</button>
+      </div>
+
+      <div class="card">
+        <label style="margin-bottom:8px;">Today&rsquo;s activity</label>
+        <div class="activitychips">
+          ${state.activities.length ? state.activities.map(a => {
+            if (state.editingActivityType === a.type) {
+              return `<span class="activitychip editing">
+                <input type="number" min="1" class="actdurinput" id="editdur-${a.type}" value="${a.minutes}">
+                <button data-confirmdur="${a.type}" aria-label="Save duration">&#10003;</button>
+                <button data-canceldur="${a.type}" aria-label="Cancel edit">&times;</button>
+              </span>`;
+            }
+            return `<span class="activitychip">
+              <span data-editact="${a.type}" style="cursor:pointer;">${ACTIVITY_LABELS[a.type] || a.type} (${a.minutes}m)</span>
+              <button data-removeact="${a.type}" aria-label="Remove ${ACTIVITY_LABELS[a.type] || a.type}">&times;</button>
+            </span>`;
+          }).join('') : '<span class="restlabel">Rest day</span>'}
+          <button class="addactbtn" id="addActivityBtn" aria-label="Add activity">+</button>
+        </div>
+        ${state.activityMenuOpen ? `
+          <div class="activitymenu">
+            ${ACTIVITY_ORDER.filter(t => !state.activities.some(a => a.type === t)).map(t => `
+              <div class="activitymenu-item activitymenu-row">
+                <span>${ACTIVITY_LABELS[t]}</span>
+                <span style="display:flex; align-items:center; gap:6px;">
+                  <input type="number" min="1" class="actdurinput" id="adddur-${t}" value="${ACTIVITY_DEFAULT_MIN[t]}">
+                  <span style="font-size:11px; color:var(--ink-soft);">min</span>
+                  <button class="btn small" data-addact="${t}">Add</button>
+                </span>
+              </div>
+            `).join('') || '<div class="activitymenu-item" style="cursor:default; color:var(--ink-soft);">All added</div>'}
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="card facts">
+        <div class="facts-head">
+          <div>
+            <div class="kcal-num"${kcalRemaining < 0 ? ' style="color:var(--over);"' : ''}>${totals.calories}</div>
+            <div class="kcal-label">calories logged</div>
+          </div>
+          <div class="kcal-target">
+            Target <b>${t.calories}</b> kcal
+            ${kcalRemaining < 0 ? `<br><span style="color:var(--over); font-weight:600;">${Math.abs(kcalRemaining)} over</span>` : ''}
+            ${t.extraKcal > 0 ? `<br><span style="opacity:0.75;">(+${t.extraKcal} for today&rsquo;s activity)</span>` : ''}
+          </div>
+        </div>
+        <div class="kcal-bigbar"><div style="width:${t.calories > 0 ? Math.min(100, Math.round((totals.calories/t.calories)*100)) : 0}%;"></div></div>
+        ${macroRow('Protein', totals.protein, t.proteinG, MACRO_META.protein.color)}
+        ${macroRow('Carbs', totals.carbs, t.carbsG, MACRO_META.carbs.color)}
+        ${macroRow('Fat', totals.fat, t.fatG, MACRO_META.fat.color)}
+        <div class="leftover">
+          <b>Left today:</b><br>
+          ${Math.max(0, kcalRemaining)} kcal &middot;
+          ${Math.max(0, Math.round(t.proteinG - totals.protein))}g protein &middot;
+          ${Math.max(0, Math.round(t.carbsG - totals.carbs))}g carbs &middot;
+          ${Math.max(0, Math.round(t.fatG - totals.fat))}g fat
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Log a meal</h2>
+        <div class="tabs">
+          <button class="tabbtn ${state.addMode==='text'?'active':''}" id="tabText">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><line x1="3" y1="5" x2="17" y2="5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="15" x2="12" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span class="tabbtn-label">Describe</span>
+          </button>
+          <button class="tabbtn ${state.addMode==='photo'?'active':''}" id="tabPhoto">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M7 6l1.5-2.5h3L13 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="11.5" r="3.2" stroke="currentColor" stroke-width="1.8"/></svg>
+            <span class="tabbtn-label">Photo</span>
+          </button>
+          <button class="tabbtn ${state.addMode==='favorites'?'active':''}" id="tabFavorites">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2.5l2.35 4.76 5.25.76-3.8 3.7.9 5.23L10 14.5l-4.7 2.45.9-5.23-3.8-3.7 5.25-.76z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span class="tabbtn-label">Favorites</span>
+          </button>
+        </div>
+        <div id="addForm"></div>
+        <div id="pendingHolder"></div>
+      </div>
+
+      <div class="card">
+        <h2>Today&rsquo;s meals</h2>
+        <div id="mealList"></div>
+      </div>
+
+      <div class="card">
+        <h2>AI nutritionist&rsquo;s note</h2>
+        <div id="dailyNoteHolder"></div>
+      </div>
+    `;
+
+    document.getElementById('prevDay').addEventListener('click', () => switchDate(shiftDate(state.currentDate, -1)));
+    document.getElementById('nextDay').addEventListener('click', () => {
+      if (state.currentDate === todayStr()) return;
+      switchDate(shiftDate(state.currentDate, 1));
+    });
+    document.getElementById('datePicker').addEventListener('change', (e) => {
+      if (e.target.value) switchDate(e.target.value);
+    });
+    document.getElementById('jumpToday').addEventListener('click', () => switchDate(todayStr()));
+    document.getElementById('addActivityBtn').addEventListener('click', () => {
+      state.activityMenuOpen = !state.activityMenuOpen;
+      render();
+    });
+    document.querySelectorAll('[data-addact]').forEach(el => {
+      el.addEventListener('click', () => {
+        const type = el.dataset.addact;
+        const input = document.getElementById('adddur-' + type);
+        const minutes = (input && Number(input.value)) || ACTIVITY_DEFAULT_MIN[type] || 30;
+        addActivity(type, minutes);
+      });
+    });
+    document.querySelectorAll('[data-removeact]').forEach(el => {
+      el.addEventListener('click', () => removeActivity(el.dataset.removeact));
+    });
+    document.querySelectorAll('[data-editact]').forEach(el => {
+      el.addEventListener('click', () => { state.editingActivityType = el.dataset.editact; render(); });
+    });
+    document.querySelectorAll('[data-confirmdur]').forEach(el => {
+      el.addEventListener('click', () => {
+        const type = el.dataset.confirmdur;
+        const input = document.getElementById('editdur-' + type);
+        const minutes = Math.max(1, Number(input.value) || 1);
+        updateActivityDuration(type, minutes);
+      });
+    });
+    document.querySelectorAll('[data-canceldur]').forEach(el => {
+      el.addEventListener('click', () => { state.editingActivityType = null; render(); });
+    });
+    document.getElementById('tabText').addEventListener('click', () => { state.addMode = 'text'; state.pending = null; render(); });
+    document.getElementById('tabPhoto').addEventListener('click', () => { state.addMode = 'photo'; state.pending = null; render(); });
+    document.getElementById('tabFavorites').addEventListener('click', () => { state.addMode = 'favorites'; state.pending = null; render(); });
+
+    renderAddForm();
+    renderPending();
+    renderMealList(totals);
+    renderCoachSection(totals, t);
+  }
+
+  function renderCoachSection(totals, t){
+    if (state.currentDate === todayStr()) { renderCoachChat(); }
+    else { renderDailyNote(totals, t); }
+  }
+
+  async function addActivity(type, minutes){
+    if (state.activities.some(a => a.type === type)) return;
+    const previous = state.activities.slice();
+    state.activities = state.activities.concat([{ type, minutes: Math.max(1, minutes || ACTIVITY_DEFAULT_MIN[type] || 30) }]);
+    state.activityMenuOpen = false;
+    try {
+      await saveActivities(state.currentDate, state.activities);
+    } catch(err) {
+      state.activities = previous;
+      showToast('Could not save that — please try again.', true);
+    }
+    render();
+  }
+
+  async function removeActivity(type){
+    const previous = state.activities.slice();
+    state.activities = state.activities.filter(a => a.type !== type);
+    try {
+      await saveActivities(state.currentDate, state.activities);
+    } catch(err) {
+      state.activities = previous;
+      showToast('Could not save that — please try again.', true);
+    }
+    render();
+  }
+
+  async function updateActivityDuration(type, minutes){
+    const previous = state.activities.slice();
+    const a = state.activities.find(x => x.type === type);
+    if (!a) return;
+    a.minutes = minutes;
+    state.editingActivityType = null;
+    try {
+      await saveActivities(state.currentDate, state.activities);
+    } catch(err) {
+      state.activities = previous;
+      showToast('Could not save that — please try again.', true);
+    }
+    render();
+  }
+
+  function macroRow(label, val, target, color, unit){
+    unit = unit || 'g';
+    const pct = target > 0 ? Math.min(100, Math.round((val/target)*100)) : 0;
+    const over = target > 0 && val > target;
+    return `
+      <div class="macrorow">
+        <div class="mlabel"><span class="dot" style="background:${color}"></span>${label}</div>
+        <div class="mbar"><div style="width:${pct}%; background:${color};"></div></div>
+        <div class="mval"><b${over ? ' style="color:var(--over);"' : ''}>${Math.round(val)}${unit}</b> / ${Math.round(target)}${unit}</div>
+      </div>
+    `;
+  }
+
+  function renderFavSearchList(){
+    const holder = document.getElementById('favSearchList');
+    if (!holder) return;
+    const q = (state.favSearch || '').trim().toLowerCase();
+    const filtered = q ? state.favorites.filter(f => f.name.toLowerCase().includes(q)) : state.favorites;
+    if (!filtered.length) {
+      holder.innerHTML = '<p class="empty">No favorites match that search.</p>';
+      return;
+    }
+    holder.innerHTML = filtered.map(f => `
+      <div class="favchip">
+        <span class="favname">${escapeHtml(f.name)}</span>
+        <span class="favkcal">${Math.round(f.calories)} kcal</span>
+        <button class="favlog" data-logfav="${f.id}">Log again</button>
+      </div>
+    `).join('');
+    holder.querySelectorAll('[data-logfav]').forEach(btn => {
+      btn.addEventListener('click', () => logFavorite(btn.dataset.logfav));
+    });
+  }
+
+  function renderAddForm(){
+    const holder = document.getElementById('addForm');
+    if (state.addMode === 'text') {
+      holder.innerHTML = `
+        <div class="field">
+          <label>What did you eat?</label>
+          <textarea id="mealText" placeholder="e.g. two eggs scrambled, slice of sourdough toast, black coffee"></textarea>
+        </div>
+        <button class="btn" id="estimateBtn">${state.loading ? '<span class="spinner"></span>Estimating…' : 'Estimate macros'}</button>
+        <div id="addErr" class="errmsg" style="display:none;"></div>
+      `;
+      document.getElementById('estimateBtn').addEventListener('click', onEstimateText);
+    } else if (state.addMode === 'photo') {
+      holder.innerHTML = `
+        <div class="field">
+          <label>Photo of your meal</label>
+          <input type="file" accept="image/*" id="photoInput">
+          <img id="photoPreview" class="photo-preview">
+          ${state.photoData ? '<br><button type="button" class="removePhotoBtn" id="removePhotoBtn">Remove photo</button>' : ''}
+        </div>
+        <div class="field">
+          <label>Anything the photo won't show (optional)</label>
+          <input type="text" id="photoNote" placeholder="e.g. dressing on the side, added parmesan">
+        </div>
+        <button class="btn" id="estimatePhotoBtn" ${state.photoData ? '' : 'disabled'}>${state.loading ? '<span class="spinner"></span>Estimating…' : 'Estimate macros'}</button>
+        <div id="addErr" class="errmsg" style="display:none;"></div>
+      `;
+      document.getElementById('photoInput').addEventListener('change', onPhotoSelect);
+      document.getElementById('estimatePhotoBtn').addEventListener('click', onEstimatePhoto);
+      if (document.getElementById('removePhotoBtn')) {
+        document.getElementById('removePhotoBtn').addEventListener('click', () => {
+          state.photoData = null;
+          renderAddForm();
+        });
+      }
+      if (state.photoData) {
+        const img = document.getElementById('photoPreview');
+        img.src = state.photoData.previewUrl;
+        img.style.display = 'block';
+      }
+    } else {
+      if (!state.favorites.length) {
+        holder.innerHTML = `<p class="empty">No favorites saved yet. Star a logged meal, or add one from the Favorites tab.</p>`;
+        return;
+      }
+      holder.innerHTML = `
+        <div class="field">
+          <input type="text" id="favSearch" placeholder="Search your favorites…" value="${escapeAttr(state.favSearch || '')}">
+        </div>
+        <div class="favdropdown" id="favSearchList"></div>
+      `;
+      const searchInput = document.getElementById('favSearch');
+      renderFavSearchList();
+      searchInput.addEventListener('input', (e) => {
+        state.favSearch = e.target.value;
+        renderFavSearchList();
+      });
+    }
+  }
+
+  function resizeImageDataUrl(dataUrl, maxDim, quality){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+          else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Could not load image'));
+      img.src = dataUrl;
+    });
+  }
+
+  function onPhotoSelect(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const resized = await resizeImageDataUrl(reader.result, 1024, 0.82);
+        const base64 = resized.split(',')[1];
+        state.photoData = { base64, mediaType: 'image/jpeg', previewUrl: resized };
+        renderAddForm();
+      } catch(e) {
+        showAddErr('Could not process that image — try a different file.');
+      }
+    };
+    reader.onerror = () => {
+      showAddErr('Could not read that image — try a different file.');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showAddErr(msg){
+    const el = document.getElementById('addErr');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  async function callEstimate(contentBlocks){
+    const system = "You are a careful nutrition estimation assistant inside a meal-logging app. Given a description and/or photo of a meal, estimate its nutrition. Respond with ONLY raw JSON (no markdown fences, no commentary) matching exactly this shape: {\"name\": \"short meal name, max 6 words\", \"calories\": number, \"protein_g\": number, \"carbs_g\": number, \"fat_g\": number, \"confidence\": \"low\" | \"medium\" | \"high\", \"note\": \"one short sentence noting key assumptions or uncertainty\"}. Use reasonable portion assumptions when not specified and say so in the note. Numbers should be your best realistic estimate, not zero.";
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: system,
+        messages: [{ role: "user", content: contentBlocks }]
+      })
+    });
+    if (!response.ok) {
+      let detail = '';
+      try { const errBody = await response.json(); detail = (errBody && errBody.error && errBody.error.message) || ''; } catch(e) {}
+      throw new Error(detail || ('Request failed (' + response.status + ')'));
+    }
+    const data = await response.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No response text');
+    let clean = textBlock.text.trim().replace(/^```json\s*|^```\s*|```$/g, '').trim();
+    const parsed = JSON.parse(clean);
+    return parsed;
+  }
+
+  async function onEstimateText(){
+    const text = document.getElementById('mealText').value.trim();
+    if (!text) { showAddErr('Describe what you ate first.'); return; }
+    state.loading = true; renderAddForm();
+    try {
+      const result = await callEstimate([{ type: 'text', text: 'Meal description: ' + text }]);
+      state.pending = result;
+    } catch(e) {
+      showAddErr('Could not estimate that meal — please try again, or describe it a bit differently.');
+    } finally {
+      state.loading = false;
+      renderAddForm();
+      renderPending();
+    }
+  }
+
+  async function onEstimatePhoto(){
+    if (!state.photoData) return;
+    state.loading = true; renderAddForm();
+    const note = document.getElementById('photoNote') ? document.getElementById('photoNote').value.trim() : '';
+    try {
+      const blocks = [
+        { type: 'image', source: { type: 'base64', media_type: state.photoData.mediaType, data: state.photoData.base64 } },
+        { type: 'text', text: note ? ('Additional context: ' + note) : 'Estimate the macros for this meal photo.' }
+      ];
+      const result = await callEstimate(blocks);
+      state.pending = result;
+    } catch(e) {
+      showAddErr('Could not estimate that photo — please try again.');
+    } finally {
+      state.loading = false;
+      renderAddForm();
+      renderPending();
+    }
+  }
+
+  function renderPending(){
+    const holder = document.getElementById('pendingHolder');
+    if (!state.pending) { holder.innerHTML = ''; return; }
+    const p = state.pending;
+    holder.innerHTML = `
+      <div class="pending">
+        <div class="p-title">Estimate &mdash; review before adding (confidence: ${p.confidence || 'medium'})</div>
+        <div class="field"><label>Name</label><input type="text" id="p-name" value="${escapeAttr(p.name || 'Meal')}"></div>
+        <div class="row2">
+          <div class="field"><label>Calories</label><input type="number" id="p-cal" value="${Math.round(p.calories||0)}"></div>
+          <div class="field"><label>Protein (g)</label><input type="number" id="p-pro" value="${Math.round(p.protein_g||0)}"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Carbs (g)</label><input type="number" id="p-carb" value="${Math.round(p.carbs_g||0)}"></div>
+          <div class="field"><label>Fat (g)</label><input type="number" id="p-fat" value="${Math.round(p.fat_g||0)}"></div>
+        </div>
+        ${p.note ? `<p class="note">${escapeHtml(p.note)}</p>` : ''}
+        <div class="actions">
+          <button class="btn" id="confirmAdd">Add to log</button>
+          <button class="btn" id="discardAdd">Discard</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('confirmAdd').addEventListener('click', confirmAddMeal);
+    document.getElementById('discardAdd').addEventListener('click', () => { state.pending = null; renderPending(); });
+  }
+
+  async function confirmAddMeal(){
+    const meal = {
+      id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: document.getElementById('p-name').value || 'Meal',
+      calories: Number(document.getElementById('p-cal').value) || 0,
+      protein_g: Number(document.getElementById('p-pro').value) || 0,
+      carbs_g: Number(document.getElementById('p-carb').value) || 0,
+      fat_g: Number(document.getElementById('p-fat').value) || 0,
+      time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
+      source: state.addMode,
+    };
+    state.meals.push(meal);
+    try {
+      await saveMeals(state.currentDate, state.meals);
+    } catch(e) {
+      showAddErr('Saved to this view, but storing it failed — it may not persist.');
+    }
+    state.pending = null;
+    state.photoData = null;
+    render();
+  }
+
+  function renderMealList(totals){
+    const holder = document.getElementById('mealList');
+    if (!state.meals.length) {
+      holder.innerHTML = '<div class="empty">Nothing logged yet for this day.</div>';
+      return;
+    }
+    const sorted = [...state.meals];
+    holder.innerHTML = sorted.map(m => {
+      if (state.editingMealId === m.id) {
+        return `
+          <div class="editmeal">
+            <div class="field"><label>Name</label><input type="text" id="e-name-${m.id}" value="${escapeAttr(m.name)}"></div>
+            <div class="row2">
+              <div class="field"><label>Calories</label><input type="number" id="e-cal-${m.id}" value="${Math.round(m.calories)}"></div>
+              <div class="field"><label>Protein (g)</label><input type="number" id="e-pro-${m.id}" value="${Math.round(m.protein_g)}"></div>
+            </div>
+            <div class="row2">
+              <div class="field"><label>Carbs (g)</label><input type="number" id="e-carb-${m.id}" value="${Math.round(m.carbs_g)}"></div>
+              <div class="field"><label>Fat (g)</label><input type="number" id="e-fat-${m.id}" value="${Math.round(m.fat_g)}"></div>
+            </div>
+            <div class="mealrow-actions">
+              <button class="btn small" data-save="${m.id}">Save</button>
+              <button class="btn small" data-canceledit="${m.id}">Cancel</button>
+            </div>
+          </div>
+        `;
+      }
+      return `
+      <div>
+        <div class="meal">
+          <div>
+            <div class="mname">${escapeHtml(m.name)}</div>
+            <div class="mtime">${escapeHtml(m.time || '')} ${m.source === 'photo' ? '· photo' : m.source === 'favorite' ? '· favorite' : ''}</div>
+            <div class="mmacros">P ${Math.round(m.protein_g)}g &middot; C ${Math.round(m.carbs_g)}g &middot; F ${Math.round(m.fat_g)}g</div>
+          </div>
+          <div style="text-align:right; display:flex; align-items:center; gap:10px;">
+            <div class="mkcal">${Math.round(m.calories)}</div>
+            <button class="del" data-id="${m.id}" aria-label="Delete meal">&times;</button>
+          </div>
+        </div>
+        <div class="mealrow-actions">
+          <button class="icon-btn" data-edit="${m.id}" title="Edit" aria-label="Edit meal">&#9998;</button>
+          <button class="icon-btn" data-fav="${m.id}" title="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}" aria-label="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}">${m.favorited ? '&#9733;' : '&#9734;'}</button>
+          ${!m.coachNote ? `<button class="icon-btn tipbtn" data-id="${m.id}" title="Get nutritionist tip" aria-label="Get nutritionist tip" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '…' : '<b>!</b>'}</button>` : ''}
+        </div>
+        <div class="mealtip">
+          ${m.coachNote ? `<p class="tipnote">${escapeHtml(m.coachNote)}</p><button class="btn small" data-refreshtip="${m.id}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? 'Thinking…' : 'Refresh'}</button>` : ''}
+        </div>
+      </div>
+    `;
+    }).join('');
+    holder.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('click', () => deleteMeal(btn.dataset.id));
+    });
+    holder.querySelectorAll('.tipbtn').forEach(btn => {
+      btn.addEventListener('click', () => getMealTip(btn.dataset.id));
+    });
+    holder.querySelectorAll('[data-refreshtip]').forEach(btn => {
+      btn.addEventListener('click', () => getMealTip(btn.dataset.refreshtip));
+    });
+    holder.querySelectorAll('[data-edit]').forEach(btn => {
+      btn.addEventListener('click', () => { state.editingMealId = btn.dataset.edit; render(); });
+    });
+    holder.querySelectorAll('[data-canceledit]').forEach(btn => {
+      btn.addEventListener('click', () => { state.editingMealId = null; render(); });
+    });
+    holder.querySelectorAll('[data-save]').forEach(btn => {
+      btn.addEventListener('click', () => saveEditedMeal(btn.dataset.save));
+    });
+    holder.querySelectorAll('[data-fav]').forEach(btn => {
+      btn.addEventListener('click', () => toggleMealFavorite(btn.dataset.fav));
+    });
+  }
+
+  async function saveEditedMeal(id){
+    const meal = state.meals.find(m => m.id === id);
+    if (!meal) return;
+    const nameEl = document.getElementById('e-name-' + id);
+    meal.name = nameEl.value || meal.name;
+    meal.calories = Number(document.getElementById('e-cal-' + id).value) || 0;
+    meal.protein_g = Number(document.getElementById('e-pro-' + id).value) || 0;
+    meal.carbs_g = Number(document.getElementById('e-carb-' + id).value) || 0;
+    meal.fat_g = Number(document.getElementById('e-fat-' + id).value) || 0;
+    try {
+      await saveMeals(state.currentDate, state.meals);
+    } catch(e) {
+      showToast('Could not save that edit — it may not persist.', true);
+    }
+    state.editingMealId = null;
+    render();
+  }
+
+  async function toggleMealFavorite(id){
+    const meal = state.meals.find(m => m.id === id);
+    if (!meal) return;
+    if (meal.favorited && meal.favoriteRef) {
+      // un-favorite: remove the linked favorite entry
+      const previousFavorites = state.favorites.slice();
+      const previousRef = meal.favoriteRef;
+      state.favorites = state.favorites.filter(f => f.id !== meal.favoriteRef);
+      meal.favorited = false;
+      meal.favoriteRef = null;
+      try {
+        await saveFavoritesStorage(state.favorites);
+        await saveMeals(state.currentDate, state.meals);
+      } catch(e) {
+        state.favorites = previousFavorites;
+        meal.favorited = true;
+        meal.favoriteRef = previousRef;
+        showToast('Could not remove that favorite — please try again.', true);
+      }
+      render();
+      return;
+    }
+    const fav = {
+      id: 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: meal.name,
+      calories: meal.calories,
+      protein_g: meal.protein_g,
+      carbs_g: meal.carbs_g,
+      fat_g: meal.fat_g,
+      ingredients: '',
+    };
+    state.favorites.push(fav);
+    meal.favorited = true;
+    meal.favoriteRef = fav.id;
+    try {
+      await saveFavoritesStorage(state.favorites);
+      await saveMeals(state.currentDate, state.meals);
+      showToast('Saved as a favorite — add ingredients from the Favorites tab.', false);
+    } catch(e) {
+      state.favorites.pop();
+      meal.favorited = false;
+      meal.favoriteRef = null;
+      showToast('Could not save that favorite — please try again.', true);
+    }
+    render();
+  }
+
+  function renderFavoritesPage(){
+    app.innerHTML = `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h2 style="margin:0;">Favorite recipes</h2>
+          <div style="display:flex; gap:8px;">
+            <button class="btn small" id="addFavBtn">+ Add new</button>
+            <button class="btn small" id="exportFavCsvBtn">Export CSV</button>
+          </div>
+        </div>
+        <p class="setup-note">Meals you eat often, saved with ingredients so you can log them again in seconds from the Log a meal tab.</p>
+        <div class="field">
+          <input type="text" id="favPageSearch" placeholder="Search by name or ingredient…" value="${escapeAttr(state.favPageSearch || '')}">
+        </div>
+        <div id="favEditHolder"></div>
+        <div id="favListHolder"></div>
+      </div>
+    `;
+    document.getElementById('exportFavCsvBtn').addEventListener('click', exportRecipesCSV);
+    document.getElementById('favPageSearch').addEventListener('input', (e) => {
+      state.favPageSearch = e.target.value;
+      renderFavList();
+    });
+    document.getElementById('addFavBtn').addEventListener('click', () => {
+      state.addingFavorite = true;
+      state.editingFavoriteId = null;
+      renderFavEditArea();
+    });
+    renderFavEditArea();
+    renderFavList();
+  }
+
+  function csvEscape(val){
+    const str = String(val ?? '');
+    if (/[",\n\r]/.test(str)) {
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  }
+
+  function exportRecipesCSV(){
+    if (!state.favorites.length) { showToast('No favorites to export yet.', true); return; }
+    const rows = [['name','calories','protein_g','carbs_g','fat_g','ingredients']];
+    state.favorites.forEach(f => rows.push([
+      f.name,
+      Math.round(f.calories || 0),
+      Math.round(f.protein_g || 0),
+      Math.round(f.carbs_g || 0),
+      Math.round(f.fat_g || 0),
+      f.ingredients || ''
+    ]));
+    const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'steady-favorite-recipes.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function favEditFormHtml(f, idPrefix){
+    return `
+      <div class="editmeal">
+        <div class="field"><label>Name</label><input type="text" id="${idPrefix}-name" value="${escapeAttr(f.name || '')}"></div>
+        <div class="row2">
+          <div class="field"><label>Calories</label><input type="number" id="${idPrefix}-cal" value="${Math.round(f.calories || 0)}"></div>
+          <div class="field"><label>Protein (g)</label><input type="number" id="${idPrefix}-pro" value="${Math.round(f.protein_g || 0)}"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Carbs (g)</label><input type="number" id="${idPrefix}-carb" value="${Math.round(f.carbs_g || 0)}"></div>
+          <div class="field"><label>Fat (g)</label><input type="number" id="${idPrefix}-fat" value="${Math.round(f.fat_g || 0)}"></div>
+        </div>
+        <div class="field">
+          <label>Ingredients &amp; notes</label>
+          <textarea id="${idPrefix}-ingredients" placeholder="e.g. 2 eggs, 30g oats, 1 banana, splash of milk">${escapeHtml(f.ingredients || '')}</textarea>
+        </div>
+        <div class="mealrow-actions">
+          <button class="btn small" id="${idPrefix}-save">Save</button>
+          <button class="btn small" id="${idPrefix}-cancel">Cancel</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFavEditArea(){
+    const holder = document.getElementById('favEditHolder');
+    if (!holder) return;
+    if (state.addingFavorite) {
+      holder.innerHTML = favEditFormHtml({}, 'newfav');
+      document.getElementById('newfav-save').addEventListener('click', saveNewFavorite);
+      document.getElementById('newfav-cancel').addEventListener('click', () => { state.addingFavorite = false; renderFavEditArea(); });
+    } else if (state.editingFavoriteId) {
+      const f = state.favorites.find(x => x.id === state.editingFavoriteId);
+      if (!f) { holder.innerHTML = ''; return; }
+      holder.innerHTML = favEditFormHtml(f, 'editfav');
+      document.getElementById('editfav-save').addEventListener('click', () => saveEditedFavorite(f.id));
+      document.getElementById('editfav-cancel').addEventListener('click', () => { state.editingFavoriteId = null; renderFavEditArea(); });
+    } else {
+      holder.innerHTML = '';
+    }
+  }
+
+  function renderFavList(){
+    const holder = document.getElementById('favListHolder');
+    if (!holder) return;
+    if (!state.favorites.length) {
+      holder.innerHTML = '<div class="empty">No favorites yet. Star a logged meal, or add one above.</div>';
+      return;
+    }
+    const q = (state.favPageSearch || '').trim().toLowerCase();
+    const filtered = q
+      ? state.favorites.filter(f => f.name.toLowerCase().includes(q) || (f.ingredients || '').toLowerCase().includes(q))
+      : state.favorites;
+    if (!filtered.length) {
+      holder.innerHTML = '<div class="empty">No favorites match that search.</div>';
+      return;
+    }
+    holder.innerHTML = filtered.map(f => `
+      <div class="meal">
+        <div>
+          <div class="mname">${escapeHtml(f.name)}</div>
+          <div class="mmacros">${Math.round(f.calories)} kcal &middot; P ${Math.round(f.protein_g)}g &middot; C ${Math.round(f.carbs_g)}g &middot; F ${Math.round(f.fat_g)}g</div>
+          ${f.ingredients ? `<div class="mmacros" style="margin-top:4px; white-space:pre-wrap;">${escapeHtml(f.ingredients)}</div>` : '<div class="mmacros" style="margin-top:4px; font-style:italic;">No ingredients added yet.</div>'}
+        </div>
+        <div class="mealrow-actions" style="margin-top:0;">
+          <button class="icon-btn" data-editfav="${f.id}" title="Edit" aria-label="Edit favorite">&#9998;</button>
+          <button class="icon-btn" data-delfav="${f.id}" title="Delete" aria-label="Delete favorite">&times;</button>
+        </div>
+      </div>
+    `).join('');
+    holder.querySelectorAll('[data-editfav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.editingFavoriteId = btn.dataset.editfav;
+        state.addingFavorite = false;
+        renderFavEditArea();
+      });
+    });
+    holder.querySelectorAll('[data-delfav]').forEach(btn => {
+      btn.addEventListener('click', () => deleteFavorite(btn.dataset.delfav));
+    });
+  }
+
+  async function saveNewFavorite(){
+    const name = document.getElementById('newfav-name').value.trim();
+    if (!name) { showToast('Give it a name first.', true); return; }
+    const fav = {
+      id: 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name,
+      calories: Number(document.getElementById('newfav-cal').value) || 0,
+      protein_g: Number(document.getElementById('newfav-pro').value) || 0,
+      carbs_g: Number(document.getElementById('newfav-carb').value) || 0,
+      fat_g: Number(document.getElementById('newfav-fat').value) || 0,
+      ingredients: document.getElementById('newfav-ingredients').value.trim(),
+    };
+    state.favorites.push(fav);
+    try {
+      await saveFavoritesStorage(state.favorites);
+      showToast('Favorite added.', false);
+    } catch(e) {
+      state.favorites.pop();
+      showToast('Could not save that favorite — please try again.', true);
+    }
+    state.addingFavorite = false;
+    renderFavEditArea();
+    renderFavList();
+  }
+
+  async function saveEditedFavorite(id){
+    const f = state.favorites.find(x => x.id === id);
+    if (!f) return;
+    const name = document.getElementById('editfav-name').value.trim();
+    if (!name) { showToast('Give it a name first.', true); return; }
+    const prev = { ...f };
+    f.name = name;
+    f.calories = Number(document.getElementById('editfav-cal').value) || 0;
+    f.protein_g = Number(document.getElementById('editfav-pro').value) || 0;
+    f.carbs_g = Number(document.getElementById('editfav-carb').value) || 0;
+    f.fat_g = Number(document.getElementById('editfav-fat').value) || 0;
+    f.ingredients = document.getElementById('editfav-ingredients').value.trim();
+    try {
+      await saveFavoritesStorage(state.favorites);
+    } catch(e) {
+      Object.assign(f, prev);
+      showToast('Could not save that edit — please try again.', true);
+    }
+    state.editingFavoriteId = null;
+    renderFavEditArea();
+    renderFavList();
+  }
+
+  async function logFavorite(favId){
+    const fav = state.favorites.find(f => f.id === favId);
+    if (!fav) return;
+    const meal = {
+      id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: fav.name,
+      calories: fav.calories,
+      protein_g: fav.protein_g,
+      carbs_g: fav.carbs_g,
+      fat_g: fav.fat_g,
+      time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
+      source: 'favorite',
+      favorited: true,
+      favoriteRef: fav.id,
+    };
+    state.meals.push(meal);
+    try {
+      await saveMeals(state.currentDate, state.meals);
+    } catch(e) {
+      showToast('Could not log that favorite — please try again.', true);
+    }
+    render();
+  }
+
+  async function deleteFavorite(favId){
+    if (!confirm('Remove this favorite?')) return;
+    const removed = state.favorites.find(f => f.id === favId);
+    state.favorites = state.favorites.filter(f => f.id !== favId);
+    try {
+      await saveFavoritesStorage(state.favorites);
+      const linkedMeal = state.meals.find(m => m.favoriteRef === favId);
+      if (linkedMeal) {
+        linkedMeal.favorited = false;
+        linkedMeal.favoriteRef = null;
+        try { await saveMeals(state.currentDate, state.meals); } catch(e) {}
+      }
+    } catch(e) {
+      if (removed) state.favorites.push(removed);
+      showToast('Could not remove that favorite — please try again.', true);
+    }
+    if (state.editingFavoriteId === favId) state.editingFavoriteId = null;
+    if (state.view === 'favorites') { renderFavEditArea(); renderFavList(); }
+  }
+
+  async function getMealTip(id){
+    const meal = state.meals.find(m => m.id === id);
+    if (!meal) return;
+    state.tipLoadingId = id;
+    render();
+    try {
+      const t = computeTargets(state.profile, state.activities);
+      const prompt = `Meal: ${meal.name} — ${Math.round(meal.calories)} kcal, protein ${Math.round(meal.protein_g)}g, carbs ${Math.round(meal.carbs_g)}g, fat ${Math.round(meal.fat_g)}g. Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. In under 40 words of plain text (no markdown), briefly note what was good about this meal for that goal and one specific, realistic thing to improve next time.`;
+      const result = await callCoachText(prompt);
+      meal.coachNote = result;
+      await saveMeals(state.currentDate, state.meals);
+    } catch(e) {
+      showToast('Could not get a tip: ' + (e.message || 'please try again.'), true);
+    } finally {
+      state.tipLoadingId = null;
+      render();
+    }
+  }
+
+  function renderDailyNote(totals, t){
+    const holder = document.getElementById('dailyNoteHolder');
+    if (!holder) return;
+    if (state.dailyNoteLoading) {
+      holder.innerHTML = '<div class="empty"><span class="spinner"></span>Thinking it over…</div>';
+      return;
+    }
+    if (state.dailyNote) {
+      const stale = state.dailyNoteMeta && (state.dailyNoteMeta.mealCount !== state.meals.length || Math.round(state.dailyNoteMeta.calories) !== Math.round(totals.calories));
+      holder.innerHTML = `
+        <p class="coachnote">${escapeHtml(state.dailyNote)}</p>
+        ${stale ? '<p class="stalenote">Meals have changed since this summary.</p>' : ''}
+        <button class="btn small" id="refreshDailyNote">Refresh</button>
+      `;
+      document.getElementById('refreshDailyNote').addEventListener('click', () => getDailySummary(totals, t));
+    } else {
+      holder.innerHTML = `<p class="setup-note" style="margin-bottom:12px;">Get a short read on how this day went.</p><button class="btn small" id="getDailyNote">Get summary</button>`;
+      document.getElementById('getDailyNote').addEventListener('click', () => getDailySummary(totals, t));
+    }
+  }
+
+  function renderCoachChat(){
+    const holder = document.getElementById('dailyNoteHolder');
+    if (!holder) return;
+    const msgs = state.chatMessages;
+    const bubbles = msgs.map(m => `<div class="chatbubble ${m.role === 'coach' ? 'coach' : 'user'}">${escapeHtml(m.text)}</div>`).join('');
+    const loadingBubble = state.chatLoading ? '<div class="chatbubble coach"><span class="spinner"></span>Thinking…</div>' : '';
+    let topSection;
+    if (msgs.length) {
+      topSection = `<div class="chatlist">${bubbles}${loadingBubble}</div>`;
+    } else if (state.chatLoading) {
+      topSection = '<div class="empty"><span class="spinner"></span>Thinking…</div>';
+    } else {
+      topSection = `<p class="setup-note" style="margin-bottom:12px;">Ask your AI nutritionist anything about today &mdash; your meals so far, what to adjust, or what to eat next.</p><button class="btn small" id="chatStarterBtn">Get summary</button>`;
+    }
+    holder.innerHTML = `
+      ${topSection}
+      <div class="chatinput-row">
+        <input type="text" id="chatInput" placeholder="Ask a question…" ${state.chatLoading ? 'disabled' : ''}>
+        <button class="btn small" id="chatSendBtn" ${state.chatLoading ? 'disabled' : ''}>Ask</button>
+      </div>
+    `;
+    const starterBtn = document.getElementById('chatStarterBtn');
+    if (starterBtn) starterBtn.addEventListener('click', () => sendChatMessage("How's today looking so far, and what should I adjust?"));
+    document.getElementById('chatSendBtn').addEventListener('click', () => {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      sendChatMessage(text);
+    });
+    document.getElementById('chatInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('chatSendBtn').click(); }
+    });
+    const list = holder.querySelector('.chatlist');
+    if (list) list.scrollTop = list.scrollHeight;
+  }
+
+  function buildTodayContext(){
+    const t = computeTargets(state.profile, state.activities);
+    const totals = totalsFromMeals(state.meals);
+    const mealsSummary = state.meals.length
+      ? state.meals.map(m => `${m.name} (${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g)`).join('; ')
+      : 'nothing logged yet';
+    return `Today's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (today's activity: ${activitiesLabel(state.activities)}). Logged so far: ${mealsSummary}. Totals so far: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. Person's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
+  }
+
+  async function callCoachChat(conversationHistory, contextText){
+    const system = "You are a supportive, knowledgeable AI nutritionist inside a meal-tracking app, chatting with the person about their day. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown, no headers, no bullet points — and never suggest extreme restriction, rapid weight loss, or skipping meals.";
+    const messages = conversationHistory.map(m => ({ role: m.role === 'coach' ? 'assistant' : 'user', content: m.text }));
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 500,
+        system: system,
+        messages: messages
+      })
+    });
+    if (!response.ok) {
+      let detail = '';
+      try { const errBody = await response.json(); detail = (errBody && errBody.error && errBody.error.message) || ''; } catch(e) {}
+      throw new Error(detail || ('Request failed (' + response.status + ')'));
+    }
+    const data = await response.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No response text');
+    return textBlock.text.trim();
+  }
+
+  async function sendChatMessage(text){
+    const input = document.getElementById('chatInput');
+    if (input) input.value = '';
+    state.chatMessages.push({ role: 'user', text, time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) });
+    state.chatLoading = true;
+    renderCoachChat();
+    try {
+      const context = buildTodayContext();
+      const reply = await callCoachChat(state.chatMessages, context);
+      state.chatMessages.push({ role: 'coach', text: reply, time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) });
+      await saveChatMessages(state.currentDate, state.chatMessages);
+    } catch(e) {
+      showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
+    } finally {
+      state.chatLoading = false;
+      renderCoachChat();
+    }
+  }
+
+  async function getDailySummary(totals, t){
+    if (!state.meals.length) {
+      state.dailyNote = "Nothing logged yet today — add a meal or two, then check back for a summary.";
+      renderDailyNote(totals, t);
+      return;
+    }
+    state.dailyNoteLoading = true;
+    renderDailyNote(totals, t);
+    try {
+      const mealsSummary = state.meals.map(m => `${m.name}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
+      const prompt = `Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged today: ${mealsSummary}. Totals so far: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. Write a short AI nutritionist's note, plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on what went well today; second, a short paragraph covering what's worth adjusting for the rest of today or tomorrow — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.`;
+      const result = await callCoachText(prompt);
+      state.dailyNote = result;
+      state.dailyNoteMeta = { mealCount: state.meals.length, calories: totals.calories };
+      await saveDailyNote(state.currentDate, result, state.dailyNoteMeta);
+    } catch(e) {
+      showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
+    } finally {
+      state.dailyNoteLoading = false;
+      renderDailyNote(totals, t);
+    }
+  }
+
+  async function callCoachText(userText){
+    const system = "You are a supportive, knowledgeable AI nutritionist inside a meal-tracking app, helping with gradual, steady progress toward the person's nutrition goal (which may be fat loss, muscle gain, weight maintenance, or body recomposition). Be warm but concise and concrete, and never suggest extreme restriction, rapid weight loss, or skipping meals. Respond in plain text only — no markdown, no headers, no bullet points.";
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 400,
+        system: system,
+        messages: [{ role: "user", content: userText }]
+      })
+    });
+    if (!response.ok) {
+      let detail = '';
+      try { const errBody = await response.json(); detail = (errBody && errBody.error && errBody.error.message) || ''; } catch(e) {}
+      throw new Error(detail || ('Request failed (' + response.status + ')'));
+    }
+    const data = await response.json();
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No response text');
+    return textBlock.text.trim();
+  }
+
+  async function deleteMeal(id){
+    if (!confirm('Delete this meal?')) return;
+    const removed = state.meals.find(m => m.id === id);
+    const removedIdx = state.meals.findIndex(m => m.id === id);
+    state.meals = state.meals.filter(m => m.id !== id);
+    try {
+      await saveMeals(state.currentDate, state.meals);
+    } catch(e) {
+      if (removed) state.meals.splice(removedIdx, 0, removed);
+      showToast('Could not delete that meal — please try again.', true);
+    }
+    render();
+  }
+
+  async function switchDate(newDate){
+    state.currentDate = newDate;
+    state.pending = null;
+    state.tipLoadingId = null;
+    state.editingMealId = null;
+    state.activityMenuOpen = false;
+    state.editingActivityType = null;
+    await loadMeals(newDate);
+    await loadDailyNote(newDate);
+    await loadChatMessages(newDate);
+    state.activities = await loadActivities(newDate);
+    render();
+  }
+
+  async function renderTrends(){
+    app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your last 4 weeks…</div></div>';
+    const days = [];
+    for (let i = 27; i >= 0; i--) { days.push(shiftDate(todayStr(), -i)); }
+    const data = await mapWithConcurrency(days, 6, async (d) => {
+      const [meals, dayActivities] = await Promise.all([
+        (async () => {
+          try {
+            const res = await window.storage.get('meals:' + d, false);
+            return res ? JSON.parse(res.value) : [];
+          } catch(e) { return []; }
+        })(),
+        loadActivities(d)
+      ]);
+      const totals = totalsFromMeals(meals);
+      const dayTargets = computeTargets(state.profile, dayActivities);
+      return { date: d, totals, targets: dayTargets, activities: dayActivities };
+    });
+    if (state.view !== 'trends') return; // user navigated away while loading
+    await loadWeekChatMessages(todayStr());
+    app.innerHTML = `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h2 style="margin:0;">Last 4 weeks</h2>
+          <button class="btn small" id="exportCsvBtn">Export CSV</button>
+        </div>
+        <div id="exportPickerPanel" style="display:none; margin-bottom:14px;">
+          <div class="row2">
+            <div class="field"><label>From</label><input type="date" id="exportFromDate" value="${data[0].date}" max="${todayStr()}"></div>
+            <div class="field"><label>To</label><input type="date" id="exportToDate" value="${todayStr()}" max="${todayStr()}"></div>
+          </div>
+          <button class="btn small" id="exportConfirmBtn">Download CSV</button>
+        </div>
+        <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity. Bars that clear it went over that day.</p>
+        ${chartBlock('Calories', data, 'calories', 'calories', 'var(--moss)', 'kcal')}
+        ${chartBlock('Protein', data, 'protein', 'proteinG', 'var(--protein)', 'g')}
+        ${chartBlock('Carbs', data, 'carbs', 'carbsG', 'var(--carbs)', 'g')}
+        ${chartBlock('Fat', data, 'fat', 'fatG', 'var(--fat)', 'g')}
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h2 style="margin:0;">Body measurements</h2>
+          <button class="btn small" id="manageMeasBtn">Manage</button>
+        </div>
+        <div id="measurementsHolder"></div>
+      </div>
+
+      <div class="card">
+        <h2>AI nutritionist&rsquo;s note</h2>
+        <div id="weekChatHolder"></div>
+      </div>
+    `;
+    document.getElementById('exportCsvBtn').addEventListener('click', () => {
+      const panel = document.getElementById('exportPickerPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    document.getElementById('exportConfirmBtn').addEventListener('click', () => {
+      const from = document.getElementById('exportFromDate').value;
+      const to = document.getElementById('exportToDate').value;
+      if (!from || !to) { showToast('Pick both dates.', true); return; }
+      if (from > to) { showToast('The "From" date must be before the "To" date.', true); return; }
+      exportCSV(from, to);
+    });
+    renderMeasurementsCard();
+    document.getElementById('manageMeasBtn').addEventListener('click', openMeasurementsModal);
+    renderWeekChat(data);
+  }
+
+  function buildWeekContext(data){
+    const last7 = data.slice(-7);
+    const lines = last7.map(d => `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)})`).join('; ');
+    return `Last 7 days, logged vs target: ${lines}. Person's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
+  }
+
+  function renderWeekChat(data){
+    const holder = document.getElementById('weekChatHolder');
+    if (!holder) return;
+    const msgs = state.weekChatMessages;
+    const bubbles = msgs.map(m => `<div class="chatbubble ${m.role === 'coach' ? 'coach' : 'user'}">${escapeHtml(m.text)}</div>`).join('');
+    const loadingBubble = state.weekChatLoading ? '<div class="chatbubble coach"><span class="spinner"></span>Thinking…</div>' : '';
+    let topSection;
+    if (msgs.length) {
+      topSection = `<div class="chatlist">${bubbles}${loadingBubble}</div>`;
+    } else if (state.weekChatLoading) {
+      topSection = '<div class="empty"><span class="spinner"></span>Thinking…</div>';
+    } else {
+      topSection = `<p class="setup-note" style="margin-bottom:12px;">Ask your AI nutritionist about how this week trended &mdash; what went well, what to adjust for the coming week.</p><button class="btn small" id="weekChatStarterBtn">Get summary</button>`;
+    }
+    holder.innerHTML = `
+      ${topSection}
+      <div class="chatinput-row">
+        <input type="text" id="weekChatInput" placeholder="Ask a question…" ${state.weekChatLoading ? 'disabled' : ''}>
+        <button class="btn small" id="weekChatSendBtn" ${state.weekChatLoading ? 'disabled' : ''}>Ask</button>
+      </div>
+    `;
+    const starterBtn = document.getElementById('weekChatStarterBtn');
+    if (starterBtn) starterBtn.addEventListener('click', () => sendWeekChatMessage("How did this week trend, and what should I focus on?", data));
+    document.getElementById('weekChatSendBtn').addEventListener('click', () => {
+      const input = document.getElementById('weekChatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      sendWeekChatMessage(text, data);
+    });
+    document.getElementById('weekChatInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('weekChatSendBtn').click(); }
+    });
+    const list = holder.querySelector('.chatlist');
+    if (list) list.scrollTop = list.scrollHeight;
+  }
+
+  async function sendWeekChatMessage(text, data){
+    const input = document.getElementById('weekChatInput');
+    if (input) input.value = '';
+    state.weekChatMessages.push({ role: 'user', text, time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) });
+    state.weekChatLoading = true;
+    renderWeekChat(data);
+    try {
+      const context = buildWeekContext(data);
+      const reply = await callCoachChat(state.weekChatMessages, context);
+      state.weekChatMessages.push({ role: 'coach', text: reply, time: new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) });
+      await saveWeekChatMessages(todayStr(), state.weekChatMessages);
+    } catch(e) {
+      showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
+    } finally {
+      state.weekChatLoading = false;
+      renderWeekChat(data);
+    }
+  }
+
+  function fmtShortDate(dstr){
+    const [y,m,d] = dstr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  const MEASUREMENT_META = {
+    waist: { label: 'Waist', color: 'var(--moss)' },
+    bust:  { label: 'Bust',  color: 'var(--protein)' },
+    hips:  { label: 'Hips',  color: 'var(--carbs)' },
+  };
+
+  function buildMeasurementSeries(){
+    const dates = Object.keys(state.measurements).sort();
+    const series = { waist: [], bust: [], hips: [] };
+    dates.forEach(d => {
+      const m = state.measurements[d] || {};
+      ['waist','bust','hips'].forEach(k => {
+        if (m[k] !== undefined && m[k] !== null && m[k] !== '') series[k].push({ date: d, value: Number(m[k]) });
+      });
+    });
+    return series;
+  }
+
+  function buildMeasurementsChart(series){
+    const allPoints = [...series.waist, ...series.bust, ...series.hips];
+    if (!allPoints.length) return null;
+    const values = allPoints.map(p => p.value);
+    const minV = Math.min(...values), maxV = Math.max(...values);
+    const pad = Math.max(2, (maxV - minV) * 0.15);
+    const yMin = minV - pad, yMax = maxV + pad;
+    const allDates = allPoints.map(p => p.date).sort();
+    const firstDate = new Date(allDates[0]);
+    const lastDate = new Date(allDates[allDates.length - 1]);
+    const totalMs = Math.max(1, lastDate - firstDate);
+    const W = 600, H = 100, marginBottom = 18, marginTop = 6;
+    const plotH = H - marginBottom - marginTop;
+    const xPos = (dateStr) => (new Date(dateStr) - firstDate) / totalMs * W;
+    const yPos = (val) => marginTop + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
+    let svgParts = '';
+    ['waist','bust','hips'].forEach(k => {
+      const pts = series[k];
+      if (!pts.length) return;
+      const color = MEASUREMENT_META[k].color;
+      if (pts.length > 1) {
+        const pointsStr = pts.map(p => `${xPos(p.date).toFixed(1)},${yPos(p.value).toFixed(1)}`).join(' ');
+        svgParts += `<polyline points="${pointsStr}" fill="none" stroke="${color}" stroke-width="2"></polyline>`;
+      }
+      pts.forEach(p => {
+        svgParts += `<circle cx="${xPos(p.date).toFixed(1)}" cy="${yPos(p.value).toFixed(1)}" r="3" fill="${color}"></circle>`;
+      });
+    });
+    svgParts += `<text x="2" y="${H-3}" font-size="9" fill="var(--ink-soft)" text-anchor="start">${fmtShortDate(allDates[0])}</text>`;
+    svgParts += `<text x="${W-2}" y="${H-3}" font-size="9" fill="var(--ink-soft)" text-anchor="end">${fmtShortDate(allDates[allDates.length-1])}</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:100px; display:block;">${svgParts}</svg>`;
+  }
+
+  function renderMeasurementsCard(){
+    const holder = document.getElementById('measurementsHolder');
+    if (!holder) return;
+    const series = buildMeasurementSeries();
+    const summaryChips = ['bust','waist','hips'].map(k => {
+      const s = series[k];
+      if (!s.length) return '';
+      const latest = s[s.length-1].value;
+      const prev = s.length > 1 ? s[s.length-2].value : null;
+      let deltaHtml = '';
+      if (prev !== null) {
+        const delta = Math.round((latest - prev) * 10) / 10;
+        const deltaColor = delta < 0 ? 'var(--moss)' : (delta > 0 ? 'var(--over)' : 'var(--ink-soft)');
+        deltaHtml = ` <span style="color:${deltaColor};">${delta > 0 ? '+' : ''}${delta}</span>`;
+      }
+      return `<span style="margin-right:16px; font-size:12px; color:var(--ink-soft); display:inline-flex; align-items:center; gap:5px;"><span style="width:8px; height:8px; border-radius:50%; background:${MEASUREMENT_META[k].color}; display:inline-block;"></span>${MEASUREMENT_META[k].label} <b style="color:var(--ink); font-family:'JetBrains Mono',monospace;">${latest}cm</b>${deltaHtml}</span>`;
+    }).join('');
+    const chart = buildMeasurementsChart(series);
+    holder.innerHTML = `
+      ${summaryChips ? `<div style="margin-bottom:14px; display:flex; flex-wrap:wrap;">${summaryChips}</div>` : ''}
+      ${chart || '<p class="empty">No measurements logged yet. Tap Manage to add one.</p>'}
+    `;
+  }
+
+  function measFormHtml(existing){
+    const e = existing || {};
+    return `
+      <div class="measgrid">
+        <div class="field" style="margin-bottom:0;"><label>Date</label><input type="date" id="measDate" value="${e.date || todayStr()}" max="${todayStr()}"></div>
+        <div class="field" style="margin-bottom:0;"><label>Bust (cm)</label><input type="number" step="0.1" min="0" id="measBust" value="${e.bust ?? ''}"></div>
+        <div class="field" style="margin-bottom:0;"><label>Waist (cm)</label><input type="number" step="0.1" min="0" id="measWaist" value="${e.waist ?? ''}"></div>
+        <div class="field" style="margin-bottom:0;"><label>Hips (cm)</label><input type="number" step="0.1" min="0" id="measHips" value="${e.hips ?? ''}"></div>
+      </div>
+      <div style="text-align:right; margin-bottom:16px; display:flex; justify-content:flex-end; gap:8px;">
+        ${existing ? '<button class="btn small" id="cancelMeasEditBtn">Cancel</button>' : ''}
+        <button class="btn small" id="saveMeasBtn">Save</button>
+      </div>
+    `;
+  }
+
+  function openMeasurementsModal(){
+    state.measurementsModalOpen = true;
+    state.editingMeasurementDate = null;
+    renderMeasurementsModal();
+    const overlay = document.getElementById('measurementsModal');
+    overlay.style.display = 'flex';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeMeasurementsModal(); });
+  }
+
+  function closeMeasurementsModal(){
+    state.measurementsModalOpen = false;
+    document.getElementById('measurementsModal').style.display = 'none';
+  }
+
+  function renderMeasurementsModal(){
+    const overlay = document.getElementById('measurementsModal');
+    if (!overlay) return;
+    const editing = state.editingMeasurementDate ? { date: state.editingMeasurementDate, ...(state.measurements[state.editingMeasurementDate] || {}) } : null;
+    const dates = Object.keys(state.measurements).sort().reverse();
+    const rows = dates.length ? dates.map(d => {
+      const m = state.measurements[d];
+      const parts = [];
+      if (m.bust !== undefined) parts.push(`Bust ${m.bust}`);
+      if (m.waist !== undefined) parts.push(`Waist ${m.waist}`);
+      if (m.hips !== undefined) parts.push(`Hips ${m.hips}`);
+      return `
+        <div class="measrow">
+          <span><b>${fmtShortDate(d)}</b>&nbsp; ${parts.join(' &middot; ')}</span>
+          <span class="measrow-actions">
+            <span class="medit" data-editmeas="${d}" title="Edit" aria-label="Edit measurement">&#9998;</span>
+            <span class="mdel" data-delmeas="${d}" title="Delete" aria-label="Delete measurement">&times;</span>
+          </span>
+        </div>
+      `;
+    }).join('') : '<p class="empty">No measurements logged yet.</p>';
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 style="margin:0;">Body measurements</h2>
+          <button class="modal-close" id="closeMeasModalBtn" aria-label="Close">&times;</button>
+        </div>
+        ${measFormHtml(editing)}
+        <div>${rows}</div>
+      </div>
+    `;
+    document.getElementById('closeMeasModalBtn').addEventListener('click', closeMeasurementsModal);
+    document.getElementById('saveMeasBtn').addEventListener('click', saveMeasurementEntry);
+    const cancelBtn = document.getElementById('cancelMeasEditBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', () => { state.editingMeasurementDate = null; renderMeasurementsModal(); });
+    overlay.querySelectorAll('[data-editmeas]').forEach(el => {
+      el.addEventListener('click', () => { state.editingMeasurementDate = el.dataset.editmeas; renderMeasurementsModal(); });
+    });
+    overlay.querySelectorAll('[data-delmeas]').forEach(el => {
+      el.addEventListener('click', () => deleteMeasurementEntry(el.dataset.delmeas));
+    });
+  }
+
+  async function saveMeasurementEntry(){
+    const date = document.getElementById('measDate').value;
+    if (!date) { showToast('Pick a date.', true); return; }
+    const waist = document.getElementById('measWaist').value;
+    const bust = document.getElementById('measBust').value;
+    const hips = document.getElementById('measHips').value;
+    if (!waist && !bust && !hips) { showToast('Enter at least one measurement.', true); return; }
+    const previous = JSON.parse(JSON.stringify(state.measurements));
+    const entry = {};
+    if (waist) entry.waist = Number(waist);
+    if (bust) entry.bust = Number(bust);
+    if (hips) entry.hips = Number(hips);
+    state.measurements[date] = entry;
+    try {
+      await saveMeasurementsStorage(state.measurements);
+      showToast('Measurement saved.', false);
+    } catch(e) {
+      state.measurements = previous;
+      showToast('Could not save that — please try again.', true);
+    }
+    state.editingMeasurementDate = null;
+    renderMeasurementsModal();
+    renderMeasurementsCard();
+  }
+
+  async function deleteMeasurementEntry(date){
+    if (!confirm(`Delete the measurement entry for ${fmtShortDate(date)}?`)) return;
+    const previous = JSON.parse(JSON.stringify(state.measurements));
+    delete state.measurements[date];
+    try {
+      await saveMeasurementsStorage(state.measurements);
+    } catch(e) {
+      state.measurements = previous;
+      showToast('Could not delete that — please try again.', true);
+    }
+    if (state.editingMeasurementDate === date) state.editingMeasurementDate = null;
+    renderMeasurementsModal();
+    renderMeasurementsCard();
+  }
+
+  function chartBlock(label, data, valueKey, targetKey, color, unit){
+    const targets = data.map(d => d.targets[targetKey]);
+    const avgTarget = Math.round(targets.reduce((a,b) => a+b, 0) / targets.length);
+    const maxVal = Math.max(...targets.map(t => t*1.25), ...data.map(d => d.totals[valueKey]), 1);
+    const W = 680, H = 108, marginLeft = 40, marginBottom = 18, marginTop = 4;
+    const plotW = W - marginLeft;
+    const plotH = H - marginBottom - marginTop;
+    const gap = 2.5;
+    const barW = Math.max(1, (plotW / data.length) - gap);
+    let bars = '';
+    let linePoints = [];
+    data.forEach((d, i) => {
+      const val = d.totals[valueKey];
+      const target = d.targets[targetKey];
+      const barH = Math.max(1, (val / maxVal) * plotH);
+      const x = marginLeft + i * (barW + gap);
+      const y = marginTop + (plotH - barH);
+      const over = val > target;
+      bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${over ? 'var(--over)' : color}" opacity="${over ? '0.88' : '0.72'}" rx="1"></rect>`;
+      const targetY = marginTop + (plotH - (target / maxVal) * plotH);
+      linePoints.push(`${x.toFixed(1)},${targetY.toFixed(1)}`);
+      linePoints.push(`${(x+barW).toFixed(1)},${targetY.toFixed(1)}`);
+    });
+    let yAxis = '';
+    [0, 0.5, 1].forEach(f => {
+      const val = Math.round(maxVal * f);
+      const y = marginTop + (plotH - f * plotH);
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1"></line>`;
+      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${val}</text>`;
+    });
+    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
+    data.forEach((d, i) => {
+      if (i % 7 === 0 || i === data.length - 1) {
+        const x = marginLeft + i * (barW + gap) + barW / 2;
+        xAxis += `<text x="${x.toFixed(1)}" y="${H - 3}" text-anchor="middle" font-size="9" fill="var(--ink-soft)">${fmtShortDate(d.date)}</text>`;
+      }
+    });
+    return `
+      <div class="chartblock">
+        <div class="chead"><span>${label}</span><span>avg target ${avgTarget}${unit}</span></div>
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
+          ${yAxis}
+          <polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
+          ${bars}
+          ${xAxis}
+        </svg>
+      </div>
+    `;
+  }
+
+  async function exportCSV(fromDate, toDate){
+    try {
+      const listRes = await window.storage.list('meals:', false);
+      const keys = (listRes && listRes.keys) ? listRes.keys : [];
+      let items = await mapWithConcurrency(keys, 6, async (k) => {
+        const dateStr = k.slice('meals:'.length);
+        let meals = [];
+        try {
+          const res = await window.storage.get(k, false);
+          meals = res ? JSON.parse(res.value) : [];
+        } catch(e) { meals = []; }
+        return { dateStr, totals: totalsFromMeals(meals) };
+      });
+      if (fromDate) items = items.filter(it => it.dateStr >= fromDate);
+      if (toDate) items = items.filter(it => it.dateStr <= toDate);
+      items.sort((a,b) => a.dateStr.localeCompare(b.dateStr));
+      if (!items.length) { showToast('No logged days in that range.', true); return; }
+      const rows = [['date','calories','protein_g','carbs_g','fat_g']];
+      items.forEach(it => rows.push([it.dateStr, Math.round(it.totals.calories), Math.round(it.totals.protein), Math.round(it.totals.carbs), Math.round(it.totals.fat)]));
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const rangeLabel = (fromDate || toDate) ? `${items[0].dateStr}_to_${items[items.length-1].dateStr}` : 'all';
+      a.href = url; a.download = `steady-daily-totals-${rangeLabel}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch(e) {
+      showToast('Could not export your data — please try again.', true);
+    }
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(str){ return escapeHtml(str); }
+
+  let toastTimer = null;
+  function showToast(msg, isError){
+    const toast = document.getElementById('steadyToast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className = 'toast ' + (isError ? 'toast-error' : 'toast-ok');
+    toast.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 4000);
+  }
+
+  profileBtn.addEventListener('click', () => {
+    state.view = state.view === 'profile' ? 'log' : 'profile';
+    render();
+  });
+  document.getElementById('todayNavBtn').addEventListener('click', () => { state.view = 'log'; switchDate(todayStr()); });
+  document.getElementById('trendsNavBtn').addEventListener('click', () => { state.view = 'trends'; render(); });
+  document.getElementById('favNavBtn').addEventListener('click', () => { state.view = 'favorites'; render(); });
+
+  // ---------------- Init ----------------
+  async function checkStorageHealth(){
+    try {
+      const probe = 'ok-' + Date.now();
+      await window.storage.set('__healthcheck', probe, false);
+      const res = await window.storage.get('__healthcheck', false);
+      state.storageOk = !!(res && res.value === probe);
+    } catch(e) {
+      state.storageOk = false;
+    }
+  }
+
+  (async function init(){
+    app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your ledger…</div></div>';
+    await checkStorageHealth();
+    await loadProfile();
+    await loadMeals(state.currentDate);
+    await loadDailyNote(state.currentDate);
+    await loadChatMessages(state.currentDate);
+    await loadFavorites();
+    state.measurements = await loadMeasurements();
+    state.activities = await loadActivities(state.currentDate);
+    render();
+  })();
+})();
+</script>
+</body></html>
