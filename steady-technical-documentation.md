@@ -145,28 +145,36 @@ All coach/nutritionist prompts share the same "gradual, steady progress, never s
 
 **Name personalization**: a shared helper, `nameContext()`, prepends a short instruction to every one of the four AI-context builders above (today's chat, weekly chat, past-day summaries, individual meal tips) — but only if `state.profile.nickname` is set. It's phrased as "address them by name where it feels natural" rather than a hard requirement, so the AI isn't forced to use the name in every single reply. If no nickname is set, the function returns an empty string and every prompt behaves exactly as it did before this feature existed — no conditional branching needed at each call site.
 
+### 5.5 Body measurements
+Single `measurements` object, not date-prefixed keys (kept as one key deliberately — entries are sparse, so per-date keys would be wasteful). The Trends card renders **three separate charts** — Bust, Waist, Hips, always in that anatomical order — via `measurementChartBlock(label, points, color, unit)`, one call per metric, reusing the exact same `.chartblock`/`.chead` markup and axis-drawing approach as the macro charts (§5.3), so they're visually identical: gridlines and value labels scaled to that metric's own min/max, date labels along the bottom, a header showing the latest value and the delta from the previous entry. A metric with no data simply doesn't render a chart — there's no combined multi-line chart anymore (an earlier version drew all three on one shared scale; separating them made each one's own trend legible instead of squashed against the others' ranges). Add/edit/delete happens through a full CRUD modal (`openMeasurementsModal` / `renderMeasurementsModal`), reachable via a "Manage" button that sits *below* the charts (or below the empty-state message if there's no data yet) — the card header itself instead holds the CSV export button.
+
+### 5.6 CSV export
+Three independent exporters, all built on the same `csvEscape()` RFC 4180 escaping helper (quoting fields containing commas/quotes/newlines, doubling internal quotes):
+- **Daily totals** (`exportCSV(fromDate, toDate)`): numeric-only, supports an arbitrary date range via a picker on the Trends page.
+- **Recipes** (`exportRecipesCSV`): includes free-text `ingredients`, so escaping actually matters here.
+- **Body measurements** (`exportMeasurementsCSV`): `date, waist_cm, bust_cm, hips_cm`, one row per date with *any* measurement logged; blank cells for whichever fields weren't recorded that day. Reads directly from `state.measurements` (already fully loaded in memory) rather than a storage round-trip.
+
+### 5.7 Data management
+`onKeepDaysClick(n)` deletes `meals:`, `note:`, `activity:`, `chat:`, `weekchat:` entries older than a cutoff date. `onDeleteAllClick()` does the same with no cutoff, plus wipes `profile`, `favorites`, `measurements`, and legacy index keys, and resets `state.currentDate` back to today (a real bug, found and fixed: without this, deleting everything while viewing a past date left that stale date selected once a new profile was set up). **Deliberate exception**: `measurements` is excluded from the day-based retention trim (small, sparse, worth keeping long-term) but included in the full wipe.
+
 ### 5.8 Chart tooltips
-Both the Trends bar charts (`chartBlock()`) and the body-measurements line chart (`buildMeasurementsChart()`) embed `data-tip` attributes on their SVG shapes, wired up by a shared `wireChartTooltips(container)` helper to a single floating tooltip element (`#chartTooltip`) that's styled and positioned in JS rather than relying on the browser's native (and non-touch-friendly) `<title>` tooltip.
+Both the Trends bar charts (`chartBlock()`) and the body-measurement charts (`measurementChartBlock()`) embed `data-tip` attributes on their SVG shapes, wired up by a shared `wireChartTooltips(container)` helper to a single floating tooltip element (`#chartTooltip`) that's styled and positioned in JS rather than relying on the browser's native (and non-touch-friendly) `<title>` tooltip.
 
 Two details worth knowing if extending this:
 - **Hit areas are deliberately oversized and separate from the visible shape.** A bar chart's actual colored `<rect>` can be just 1px tall on a near-zero day, so each bar also gets an invisible full-height `<rect class="chartbar-hit">` sitting behind it (the visible bar has `pointer-events: none` so it doesn't intercept anything); measurement points similarly get an invisible 9px-radius hit circle around the visible 3px dot. This matters far more on mobile, where "hover precisely on a 1px bar" isn't a realistic gesture.
 - **Wiring is scoped carefully to avoid duplicate listeners.** `renderMeasurementsCard()` can be called on its own (e.g., after saving/deleting a measurement from the modal) without the rest of the Trends page re-rendering — so it calls `wireChartTooltips(holder)` scoped to just its own container each time it runs, rather than the macro-chart wiring (called once, unscoped, right after the four `chartBlock()` calls are set) re-matching and double-binding listeners to elements that already have them.
 - **Works on both hover and tap**: each tooltip target has `mouseenter`/`mouseleave` *and* a `click` handler (which toggles the tooltip and calls `stopPropagation()` so a single document-level `click` listener can dismiss any open tooltip when tapping elsewhere).
 
-### 5.5 Body measurements
-Single `measurements` object, not date-prefixed keys (kept as one key deliberately — entries are sparse, so per-date keys would be wasteful). UI is a lightweight card (chips + chart) on Trends with a full CRUD modal (`openMeasurementsModal` / `renderMeasurementsModal`) for add/edit/delete, since the inline card intentionally shows no raw data entry.
-
-### 5.6 CSV export
-Two independent exporters:
-- **Daily totals** (`exportCSV(fromDate, toDate)`): numeric-only, no escaping needed, supports an arbitrary date range via a picker on the Trends page.
-- **Recipes** (`exportRecipesCSV`): includes free-text `ingredients`, so it uses proper RFC 4180 CSV escaping (`csvEscape()`) — quoting fields containing commas/quotes/newlines and doubling internal quotes.
-
-### 5.7 Data management
-`onKeepDaysClick(n)` deletes `meals:`, `note:`, `activity:`, `chat:`, `weekchat:` entries older than a cutoff date. `onDeleteAllClick()` does the same with no cutoff, plus wipes `profile`, `favorites`, `measurements`, and legacy index keys, and resets `state.currentDate` back to today (a real bug, found and fixed: without this, deleting everything while viewing a past date left that stale date selected once a new profile was set up). **Deliberate exception**: `measurements` is excluded from the day-based retention trim (small, sparse, worth keeping long-term) but included in the full wipe.
-
 ---
 
-## 6. Storage health check
+## 6. Storage reliability
+
+### 6.1 Timeout-wrapped storage layer
+Every one of the app's ~28 storage call sites goes through one of four thin wrappers — `storageGet`/`storageSet`/`storageList`/`storageDelete` — instead of calling `window.storage.*` directly. Each wrapper races the real call against an 8-second timeout (`STORAGE_TIMEOUT_MS`) using `Promise.race`; if the real call hasn't resolved in time, the wrapper rejects with a plain `Error`.
+
+This was a deliberate fix for a real, observed bug: `renderTrends()`'s first load of a session could get stuck on its loading spinner indefinitely — not erroring, just never resolving — most likely caused by one of the ~28 parallel storage reads hanging on a "cold" connection. Because every existing call site already wraps its storage calls in `try/catch` expecting a possible failure, a timeout needed no changes to any of that surrounding logic — from the caller's point of view, a timeout is indistinguishable from any other storage error, and gets the same fallback behavior (empty array, `null`, a toast) it already had.
+
+### 6.2 Health check
 On `init()`, `checkStorageHealth()` writes and immediately reads back a probe value under `__healthcheck`. If the round-trip doesn't match, `state.storageOk = false` and a persistent red banner renders on every screen: *"Nothing you enter is being saved right now."* This exists because `window.storage` fails silently by default (per Anthropic's API — accessing/writing can throw without obvious cause, most commonly because the artifact isn't published), and the app previously had no way to distinguish "code bug" from "storage inactive."
 
 ---
@@ -176,7 +184,7 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 - **20MB total storage cap** per artifact (Anthropic platform limit), text/JSON only.
 - **Last-write-wins**, no conflict resolution — concurrent edits from two open tabs/devices can silently overwrite each other.
 - **"Today" is the browser's local clock** — no timezone handling; logging near midnight or while traveling can misassign a date.
-- **No offline queueing** — a failed save is reported via toast, but there's no retry queue; the user must manually retry.
+- **No offline queueing** — a failed save is reported via toast, but there's no retry queue; the user must manually retry. A hung request now fails within 8 seconds rather than indefinitely (§6.1), but that's a bound on failure, not a fix for it — the save still doesn't happen without manual retry.
 - **AI estimates are unverified** — macro numbers and coaching text are LLM output, editable but not fact-checked by the app.
 - **No multi-device conflict handling for the AI chat threads** — same last-write-wins caveat applies to `chat:`/`weekchat:`.
 
@@ -186,14 +194,14 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 
 | Area | Key functions |
 |---|---|
-| Storage I/O | `loadProfile/saveProfile`, `loadMeals/saveMeals`, `loadActivities/saveActivities`, `loadDailyNote/saveDailyNote`, `loadChatMessages/saveChatMessages`, `loadWeekChatMessages/saveWeekChatMessages`, `loadFavorites/saveFavoritesStorage`, `loadMeasurements/saveMeasurementsStorage` |
+| Storage I/O | `storageGet`/`storageSet`/`storageList`/`storageDelete` (timeout-wrapped, §6.1) underlying `loadProfile/saveProfile`, `loadMeals/saveMeals`, `loadActivities/saveActivities`, `loadDailyNote/saveDailyNote`, `loadChatMessages/saveChatMessages`, `loadWeekChatMessages/saveWeekChatMessages`, `loadFavorites/saveFavoritesStorage`, `loadMeasurements/saveMeasurementsStorage` |
 | Calculations | `computeTargets`, `goalAdjustment`, `totalsFromMeals`, `activitiesLabel`, `activityKcal`, `nameContext` |
 | Rendering — Today | `renderLog`, `macroRow`, `renderMealList`, `renderAddForm`, `renderCoachChat`, `addActivity`/`removeActivity`/`updateActivityDuration` |
-| Rendering — Trends | `renderTrends`, `chartBlock`, `renderMeasurementsCard`, `openMeasurementsModal`/`renderMeasurementsModal`/`closeMeasurementsModal`, `buildMeasurementSeries`/`buildMeasurementsChart`, `renderWeekChat`, `showChartTooltip`/`hideChartTooltip`/`wireChartTooltips` |
+| Rendering — Trends | `renderTrends`, `chartBlock`, `renderMeasurementsCard`, `measurementChartBlock`, `openMeasurementsModal`/`renderMeasurementsModal`/`closeMeasurementsModal`, `buildMeasurementSeries`, `renderWeekChat`, `showChartTooltip`/`hideChartTooltip`/`wireChartTooltips` |
 | Rendering — Favorites | `renderFavoritesPage`, `renderFavList`, `renderFavEditArea`, `toggleMealFavorite`, `exportRecipesCSV` |
 | Rendering — Profile/Setup | `renderSetup`, `renderProfileForm`, `renderProfileFormInto` |
 | AI calls | `callEstimate` (meal estimation), `callCoachText` (static summaries), `callCoachChat` (chat, daily + weekly), `buildTodayContext`/`buildWeekContext` (context builders feeding both) |
-| Data management | `onKeepDaysClick`, `onDeleteAllClick`, `deleteDataByPrefix`, `deleteMeasurementEntry` |
+| Data management | `onKeepDaysClick`, `onDeleteAllClick`, `deleteDataByPrefix`, `deleteMeasurementEntry`, `exportCSV`, `exportMeasurementsCSV` |
 | Utilities | `mapWithConcurrency`, `shiftDate`, `todayStr`, `fmtDateLabel`, `fmtShortDate`, `escapeHtml`/`escapeAttr`, `csvEscape`, `showToast` |
 
 ---

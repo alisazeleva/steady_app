@@ -15,9 +15,9 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 - **AI meal logging** — describe a meal in plain text or snap a photo; Claude estimates calories and macros, shown for review before anything is saved
 - **Dynamic targets** — calorie/macro goals computed from the Mifflin-St Jeor formula, adjusted for your stated goal (recomposition, fat loss, muscle gain, maintenance), training frequency, and *today's* logged activity — multiple activities, each with a duration, summed into a real calorie adjustment
 - **AI nutritionist chat** — a real back-and-forth conversation for today (re-grounded in your live data on every message) and a separate weekly chat scoped to your trailing 7 days; past days get a static, regeneratable summary instead
-- **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker (waist/bust/hips) with its own mini trend chart
+- **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker with its own three separate charts (bust, waist, hips), each with its own axis scale
 - **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with one-tap re-logging and CSV export
-- **Data control** — a date-range CSV export for your daily totals, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
+- **Data control** — CSV export for daily totals, recipes, and body measurements; a "keep last N days" retention tool; full-history deletion; and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
 
 ---
 
