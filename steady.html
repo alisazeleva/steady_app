@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_48.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_50.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -513,6 +513,18 @@
     editingMeasurementDate: null,
   };
 
+  const STORAGE_TIMEOUT_MS = 8000;
+  function withStorageTimeout(promise){
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Storage request timed out — please try again.')), STORAGE_TIMEOUT_MS))
+    ]);
+  }
+  function storageGet(key, shared){ return withStorageTimeout(window.storage.get(key, shared)); }
+  function storageSet(key, value, shared){ return withStorageTimeout(window.storage.set(key, value, shared)); }
+  function storageList(prefix, shared){ return withStorageTimeout(window.storage.list(prefix, shared)); }
+  function storageDelete(key, shared){ return withStorageTimeout(window.storage.delete(key, shared)); }
+
   async function mapWithConcurrency(items, limit, fn){
     const results = new Array(items.length);
     let idx = 0;
@@ -548,26 +560,26 @@
   // ---------------- Storage ----------------
   async function loadProfile(){
     try {
-      const res = await window.storage.get('profile', false);
+      const res = await storageGet('profile', false);
       state.profile = res ? JSON.parse(res.value) : null;
     } catch(e) { state.profile = null; }
   }
   async function saveProfile(p){
-    await window.storage.set('profile', JSON.stringify(p), false);
+    await storageSet('profile', JSON.stringify(p), false);
     state.profile = p;
   }
   async function loadMeals(dateStr){
     try {
-      const res = await window.storage.get('meals:' + dateStr, false);
+      const res = await storageGet('meals:' + dateStr, false);
       state.meals = res ? JSON.parse(res.value) : [];
     } catch(e) { state.meals = []; }
   }
   async function saveMeals(dateStr, meals){
-    await window.storage.set('meals:' + dateStr, JSON.stringify(meals), false);
+    await storageSet('meals:' + dateStr, JSON.stringify(meals), false);
   }
   async function loadDailyNote(dateStr){
     try {
-      const res = await window.storage.get('note:' + dateStr, false);
+      const res = await storageGet('note:' + dateStr, false);
       if (!res || !res.value) { state.dailyNote = null; state.dailyNoteMeta = null; return; }
       const raw = res.value;
       if (raw.trim().startsWith('{')) {
@@ -583,20 +595,20 @@
     } catch(e) { state.dailyNote = null; state.dailyNoteMeta = null; }
   }
   async function saveDailyNote(dateStr, text, meta){
-    await window.storage.set('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories }), false);
+    await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories }), false);
   }
   async function loadChatMessages(dateStr){
     try {
-      const res = await window.storage.get('chat:' + dateStr, false);
+      const res = await storageGet('chat:' + dateStr, false);
       state.chatMessages = res ? JSON.parse(res.value) : [];
     } catch(e) { state.chatMessages = []; }
   }
   async function saveChatMessages(dateStr, messages){
-    await window.storage.set('chat:' + dateStr, JSON.stringify(messages), false);
+    await storageSet('chat:' + dateStr, JSON.stringify(messages), false);
   }
   async function loadActivities(dateStr){
     try {
-      const res = await window.storage.get('activity:' + dateStr, false);
+      const res = await storageGet('activity:' + dateStr, false);
       if (!res || !res.value) return [];
       const raw = res.value;
       if (raw.trim().startsWith('[')) {
@@ -614,7 +626,7 @@
     } catch(e) { return []; }
   }
   async function saveActivities(dateStr, activities){
-    await window.storage.set('activity:' + dateStr, JSON.stringify(activities), false);
+    await storageSet('activity:' + dateStr, JSON.stringify(activities), false);
   }
 
   function totalsFromMeals(meals){
@@ -626,30 +638,30 @@
   }
   async function loadFavorites(){
     try {
-      const res = await window.storage.get('favorites', false);
+      const res = await storageGet('favorites', false);
       state.favorites = res ? JSON.parse(res.value) : [];
     } catch(e) { state.favorites = []; }
   }
   async function saveFavoritesStorage(favs){
-    await window.storage.set('favorites', JSON.stringify(favs), false);
+    await storageSet('favorites', JSON.stringify(favs), false);
   }
   async function loadMeasurements(){
     try {
-      const res = await window.storage.get('measurements', false);
+      const res = await storageGet('measurements', false);
       return res ? JSON.parse(res.value) : {};
     } catch(e) { return {}; }
   }
   async function saveMeasurementsStorage(measurements){
-    await window.storage.set('measurements', JSON.stringify(measurements), false);
+    await storageSet('measurements', JSON.stringify(measurements), false);
   }
   async function loadWeekChatMessages(dateStr){
     try {
-      const res = await window.storage.get('weekchat:' + dateStr, false);
+      const res = await storageGet('weekchat:' + dateStr, false);
       state.weekChatMessages = res ? JSON.parse(res.value) : [];
     } catch(e) { state.weekChatMessages = []; }
   }
   async function saveWeekChatMessages(dateStr, messages){
-    await window.storage.set('weekchat:' + dateStr, JSON.stringify(messages), false);
+    await storageSet('weekchat:' + dateStr, JSON.stringify(messages), false);
   }
 
   // ---------------- Targets calc ----------------
@@ -810,14 +822,14 @@
 
   async function deleteDataByPrefix(prefix, olderThanDate){
     try {
-      const listRes = await window.storage.list(prefix, false);
+      const listRes = await storageList(prefix, false);
       const keys = (listRes && listRes.keys) ? listRes.keys : [];
       for (const k of keys) {
         if (olderThanDate) {
           const dateStr = k.slice(prefix.length);
           if (dateStr >= olderThanDate) continue;
         }
-        try { await window.storage.delete(k, false); } catch(e) {}
+        try { await storageDelete(k, false); } catch(e) {}
       }
     } catch(e) {}
   }
@@ -845,11 +857,11 @@
     await deleteDataByPrefix('activity:', null);
     await deleteDataByPrefix('weekchat:', null);
     await deleteDataByPrefix('chat:', null);
-    try { await window.storage.delete('favorites', false); } catch(e) {}
-    try { await window.storage.delete('profile', false); } catch(e) {}
-    try { await window.storage.delete('measurements', false); } catch(e) {}
-    try { await window.storage.delete('daily-index', false); } catch(e) {}
-    try { await window.storage.delete('daily-index-built', false); } catch(e) {}
+    try { await storageDelete('favorites', false); } catch(e) {}
+    try { await storageDelete('profile', false); } catch(e) {}
+    try { await storageDelete('measurements', false); } catch(e) {}
+    try { await storageDelete('daily-index', false); } catch(e) {}
+    try { await storageDelete('daily-index-built', false); } catch(e) {}
     state.profile = null;
     state.currentDate = todayStr();
     state.meals = [];
@@ -1637,6 +1649,23 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  function exportMeasurementsCSV(){
+    const dates = Object.keys(state.measurements).sort();
+    if (!dates.length) { showToast('No measurements to export yet.', true); return; }
+    const rows = [['date','waist_cm','bust_cm','hips_cm']];
+    dates.forEach(d => {
+      const m = state.measurements[d] || {};
+      rows.push([d, m.waist ?? '', m.bust ?? '', m.hips ?? '']);
+    });
+    const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'steady-body-measurements.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   function favEditFormHtml(f, idPrefix){
     return `
       <div class="editmeal">
@@ -2025,7 +2054,7 @@
       const [meals, dayActivities] = await Promise.all([
         (async () => {
           try {
-            const res = await window.storage.get('meals:' + d, false);
+            const res = await storageGet('meals:' + d, false);
             return res ? JSON.parse(res.value) : [];
           } catch(e) { return []; }
         })(),
@@ -2060,7 +2089,7 @@
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <h2 style="margin:0;">Body measurements</h2>
-          <button class="btn small" id="manageMeasBtn">Manage</button>
+          <button class="btn small" id="exportMeasBtn">Export CSV</button>
         </div>
         <div id="measurementsHolder"></div>
       </div>
@@ -2083,7 +2112,7 @@
       exportCSV(from, to);
     });
     renderMeasurementsCard();
-    document.getElementById('manageMeasBtn').addEventListener('click', openMeasurementsModal);
+    document.getElementById('exportMeasBtn').addEventListener('click', exportMeasurementsCSV);
     renderWeekChat(data);
   }
 
@@ -2172,64 +2201,75 @@
     return series;
   }
 
-  function buildMeasurementsChart(series){
-    const allPoints = [...series.waist, ...series.bust, ...series.hips];
-    if (!allPoints.length) return null;
-    const values = allPoints.map(p => p.value);
+  function measurementChartBlock(label, pts, color, unit){
+    if (!pts.length) return null;
+    const values = pts.map(p => p.value);
     const minV = Math.min(...values), maxV = Math.max(...values);
-    const pad = Math.max(2, (maxV - minV) * 0.15);
+    const pad = Math.max(1, (maxV - minV) * 0.15 || 2);
     const yMin = minV - pad, yMax = maxV + pad;
-    const allDates = allPoints.map(p => p.date).sort();
-    const firstDate = new Date(allDates[0]);
-    const lastDate = new Date(allDates[allDates.length - 1]);
+    const firstDate = new Date(pts[0].date), lastDate = new Date(pts[pts.length - 1].date);
     const totalMs = Math.max(1, lastDate - firstDate);
-    const W = 600, H = 100, marginBottom = 18, marginTop = 6;
-    const plotH = H - marginBottom - marginTop;
-    const xPos = (dateStr) => (new Date(dateStr) - firstDate) / totalMs * W;
-    const yPos = (val) => marginTop + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
-    let svgParts = '';
-    ['waist','bust','hips'].forEach(k => {
-      const pts = series[k];
-      if (!pts.length) return;
-      const color = MEASUREMENT_META[k].color;
-      if (pts.length > 1) {
-        const pointsStr = pts.map(p => `${xPos(p.date).toFixed(1)},${yPos(p.value).toFixed(1)}`).join(' ');
-        svgParts += `<polyline points="${pointsStr}" fill="none" stroke="${color}" stroke-width="2"></polyline>`;
-      }
-      pts.forEach(p => {
-        const cx = xPos(p.date).toFixed(1), cy = yPos(p.value).toFixed(1);
-        const tipText = `${fmtShortDate(p.date)}: ${MEASUREMENT_META[k].label} ${p.value}cm`;
-        svgParts += `<circle class="measpoint-hit" data-tip="${escapeAttr(tipText)}" cx="${cx}" cy="${cy}" r="9" fill="transparent"></circle>`;
-        svgParts += `<circle cx="${cx}" cy="${cy}" r="3" fill="${color}" style="pointer-events:none;"></circle>`;
-      });
+    const W = 600, H = 90, marginLeft = 40, marginBottom = 18, marginTop = 6;
+    const plotW = W - marginLeft, plotH = H - marginBottom - marginTop;
+    const xPos = (d) => marginLeft + (new Date(d) - firstDate) / totalMs * plotW;
+    const yPos = (v) => marginTop + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+    let yAxis = '';
+    [0, 0.5, 1].forEach(f => {
+      const val = yMin + f * (yMax - yMin);
+      const y = marginTop + plotH - f * plotH;
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1"></line>`;
+      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${Math.round(val)}</text>`;
     });
-    svgParts += `<text x="2" y="${H-3}" font-size="9" fill="var(--ink-soft)" text-anchor="start">${fmtShortDate(allDates[0])}</text>`;
-    svgParts += `<text x="${W-2}" y="${H-3}" font-size="9" fill="var(--ink-soft)" text-anchor="end">${fmtShortDate(allDates[allDates.length-1])}</text>`;
-    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:100px; display:block;">${svgParts}</svg>`;
+    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
+    xAxis += `<text x="${marginLeft+2}" y="${H-3}" text-anchor="start" font-size="9" fill="var(--ink-soft)">${fmtShortDate(pts[0].date)}</text>`;
+    xAxis += `<text x="${W-2}" y="${H-3}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${fmtShortDate(pts[pts.length-1].date)}</text>`;
+
+    let line = '';
+    if (pts.length > 1) {
+      const pointsStr = pts.map(p => `${xPos(p.date).toFixed(1)},${yPos(p.value).toFixed(1)}`).join(' ');
+      line = `<polyline points="${pointsStr}" fill="none" stroke="${color}" stroke-width="2"></polyline>`;
+    }
+    let dots = '';
+    pts.forEach(p => {
+      const cx = xPos(p.date).toFixed(1), cy = yPos(p.value).toFixed(1);
+      const tip = `${fmtShortDate(p.date)}: ${label} ${p.value}${unit}`;
+      dots += `<circle class="measpoint-hit" data-tip="${escapeAttr(tip)}" cx="${cx}" cy="${cy}" r="9" fill="transparent"></circle>`;
+      dots += `<circle cx="${cx}" cy="${cy}" r="3" fill="${color}" style="pointer-events:none;"></circle>`;
+    });
+
+    const latest = pts[pts.length - 1].value;
+    const prev = pts.length > 1 ? pts[pts.length - 2].value : null;
+    let deltaHtml = '';
+    if (prev !== null) {
+      const delta = Math.round((latest - prev) * 10) / 10;
+      const dc = delta < 0 ? 'var(--moss)' : (delta > 0 ? 'var(--over)' : 'var(--ink-soft)');
+      deltaHtml = ` <span style="color:${dc};">${delta > 0 ? '+' : ''}${delta}</span>`;
+    }
+
+    return `
+      <div class="chartblock">
+        <div class="chead"><span>${label}</span><span>${latest}${unit}${deltaHtml}</span></div>
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
+          ${yAxis}${line}${dots}${xAxis}
+        </svg>
+      </div>
+    `;
   }
 
   function renderMeasurementsCard(){
     const holder = document.getElementById('measurementsHolder');
     if (!holder) return;
     const series = buildMeasurementSeries();
-    const summaryChips = ['bust','waist','hips'].map(k => {
-      const s = series[k];
-      if (!s.length) return '';
-      const latest = s[s.length-1].value;
-      const prev = s.length > 1 ? s[s.length-2].value : null;
-      let deltaHtml = '';
-      if (prev !== null) {
-        const delta = Math.round((latest - prev) * 10) / 10;
-        const deltaColor = delta < 0 ? 'var(--moss)' : (delta > 0 ? 'var(--over)' : 'var(--ink-soft)');
-        deltaHtml = ` <span style="color:${deltaColor};">${delta > 0 ? '+' : ''}${delta}</span>`;
-      }
-      return `<span style="margin-right:16px; font-size:12px; color:var(--ink-soft); display:inline-flex; align-items:center; gap:5px;"><span style="width:8px; height:8px; border-radius:50%; background:${MEASUREMENT_META[k].color}; display:inline-block;"></span>${MEASUREMENT_META[k].label} <b style="color:var(--ink); font-family:'JetBrains Mono',monospace;">${latest}cm</b>${deltaHtml}</span>`;
-    }).join('');
-    const chart = buildMeasurementsChart(series);
+    const bustChart = measurementChartBlock('Bust', series.bust, MEASUREMENT_META.bust.color, 'cm');
+    const waistChart = measurementChartBlock('Waist', series.waist, MEASUREMENT_META.waist.color, 'cm');
+    const hipsChart = measurementChartBlock('Hips', series.hips, MEASUREMENT_META.hips.color, 'cm');
+    const anyChart = bustChart || waistChart || hipsChart;
     holder.innerHTML = `
-      ${summaryChips ? `<div style="margin-bottom:14px; display:flex; flex-wrap:wrap;">${summaryChips}</div>` : ''}
-      ${chart || '<p class="empty">No measurements logged yet. Tap Manage to add one.</p>'}
+      ${anyChart ? `${bustChart || ''}${waistChart || ''}${hipsChart || ''}` : '<p class="empty">No measurements logged yet. Tap Manage to add one.</p>'}
+      <button class="btn small" id="manageMeasBtn" style="margin-top:${anyChart ? '6px' : '14px'};">Manage</button>
     `;
+    document.getElementById('manageMeasBtn').addEventListener('click', openMeasurementsModal);
     wireChartTooltips(holder);
   }
 
@@ -2400,13 +2440,13 @@
 
   async function exportCSV(fromDate, toDate){
     try {
-      const listRes = await window.storage.list('meals:', false);
+      const listRes = await storageList('meals:', false);
       const keys = (listRes && listRes.keys) ? listRes.keys : [];
       let items = await mapWithConcurrency(keys, 6, async (k) => {
         const dateStr = k.slice('meals:'.length);
         let meals = [];
         try {
-          const res = await window.storage.get(k, false);
+          const res = await storageGet(k, false);
           meals = res ? JSON.parse(res.value) : [];
         } catch(e) { meals = []; }
         return { dateStr, totals: totalsFromMeals(meals) };
@@ -2492,8 +2532,8 @@
   async function checkStorageHealth(){
     try {
       const probe = 'ok-' + Date.now();
-      await window.storage.set('__healthcheck', probe, false);
-      const res = await window.storage.get('__healthcheck', false);
+      await storageSet('__healthcheck', probe, false);
+      const res = await storageGet('__healthcheck', false);
       state.storageOk = !!(res && res.value === probe);
     } catch(e) {
       state.storageOk = false;
