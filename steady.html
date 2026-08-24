@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_51.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_56.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -409,7 +409,109 @@
         This usually means the artifact isn’t published yet — saving only works once it is. Open the Publish controls for this artifact, publish it, then reload the page. If it’s already published, try a hard refresh.
       </div>
     </div>
-    <div id="app"></div>
+    <div id="app">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h2 style="margin:0;">Last 4 weeks</h2>
+          <button class="btn small" id="exportCsvBtn">Export CSV</button>
+        </div>
+        <div id="exportPickerPanel" style="display:none; margin-bottom:14px;">
+          <div class="row2">
+            <div class="field"><label>From</label><input type="date" id="exportFromDate" value="2026-07-28" max="2026-08-24"></div>
+            <div class="field"><label>To</label><input type="date" id="exportToDate" value="2026-08-24" max="2026-08-24"></div>
+          </div>
+          <button class="btn small" id="exportConfirmBtn">Download CSV</button>
+        </div>
+        <p class="setup-note">Daily totals against your targets. The dashed line tracks each day’s target — it steps up on days you logged training, since those targets adjust for activity. Bars that clear it went over that day.</p>
+        
+      <div class="chartblock">
+        <div class="chead"><span>Calories</span><span>avg target 1998kcal</span></div>
+        <svg viewBox="0 0 680 108" style="width:100%; height:108px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="90.0" x2="680" y2="90.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="93.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">0</text><line x1="40" y1="47.0" x2="680" y2="47.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="50.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">1430</text><line x1="40" y1="4.0" x2="680" y2="4.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="7.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">2860</text>
+          <polyline points="40.0,21.2 60.4,21.2 62.9,34.3 83.2,34.3 85.7,27.4 106.1,27.4 108.6,29.5 128.9,29.5 131.4,28.9 151.8,28.9 154.3,33.4 174.6,33.4 177.1,37.0 197.5,37.0 200.0,21.2 220.4,21.2 222.9,34.3 243.2,34.3 245.7,27.4 266.1,27.4 268.6,29.5 288.9,29.5 291.4,28.9 311.8,28.9 314.3,33.4 334.6,33.4 337.1,37.0 357.5,37.0 360.0,21.2 380.4,21.2 382.9,34.3 403.2,34.3 405.7,27.4 426.1,27.4 428.6,29.5 448.9,29.5 451.4,28.9 471.8,28.9 474.3,33.4 494.6,33.4 497.1,37.0 517.5,37.0 520.0,21.2 540.4,21.2 542.9,34.3 563.2,34.3 565.7,27.4 586.1,27.4 588.6,29.5 608.9,29.5 611.4,28.9 631.8,28.9 634.3,33.4 654.6,33.4 657.1,28.9 677.5,28.9" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
+          <rect class="chartbar-hit" data-tip="Jul 28: 1470kcal (target 2288kcal)" x="40.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="40.0" y="45.8" width="20.4" height="44.2" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 29: 1570kcal (target 1853kcal)" x="62.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="62.9" y="42.8" width="20.4" height="47.2" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 30: 1520kcal (target 2083kcal)" x="85.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="85.7" y="44.3" width="20.4" height="45.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 31: 2163kcal (target 2013kcal)" x="108.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="108.6" y="25.0" width="20.4" height="65.0" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 1: 1530kcal (target 2033kcal)" x="131.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="131.4" y="44.0" width="20.4" height="46.0" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 2: 1710kcal (target 1883kcal)" x="154.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="154.3" y="38.6" width="20.4" height="51.4" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 3: 1320kcal (target 1763kcal)" x="177.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="177.1" y="50.3" width="20.4" height="39.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 4: 2326kcal (target 2288kcal)" x="200.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="200.0" y="20.1" width="20.4" height="69.9" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 5: 1550kcal (target 1853kcal)" x="222.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="222.9" y="43.4" width="20.4" height="46.6" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 6: 1390kcal (target 2083kcal)" x="245.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="245.7" y="48.2" width="20.4" height="41.8" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 7: 1620kcal (target 2013kcal)" x="268.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="268.6" y="41.3" width="20.4" height="48.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 8: 1708kcal (target 2033kcal)" x="291.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="291.4" y="38.6" width="20.4" height="51.4" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 9: 1350kcal (target 1883kcal)" x="314.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="314.3" y="49.4" width="20.4" height="40.6" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 10: 1570kcal (target 1763kcal)" x="337.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="337.1" y="42.8" width="20.4" height="47.2" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 11: 1520kcal (target 2288kcal)" x="360.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="360.0" y="44.3" width="20.4" height="45.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 12: 2003kcal (target 1853kcal)" x="382.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="382.9" y="29.8" width="20.4" height="60.2" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 13: 1530kcal (target 2083kcal)" x="405.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="405.7" y="44.0" width="20.4" height="46.0" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 14: 1590kcal (target 2013kcal)" x="428.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="428.6" y="42.2" width="20.4" height="47.8" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 15: 1320kcal (target 2033kcal)" x="451.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="451.4" y="50.3" width="20.4" height="39.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 16: 1922kcal (target 1883kcal)" x="474.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="474.3" y="32.2" width="20.4" height="57.8" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 17: 1670kcal (target 1763kcal)" x="497.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="497.1" y="39.8" width="20.4" height="50.2" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 18: 1390kcal (target 2288kcal)" x="520.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="520.0" y="48.2" width="20.4" height="41.8" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 19: 1500kcal (target 1853kcal)" x="542.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="542.9" y="44.9" width="20.4" height="45.1" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 20: 1708kcal (target 2083kcal)" x="565.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="565.7" y="38.6" width="20.4" height="51.4" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 21: 1350kcal (target 2013kcal)" x="588.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="588.6" y="49.4" width="20.4" height="40.6" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 22: 1690kcal (target 2033kcal)" x="611.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="611.4" y="39.2" width="20.4" height="50.8" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 23: 1520kcal (target 1883kcal)" x="634.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="634.3" y="44.3" width="20.4" height="45.7" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 24: 1060kcal (target 2033kcal)" x="657.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="657.1" y="58.1" width="20.4" height="31.9" fill="var(--moss)" opacity="0.72" rx="1" style="pointer-events:none;"></rect>
+          <line x1="40" y1="90" x2="680" y2="90" stroke="var(--ink-soft)" stroke-width="1"></line><text x="50.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Jul 28</text><text x="210.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 4</text><text x="370.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 11</text><text x="530.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 18</text><text x="667.3" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 24</text>
+        </svg>
+      </div>
+    
+        
+      <div class="chartblock">
+        <div class="chead"><span>Protein</span><span>avg target 126g</span></div>
+        <svg viewBox="0 0 680 108" style="width:100%; height:108px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="90.0" x2="680" y2="90.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="93.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">0</text><line x1="40" y1="47.0" x2="680" y2="47.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="50.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">81</text><line x1="40" y1="4.0" x2="680" y2="4.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="7.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">161</text>
+          <polyline points="40.0,23.9 60.4,23.9 62.9,23.9 83.2,23.9 85.7,21.2 106.1,21.2 108.6,23.9 128.9,23.9 131.4,21.2 151.8,21.2 154.3,23.9 174.6,23.9 177.1,23.9 197.5,23.9 200.0,23.9 220.4,23.9 222.9,23.9 243.2,23.9 245.7,21.2 266.1,21.2 268.6,23.9 288.9,23.9 291.4,21.2 311.8,21.2 314.3,23.9 334.6,23.9 337.1,23.9 357.5,23.9 360.0,23.9 380.4,23.9 382.9,23.9 403.2,23.9 405.7,21.2 426.1,21.2 428.6,23.9 448.9,23.9 451.4,21.2 471.8,21.2 474.3,23.9 494.6,23.9 497.1,23.9 517.5,23.9 520.0,23.9 540.4,23.9 542.9,23.9 563.2,23.9 565.7,21.2 586.1,21.2 588.6,23.9 608.9,23.9 611.4,21.2 631.8,21.2 634.3,23.9 654.6,23.9 657.1,21.2 677.5,21.2" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
+          <rect class="chartbar-hit" data-tip="Jul 28: 118g (target 124g)" x="40.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="40.0" y="27.1" width="20.4" height="62.9" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 29: 98g (target 124g)" x="62.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="62.9" y="37.7" width="20.4" height="52.3" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 30: 69g (target 129g)" x="85.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="85.7" y="53.2" width="20.4" height="36.8" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 31: 97g (target 124g)" x="108.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="108.6" y="38.3" width="20.4" height="51.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 1: 110g (target 129g)" x="131.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="131.4" y="31.3" width="20.4" height="58.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 2: 111g (target 124g)" x="154.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="154.3" y="30.8" width="20.4" height="59.2" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 3: 64g (target 124g)" x="177.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="177.1" y="55.9" width="20.4" height="34.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 4: 116g (target 124g)" x="200.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="200.0" y="28.1" width="20.4" height="61.9" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 5: 97g (target 124g)" x="222.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="222.9" y="38.3" width="20.4" height="51.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 6: 80g (target 129g)" x="245.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="245.7" y="47.3" width="20.4" height="42.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 7: 108g (target 124g)" x="268.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="268.6" y="32.4" width="20.4" height="57.6" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 8: 144g (target 129g)" x="291.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="291.4" y="13.2" width="20.4" height="76.8" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 9: 92g (target 124g)" x="314.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="314.3" y="40.9" width="20.4" height="49.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 10: 98g (target 124g)" x="337.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="337.1" y="37.7" width="20.4" height="52.3" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 11: 69g (target 124g)" x="360.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="360.0" y="53.2" width="20.4" height="36.8" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 12: 98g (target 124g)" x="382.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="382.9" y="37.7" width="20.4" height="52.3" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 13: 110g (target 129g)" x="405.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="405.7" y="31.3" width="20.4" height="58.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 14: 85g (target 124g)" x="428.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="428.6" y="44.7" width="20.4" height="45.3" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 15: 64g (target 129g)" x="451.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="451.4" y="55.9" width="20.4" height="34.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 16: 116g (target 124g)" x="474.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="474.3" y="28.1" width="20.4" height="61.9" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 17: 123g (target 124g)" x="497.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="497.1" y="24.4" width="20.4" height="65.6" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 18: 80g (target 124g)" x="520.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="520.0" y="47.3" width="20.4" height="42.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 19: 82g (target 124g)" x="542.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="542.9" y="46.3" width="20.4" height="43.7" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 20: 144g (target 129g)" x="565.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="565.7" y="13.2" width="20.4" height="76.8" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 21: 92g (target 124g)" x="588.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="588.6" y="40.9" width="20.4" height="49.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 22: 124g (target 129g)" x="611.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="611.4" y="23.9" width="20.4" height="66.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 23: 69g (target 124g)" x="634.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="634.3" y="53.2" width="20.4" height="36.8" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 24: 94g (target 129g)" x="657.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="657.1" y="39.9" width="20.4" height="50.1" fill="var(--protein)" opacity="0.72" rx="1" style="pointer-events:none;"></rect>
+          <line x1="40" y1="90" x2="680" y2="90" stroke="var(--ink-soft)" stroke-width="1"></line><text x="50.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Jul 28</text><text x="210.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 4</text><text x="370.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 11</text><text x="530.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 18</text><text x="667.3" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 24</text>
+        </svg>
+      </div>
+    
+        
+      <div class="chartblock">
+        <div class="chead"><span>Carbs</span><span>avg target 255g</span></div>
+        <svg viewBox="0 0 680 108" style="width:100%; height:108px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="90.0" x2="680" y2="90.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="93.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">0</text><line x1="40" y1="47.0" x2="680" y2="47.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="50.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">206</text><line x1="40" y1="4.0" x2="680" y2="4.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="7.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">411</text>
+          <polyline points="40.0,21.2 60.4,21.2 62.9,44.0 83.2,44.0 85.7,32.9 106.1,32.9 108.6,35.6 128.9,35.6 131.4,35.6 151.8,35.6 154.3,42.3 174.6,42.3 177.1,48.6 197.5,48.6 200.0,21.2 220.4,21.2 222.9,44.0 243.2,44.0 245.7,32.9 266.1,32.9 268.6,35.6 288.9,35.6 291.4,35.6 311.8,35.6 314.3,42.3 334.6,42.3 337.1,48.6 357.5,48.6 360.0,21.2 380.4,21.2 382.9,44.0 403.2,44.0 405.7,32.9 426.1,32.9 428.6,35.6 448.9,35.6 451.4,35.6 471.8,35.6 474.3,42.3 494.6,42.3 497.1,48.6 517.5,48.6 520.0,21.2 540.4,21.2 542.9,44.0 563.2,44.0 565.7,32.9 586.1,32.9 588.6,35.6 608.9,35.6 611.4,35.6 631.8,35.6 634.3,42.3 654.6,42.3 657.1,35.6 677.5,35.6" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
+          <rect class="chartbar-hit" data-tip="Jul 28: 90g (target 329g)" x="40.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="40.0" y="71.2" width="20.4" height="18.8" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 29: 164g (target 220g)" x="62.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="62.9" y="55.7" width="20.4" height="34.3" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 30: 178g (target 273g)" x="85.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="85.7" y="52.8" width="20.4" height="37.2" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 31: 177g (target 260g)" x="108.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="108.6" y="53.0" width="20.4" height="37.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 1: 110g (target 260g)" x="131.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="131.4" y="67.0" width="20.4" height="23.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 2: 168g (target 228g)" x="154.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="154.3" y="54.9" width="20.4" height="35.1" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 3: 154g (target 198g)" x="177.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="177.1" y="57.8" width="20.4" height="32.2" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 4: 349g (target 329g)" x="200.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="200.0" y="17.0" width="20.4" height="73.0" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 5: 114g (target 220g)" x="222.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="222.9" y="66.2" width="20.4" height="23.8" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 6: 144g (target 273g)" x="245.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="245.7" y="59.9" width="20.4" height="30.1" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 7: 174g (target 260g)" x="268.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="268.6" y="53.6" width="20.4" height="36.4" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 8: 153g (target 260g)" x="291.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="291.4" y="58.0" width="20.4" height="32.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 9: 90g (target 228g)" x="314.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="314.3" y="71.2" width="20.4" height="18.8" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 10: 164g (target 198g)" x="337.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="337.1" y="55.7" width="20.4" height="34.3" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 11: 178g (target 329g)" x="360.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="360.0" y="52.8" width="20.4" height="37.2" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 12: 183g (target 220g)" x="382.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="382.9" y="51.7" width="20.4" height="38.3" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 13: 110g (target 273g)" x="405.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="405.7" y="67.0" width="20.4" height="23.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 14: 168g (target 260g)" x="428.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="428.6" y="54.9" width="20.4" height="35.1" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 15: 154g (target 260g)" x="451.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="451.4" y="57.8" width="20.4" height="32.2" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 16: 248g (target 228g)" x="474.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="474.3" y="38.1" width="20.4" height="51.9" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 17: 114g (target 198g)" x="497.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="497.1" y="66.2" width="20.4" height="23.8" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 18: 144g (target 329g)" x="520.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="520.0" y="59.9" width="20.4" height="30.1" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 19: 174g (target 220g)" x="542.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="542.9" y="53.6" width="20.4" height="36.4" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 20: 153g (target 273g)" x="565.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="565.7" y="58.0" width="20.4" height="32.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 21: 90g (target 260g)" x="588.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="588.6" y="71.2" width="20.4" height="18.8" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 22: 164g (target 260g)" x="611.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="611.4" y="55.7" width="20.4" height="34.3" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 23: 178g (target 228g)" x="634.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="634.3" y="52.8" width="20.4" height="37.2" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 24: 86g (target 260g)" x="657.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="657.1" y="72.0" width="20.4" height="18.0" fill="var(--carbs)" opacity="0.72" rx="1" style="pointer-events:none;"></rect>
+          <line x1="40" y1="90" x2="680" y2="90" stroke="var(--ink-soft)" stroke-width="1"></line><text x="50.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Jul 28</text><text x="210.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 4</text><text x="370.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 11</text><text x="530.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 18</text><text x="667.3" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 24</text>
+        </svg>
+      </div>
+    
+        
+      <div class="chartblock">
+        <div class="chead"><span>Fat</span><span>avg target 53g</span></div>
+        <svg viewBox="0 0 680 108" style="width:100%; height:108px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="90.0" x2="680" y2="90.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="93.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">0</text><line x1="40" y1="47.0" x2="680" y2="47.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="50.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">39</text><line x1="40" y1="4.0" x2="680" y2="4.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="7.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">77</text>
+          <polyline points="40.0,30.8 60.4,30.8 62.9,30.8 83.2,30.8 85.7,30.8 106.1,30.8 108.6,30.8 128.9,30.8 131.4,30.8 151.8,30.8 154.3,30.8 174.6,30.8 177.1,30.8 197.5,30.8 200.0,30.8 220.4,30.8 222.9,30.8 243.2,30.8 245.7,30.8 266.1,30.8 268.6,30.8 288.9,30.8 291.4,30.8 311.8,30.8 314.3,30.8 334.6,30.8 337.1,30.8 357.5,30.8 360.0,30.8 380.4,30.8 382.9,30.8 403.2,30.8 405.7,30.8 426.1,30.8 428.6,30.8 448.9,30.8 451.4,30.8 471.8,30.8 474.3,30.8 494.6,30.8 497.1,30.8 517.5,30.8 520.0,30.8 540.4,30.8 542.9,30.8 563.2,30.8 565.7,30.8 586.1,30.8 588.6,30.8 608.9,30.8 611.4,30.8 631.8,30.8 634.3,30.8 654.6,30.8 657.1,30.8 677.5,30.8" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
+          <rect class="chartbar-hit" data-tip="Jul 28: 67g (target 53g)" x="40.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="40.0" y="15.2" width="20.4" height="74.8" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 29: 55g (target 53g)" x="62.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="62.9" y="28.6" width="20.4" height="61.4" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 30: 56g (target 53g)" x="85.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="85.7" y="27.5" width="20.4" height="62.5" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Jul 31: 59g (target 53g)" x="108.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="108.6" y="24.1" width="20.4" height="65.9" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 1: 69g (target 53g)" x="131.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="131.4" y="12.9" width="20.4" height="77.1" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 2: 63g (target 53g)" x="154.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="154.3" y="19.6" width="20.4" height="70.4" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 3: 46g (target 53g)" x="177.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="177.1" y="38.6" width="20.4" height="51.4" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 4: 50g (target 53g)" x="200.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="200.0" y="34.2" width="20.4" height="55.8" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 5: 76g (target 53g)" x="222.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="222.9" y="5.1" width="20.4" height="84.9" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 6: 52g (target 53g)" x="245.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="245.7" y="31.9" width="20.4" height="58.1" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 7: 50g (target 53g)" x="268.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="268.6" y="34.2" width="20.4" height="55.8" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 8: 55g (target 53g)" x="291.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="291.4" y="28.6" width="20.4" height="61.4" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 9: 66g (target 53g)" x="314.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="314.3" y="16.3" width="20.4" height="73.7" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 10: 55g (target 53g)" x="337.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="337.1" y="28.6" width="20.4" height="61.4" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 11: 56g (target 53g)" x="360.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="360.0" y="27.5" width="20.4" height="62.5" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 12: 61g (target 53g)" x="382.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="382.9" y="21.9" width="20.4" height="68.1" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 13: 69g (target 53g)" x="405.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="405.7" y="12.9" width="20.4" height="77.1" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 14: 62g (target 53g)" x="428.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="428.6" y="20.8" width="20.4" height="69.2" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 15: 46g (target 53g)" x="451.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="451.4" y="38.6" width="20.4" height="51.4" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 16: 50g (target 53g)" x="474.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="474.3" y="34.2" width="20.4" height="55.8" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 17: 77g (target 53g)" x="497.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="497.1" y="4.0" width="20.4" height="86.0" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 18: 52g (target 53g)" x="520.0" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="520.0" y="31.9" width="20.4" height="58.1" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 19: 49g (target 53g)" x="542.9" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="542.9" y="35.3" width="20.4" height="54.7" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 20: 55g (target 53g)" x="565.7" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="565.7" y="28.6" width="20.4" height="61.4" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 21: 66g (target 53g)" x="588.6" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="588.6" y="16.3" width="20.4" height="73.7" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 22: 56g (target 53g)" x="611.4" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="611.4" y="27.5" width="20.4" height="62.5" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 23: 56g (target 53g)" x="634.3" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="634.3" y="27.5" width="20.4" height="62.5" fill="var(--over)" opacity="0.88" rx="1" style="pointer-events:none;"></rect><rect class="chartbar-hit" data-tip="Aug 24: 37g (target 53g)" x="657.1" y="4" width="20.4" height="86" fill="transparent"></rect><rect x="657.1" y="48.7" width="20.4" height="41.3" fill="var(--fat)" opacity="0.72" rx="1" style="pointer-events:none;"></rect>
+          <line x1="40" y1="90" x2="680" y2="90" stroke="var(--ink-soft)" stroke-width="1"></line><text x="50.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Jul 28</text><text x="210.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 4</text><text x="370.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 11</text><text x="530.2" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 18</text><text x="667.3" y="105" text-anchor="middle" font-size="9" fill="var(--ink-soft)">Aug 24</text>
+        </svg>
+      </div>
+    
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h2 style="margin:0;">Body measurements</h2>
+          <button class="btn small" id="exportMeasBtn">Export CSV</button>
+        </div>
+        <div id="measurementsHolder">
+      
+      <div class="chartblock">
+        <div class="chead"><span>Bust</span><span>92cm <span style="color:var(--ink-soft);">0</span></span></div>
+        <svg viewBox="0 0 600 90" style="width:100%; height:90px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="72.0" x2="600" y2="72.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="75.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">91</text><line x1="40" y1="39.0" x2="600" y2="39.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="42.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">93</text><line x1="40" y1="6.0" x2="600" y2="6.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="9.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">94</text><polyline points="40.0,28.0 180.0,39.0 320.0,39.0 460.0,50.0 600.0,50.0" fill="none" stroke="var(--protein)" stroke-width="2"></polyline><circle class="measpoint-hit" data-tip="Jul 30: Bust 93cm" cx="40.0" cy="28.0" r="9" fill="transparent"></circle><circle cx="40.0" cy="28.0" r="3" fill="var(--protein)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 4: Bust 92.5cm" cx="180.0" cy="39.0" r="9" fill="transparent"></circle><circle cx="180.0" cy="39.0" r="3" fill="var(--protein)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 9: Bust 92.5cm" cx="320.0" cy="39.0" r="9" fill="transparent"></circle><circle cx="320.0" cy="39.0" r="3" fill="var(--protein)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 14: Bust 92cm" cx="460.0" cy="50.0" r="9" fill="transparent"></circle><circle cx="460.0" cy="50.0" r="3" fill="var(--protein)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 19: Bust 92cm" cx="600.0" cy="50.0" r="9" fill="transparent"></circle><circle cx="600.0" cy="50.0" r="3" fill="var(--protein)" style="pointer-events:none;"></circle><line x1="40" y1="72" x2="600" y2="72" stroke="var(--ink-soft)" stroke-width="1"></line><text x="42" y="87" text-anchor="start" font-size="9" fill="var(--ink-soft)">Jul 30</text><text x="598" y="87" text-anchor="end" font-size="9" fill="var(--ink-soft)">Aug 19</text>
+        </svg>
+      </div>
+    
+      <div class="chartblock">
+        <div class="chead"><span>Waist</span><span>77cm <span style="color:var(--moss);">-0.5</span></span></div>
+        <svg viewBox="0 0 600 90" style="width:100%; height:90px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="72.0" x2="600" y2="72.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="75.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">76</text><line x1="40" y1="39.0" x2="600" y2="39.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="42.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">79</text><line x1="40" y1="6.0" x2="600" y2="6.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="9.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">81</text><polyline points="40.0,19.2 180.0,32.4 320.0,45.6 460.0,52.2 600.0,58.8" fill="none" stroke="var(--moss)" stroke-width="2"></polyline><circle class="measpoint-hit" data-tip="Jul 30: Waist 80cm" cx="40.0" cy="19.2" r="9" fill="transparent"></circle><circle cx="40.0" cy="19.2" r="3" fill="var(--moss)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 4: Waist 79cm" cx="180.0" cy="32.4" r="9" fill="transparent"></circle><circle cx="180.0" cy="32.4" r="3" fill="var(--moss)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 9: Waist 78cm" cx="320.0" cy="45.6" r="9" fill="transparent"></circle><circle cx="320.0" cy="45.6" r="3" fill="var(--moss)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 14: Waist 77.5cm" cx="460.0" cy="52.2" r="9" fill="transparent"></circle><circle cx="460.0" cy="52.2" r="3" fill="var(--moss)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 19: Waist 77cm" cx="600.0" cy="58.8" r="9" fill="transparent"></circle><circle cx="600.0" cy="58.8" r="3" fill="var(--moss)" style="pointer-events:none;"></circle><line x1="40" y1="72" x2="600" y2="72" stroke="var(--ink-soft)" stroke-width="1"></line><text x="42" y="87" text-anchor="start" font-size="9" fill="var(--ink-soft)">Jul 30</text><text x="598" y="87" text-anchor="end" font-size="9" fill="var(--ink-soft)">Aug 19</text>
+        </svg>
+      </div>
+    
+      <div class="chartblock">
+        <div class="chead"><span>Hips</span><span>98.5cm <span style="color:var(--moss);">-0.5</span></span></div>
+        <svg viewBox="0 0 600 90" style="width:100%; height:90px; display:block;" preserveAspectRatio="none">
+          <line x1="40" y1="72.0" x2="600" y2="72.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="75.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">98</text><line x1="40" y1="39.0" x2="600" y2="39.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="42.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">99</text><line x1="40" y1="6.0" x2="600" y2="6.0" stroke="var(--paper-line)" stroke-width="1"></line><text x="34" y="9.0" text-anchor="end" font-size="9" fill="var(--ink-soft)">101</text><polyline points="40.0,24.9 180.0,34.3 320.0,43.7 460.0,43.7 600.0,53.1" fill="none" stroke="var(--carbs)" stroke-width="2"></polyline><circle class="measpoint-hit" data-tip="Jul 30: Hips 100cm" cx="40.0" cy="24.9" r="9" fill="transparent"></circle><circle cx="40.0" cy="24.9" r="3" fill="var(--carbs)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 4: Hips 99.5cm" cx="180.0" cy="34.3" r="9" fill="transparent"></circle><circle cx="180.0" cy="34.3" r="3" fill="var(--carbs)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 9: Hips 99cm" cx="320.0" cy="43.7" r="9" fill="transparent"></circle><circle cx="320.0" cy="43.7" r="3" fill="var(--carbs)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 14: Hips 99cm" cx="460.0" cy="43.7" r="9" fill="transparent"></circle><circle cx="460.0" cy="43.7" r="3" fill="var(--carbs)" style="pointer-events:none;"></circle><circle class="measpoint-hit" data-tip="Aug 19: Hips 98.5cm" cx="600.0" cy="53.1" r="9" fill="transparent"></circle><circle cx="600.0" cy="53.1" r="3" fill="var(--carbs)" style="pointer-events:none;"></circle><line x1="40" y1="72" x2="600" y2="72" stroke="var(--ink-soft)" stroke-width="1"></line><text x="42" y="87" text-anchor="start" font-size="9" fill="var(--ink-soft)">Jul 30</text><text x="598" y="87" text-anchor="end" font-size="9" fill="var(--ink-soft)">Aug 19</text>
+        </svg>
+      </div>
+    
+      <button class="btn small" id="manageMeasBtn" style="margin-top:6px;">Manage</button>
+    </div>
+      </div>
+
+      <div class="card">
+        <h2>AI nutritionist’s note</h2>
+        <div id="weekChatHolder">
+      <p class="setup-note" style="margin-bottom:12px;">Ask your AI nutritionist about how this week trended — what went well, what to adjust for the coming week.</p><button class="btn small" id="weekChatStarterBtn">Get summary</button>
+      <div class="chatinput-row">
+        <input type="text" id="weekChatInput" placeholder="Ask a question…">
+        <button class="btn small" id="weekChatSendBtn">Ask</button>
+      </div>
+    </div>
+      </div>
+    </div>
     <details class="dataprivacy">
       <summary>Data &amp; privacy</summary>
       <ul>
@@ -422,9 +524,9 @@
     </details>
     <div class="appfooter">This is a personal project, provided as-is with no warranty of any kind. It is not medical or professional nutrition advice — estimates and suggestions are AI-generated and may be inaccurate. Consult a doctor or registered dietitian for personalized guidance. By using this app, you do so entirely at your own risk — the developer accepts no liability or responsibility for any outcome, loss, or harm arising from its use.</div>
   </div>
-  <div id="steadyToast" class="toast"></div>
+  <div id="steadyToast" class="toast toast-ok" style="display: none;">Demo data loaded — today&amp;rsquo;s meals won't survive a reload until storage is fixed, but the 4-week history will always show since it&amp;rsquo;s computed fresh, not stored.</div>
   <div id="measurementsModal" class="modal-overlay" style="display:none;"></div>
-  <div id="consentModal" class="modal-overlay" style="display: flex;">
+  <div id="consentModal" class="modal-overlay" style="display: none;">
       <div class="modal-box">
         <h2 style="margin:0 0 14px;">Before you start</h2>
         <p class="setup-note" style="margin-bottom:20px;">This is an experimental portfolio project, not medical or professional nutrition software. AI-generated estimates and suggestions may be inaccurate and should not be relied upon for medical or health-related decisions. You do not need to enter personal information; demo data is provided for exploration. If you choose to use your own data, you do so at your own discretion.</p>
@@ -434,7 +536,7 @@
         </div>
       </div>
     </div>
-  <div id="chartTooltip" class="chart-tooltip" style="display:none;"></div>
+  <div id="chartTooltip" class="chart-tooltip" style="display: none; left: 558.796px; top: 78.8333px;">Aug 11: 1520kcal (target 2288kcal)</div>
 </div>
 
 <script>
@@ -480,6 +582,8 @@
     measurements: {},
     measurementsModalOpen: false,
     setupConsentAcknowledged: false,
+    demoMode: false,
+    demoToday: null,
     editingMeasurementDate: null,
   };
 
@@ -756,8 +860,102 @@
     if (overlay) overlay.style.display = 'none';
   }
 
+  const DEMO_BREAKFASTS = [
+    { name: 'Greek yogurt, berries & granola', calories: 320, protein_g: 22, carbs_g: 38, fat_g: 9 },
+    { name: 'Scrambled eggs & sourdough toast', calories: 380, protein_g: 24, carbs_g: 32, fat_g: 16 },
+    { name: 'Oatmeal, banana & peanut butter', calories: 410, protein_g: 14, carbs_g: 58, fat_g: 14 },
+    { name: 'Avocado toast & poached egg', calories: 350, protein_g: 16, carbs_g: 30, fat_g: 20 },
+  ];
+  const DEMO_LUNCHES = [
+    { name: 'Grilled chicken salad, olive oil', calories: 480, protein_g: 42, carbs_g: 20, fat_g: 24 },
+    { name: 'Turkey & hummus wrap', calories: 440, protein_g: 30, carbs_g: 45, fat_g: 14 },
+    { name: 'Quinoa bowl, roasted veggies', calories: 460, protein_g: 18, carbs_g: 62, fat_g: 16 },
+    { name: 'Tuna salad sandwich', calories: 420, protein_g: 28, carbs_g: 38, fat_g: 16 },
+  ];
+  const DEMO_DINNERS = [
+    { name: 'Salmon, rice & steamed broccoli', calories: 560, protein_g: 38, carbs_g: 48, fat_g: 22 },
+    { name: 'Beef & vegetable stir-fry', calories: 520, protein_g: 34, carbs_g: 40, fat_g: 22 },
+    { name: 'Baked chicken thighs, sweet potato', calories: 540, protein_g: 40, carbs_g: 42, fat_g: 20 },
+    { name: 'Lentil & vegetable curry', calories: 480, protein_g: 22, carbs_g: 60, fat_g: 14 },
+  ];
+  const DEMO_SNACKS = [
+    { name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4 },
+    { name: 'Apple & almond butter', calories: 200, protein_g: 5, carbs_g: 24, fat_g: 10 },
+    { name: 'Cottage cheese & pineapple', calories: 180, protein_g: 18, carbs_g: 20, fat_g: 3 },
+  ];
+  const DEMO_TREATS = [
+    { name: 'Slice of birthday cake', calories: 380, protein_g: 5, carbs_g: 52, fat_g: 16 },
+    { name: 'Late-night pizza slice', calories: 320, protein_g: 12, carbs_g: 36, fat_g: 14 },
+    { name: 'Ice cream sundae', calories: 340, protein_g: 6, carbs_g: 44, fat_g: 15 },
+    { name: 'Extra glass of wine & snacks', calories: 260, protein_g: 3, carbs_g: 18, fat_g: 8 },
+    { name: 'Movie night popcorn & candy', calories: 420, protein_g: 6, carbs_g: 58, fat_g: 18 },
+    { name: 'Fast food burger & fries', calories: 650, protein_g: 22, carbs_g: 58, fat_g: 34 },
+    { name: 'Extra bread basket at dinner', calories: 220, protein_g: 6, carbs_g: 40, fat_g: 4 },
+    { name: 'Chips & guacamole', calories: 300, protein_g: 5, carbs_g: 32, fat_g: 18 },
+  ];
+  const DEMO_PROTEIN_BOOSTS = [
+    { name: 'Extra protein shake', calories: 150, protein_g: 30, carbs_g: 5, fat_g: 2 },
+    { name: 'Second chicken breast', calories: 180, protein_g: 35, carbs_g: 0, fat_g: 4 },
+    { name: 'Tin of tuna', calories: 120, protein_g: 26, carbs_g: 0, fat_g: 1 },
+    { name: 'Extra Greek yogurt', calories: 100, protein_g: 17, carbs_g: 6, fat_g: 0 },
+    { name: 'Cottage cheese scoop', calories: 90, protein_g: 14, carbs_g: 4, fat_g: 2 },
+  ];
+  function pickRandom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+  const DEMO_ACTIVITY_CYCLE = [
+    [],
+    [{ type: 'walk', minutes: 30 }],
+    [{ type: 'strength', minutes: 45 }],
+    [{ type: 'cardio', minutes: 25 }],
+    [{ type: 'strength', minutes: 40 }, { type: 'walk', minutes: 20 }],
+    [{ type: 'yoga', minutes: 30 }],
+    [{ type: 'hike', minutes: 75 }],
+  ];
+
+  // Pure function: given any date, deterministically returns the same demo meals/activities
+  // every time, keyed by "how many days before today" that date currently is — not by the
+  // literal calendar date. So the same content always represents "N days ago," and stays
+  // attached to whatever "today" actually is, with no generation or storage step required.
+  function getDemoOffsetData(dateStr){
+    const diffDays = Math.round((new Date(todayStr()) - new Date(dateStr)) / 86400000);
+    if (diffDays < 1 || diffDays > 27) return null;
+    const meals = [
+      { id: 'demo_off_' + diffDays + '_1', ...DEMO_BREAKFASTS[diffDays % DEMO_BREAKFASTS.length], time: '8:00 AM', source: 'text' },
+      { id: 'demo_off_' + diffDays + '_2', ...DEMO_LUNCHES[(diffDays + 1) % DEMO_LUNCHES.length], time: '1:00 PM', source: 'text' },
+      { id: 'demo_off_' + diffDays + '_3', ...DEMO_DINNERS[(diffDays + 2) % DEMO_DINNERS.length], time: '7:00 PM', source: 'text' },
+    ];
+    if (diffDays % 3 !== 0) {
+      meals.push({ id: 'demo_off_' + diffDays + '_4', ...DEMO_SNACKS[diffDays % DEMO_SNACKS.length], time: '4:00 PM', source: 'text' });
+    }
+    const activities = DEMO_ACTIVITY_CYCLE[diffDays % DEMO_ACTIVITY_CYCLE.length];
+
+    // Deliberately push a specific metric over target on a rotating basis, calculated against
+    // that day's *real* target (which varies with activity) rather than a fixed guess — this
+    // guarantees clear, varied "over target" examples across all four metrics, not just fat
+    // (which happens to run over naturally from the base meal pool regardless).
+    if (state.profile && diffDays % 4 === 0) {
+      const dayTargets = computeTargets(state.profile, activities);
+      const soFar = totalsFromMeals(meals);
+      const metricCycle = ['calories', 'protein', 'carbs'];
+      const metric = metricCycle[Math.floor(diffDays / 4) % metricCycle.length];
+      if (metric === 'protein') {
+        const need = Math.max(20, Math.round(dayTargets.proteinG - soFar.protein) + 15);
+        meals.push({ id: 'demo_off_' + diffDays + '_5', name: 'Extra protein shake', calories: need * 4 + 20, protein_g: need, carbs_g: 4, fat_g: 2, time: '8:30 PM', source: 'text' });
+      } else if (metric === 'carbs') {
+        const need = Math.max(30, Math.round(dayTargets.carbsG - soFar.carbs) + 20);
+        meals.push({ id: 'demo_off_' + diffDays + '_5', name: 'Extra bread & pasta', calories: need * 4 + 30, protein_g: 6, carbs_g: need, fat_g: 4, time: '8:30 PM', source: 'text' });
+      } else {
+        const need = Math.max(250, Math.round(dayTargets.calories - soFar.calories) + 150);
+        meals.push({ id: 'demo_off_' + diffDays + '_5', ...DEMO_TREATS[diffDays % DEMO_TREATS.length], calories: need, time: '8:30 PM', source: 'text' });
+      }
+    } else if (diffDays % 5 === 2) {
+      meals.push({ id: 'demo_off_' + diffDays + '_6', ...DEMO_PROTEIN_BOOSTS[diffDays % DEMO_PROTEIN_BOOSTS.length], time: '6:00 PM', source: 'text' });
+    }
+    return { meals, activities };
+  }
+
   async function loadDemoData(){
-    const demoProfile = { unit: 'metric', sex: 'female', age: 29, weight: 65, height: 168, activity: 'light', trainingsPerWeek: 4, goal: 'recomp' };
+    const demoProfile = { unit: 'metric', sex: 'female', age: 29, weight: 65, height: 168, activity: 'light', trainingsPerWeek: 4, goal: 'recomp', isDemo: true };
     state.profile = demoProfile;
     try { await saveProfile(demoProfile); } catch(e) {}
 
@@ -777,29 +975,26 @@
 
     state.activities = [{ type: 'strength', minutes: 45 }];
     try { await saveActivities(state.currentDate, state.activities); } catch(e) {}
+    state.demoToday = { meals: todayMeals, activities: state.activities };
+    state.demoMode = true;
 
-    const activityCycle = [
-      [],
-      [{ type: 'walk', minutes: 30 }],
-      [{ type: 'strength', minutes: 45 }],
-      [{ type: 'cardio', minutes: 25 }],
-      [{ type: 'strength', minutes: 40 }, { type: 'walk', minutes: 20 }],
-      [{ type: 'yoga', minutes: 30 }],
+    const demoMeasurementPoints = [
+      { daysAgo: 25, waist: 80,   bust: 93,   hips: 100 },
+      { daysAgo: 20, waist: 79,   bust: 92.5, hips: 99.5 },
+      { daysAgo: 15, waist: 78,   bust: 92.5, hips: 99 },
+      { daysAgo: 10, waist: 77.5, bust: 92,   hips: 99 },
+      { daysAgo: 5,  waist: 77,   bust: 92,   hips: 98.5 },
     ];
-    for (let i = 1; i <= 13; i++) {
-      const d = shiftDate(todayStr(), -i);
-      const cal = 1750 + Math.round(Math.random() * 500);
-      const pro = 110 + Math.round(Math.random() * 40);
-      const carb = 150 + Math.round(Math.random() * 90);
-      const fat = 55 + Math.round(Math.random() * 25);
-      const meals = [{ id: 'demo_hist_' + d, name: 'Sample logged meal', calories: cal, protein_g: pro, carbs_g: carb, fat_g: fat, time: '12:00 PM', source: 'text' }];
-      const activities = activityCycle[i % activityCycle.length];
-      try { await saveMeals(d, meals); } catch(e) {}
-      try { await saveActivities(d, activities); } catch(e) {}
-    }
+    const demoMeasurements = {};
+    demoMeasurementPoints.forEach(p => {
+      const d = shiftDate(todayStr(), -p.daysAgo);
+      demoMeasurements[d] = { waist: p.waist, bust: p.bust, hips: p.hips };
+    });
+    state.measurements = demoMeasurements;
+    try { await saveMeasurementsStorage(state.measurements); } catch(e) {}
 
     state.view = 'log';
-    showToast(state.storageOk ? 'Demo data loaded.' : 'Demo data loaded — won\'t survive a reload until storage is fixed.', false);
+    showToast(state.storageOk ? 'Demo data loaded.' : 'Demo data loaded — today&rsquo;s meals won\'t survive a reload until storage is fixed, but the 4-week history will always show since it&rsquo;s computed fresh, not stored.', false);
     render();
   }
 
@@ -870,6 +1065,8 @@
     try { await storageDelete('daily-index-built', false); } catch(e) {}
     state.profile = null;
     state.setupConsentAcknowledged = false;
+    state.demoMode = false;
+    state.demoToday = null;
     state.currentDate = todayStr();
     state.meals = [];
     state.favorites = [];
@@ -2046,10 +2243,22 @@
     state.editingMealId = null;
     state.activityMenuOpen = false;
     state.editingActivityType = null;
-    await loadMeals(newDate);
-    await loadDailyNote(newDate);
-    await loadChatMessages(newDate);
-    state.activities = await loadActivities(newDate);
+    const demoEntry = state.demoMode && newDate !== todayStr() ? getDemoOffsetData(newDate) : null;
+    if (demoEntry) {
+      state.meals = demoEntry.meals;
+      state.activities = demoEntry.activities;
+      state.dailyNote = null;
+      state.chatMessages = [];
+    } else {
+      await loadMeals(newDate);
+      await loadDailyNote(newDate);
+      await loadChatMessages(newDate);
+      state.activities = await loadActivities(newDate);
+      if (state.demoMode && newDate === todayStr() && state.demoToday) {
+        if (!state.meals.length) state.meals = state.demoToday.meals;
+        if (!state.activities.length) state.activities = state.demoToday.activities;
+      }
+    }
     render();
   }
 
@@ -2058,15 +2267,26 @@
     const days = [];
     for (let i = 27; i >= 0; i--) { days.push(shiftDate(todayStr(), -i)); }
     const data = await mapWithConcurrency(days, 6, async (d) => {
-      const [meals, dayActivities] = await Promise.all([
-        (async () => {
-          try {
-            const res = await storageGet('meals:' + d, false);
-            return res ? JSON.parse(res.value) : [];
-          } catch(e) { return []; }
-        })(),
-        loadActivities(d)
-      ]);
+      let meals, dayActivities;
+      if (d === state.currentDate) {
+        // whichever day is currently loaded in memory is always the freshest source, demo or not
+        meals = state.meals;
+        dayActivities = state.activities;
+      } else if (state.demoMode && getDemoOffsetData(d)) {
+        const entry = getDemoOffsetData(d);
+        meals = entry.meals;
+        dayActivities = entry.activities;
+      } else {
+        [meals, dayActivities] = await Promise.all([
+          (async () => {
+            try {
+              const res = await storageGet('meals:' + d, false);
+              return res ? JSON.parse(res.value) : [];
+            } catch(e) { return []; }
+          })(),
+          loadActivities(d)
+        ]);
+      }
       const totals = totalsFromMeals(meals);
       const dayTargets = computeTargets(state.profile, dayActivities);
       return { date: d, totals, targets: dayTargets, activities: dayActivities };
@@ -2447,17 +2667,39 @@
 
   async function exportCSV(fromDate, toDate){
     try {
-      const listRes = await storageList('meals:', false);
-      const keys = (listRes && listRes.keys) ? listRes.keys : [];
-      let items = await mapWithConcurrency(keys, 6, async (k) => {
-        const dateStr = k.slice('meals:'.length);
-        let meals = [];
-        try {
-          const res = await storageGet(k, false);
-          meals = res ? JSON.parse(res.value) : [];
-        } catch(e) { meals = []; }
-        return { dateStr, totals: totalsFromMeals(meals) };
-      });
+      let items = [];
+      if (state.demoMode) {
+        items = [];
+        for (let i = 1; i <= 27; i++) {
+          const dateStr = shiftDate(todayStr(), -i);
+          const entry = getDemoOffsetData(dateStr);
+          if (entry) items.push({ dateStr, totals: totalsFromMeals(entry.meals) });
+        }
+        const todayD = todayStr();
+        if (!items.find(it => it.dateStr === todayD)) {
+          if (state.currentDate === todayD) {
+            items.push({ dateStr: todayD, totals: totalsFromMeals(state.meals) });
+          } else {
+            try {
+              const res = await storageGet('meals:' + todayD, false);
+              const meals = res ? JSON.parse(res.value) : [];
+              items.push({ dateStr: todayD, totals: totalsFromMeals(meals) });
+            } catch(e) {}
+          }
+        }
+      } else {
+        const listRes = await storageList('meals:', false);
+        const keys = (listRes && listRes.keys) ? listRes.keys : [];
+        items = await mapWithConcurrency(keys, 6, async (k) => {
+          const dateStr = k.slice('meals:'.length);
+          let meals = [];
+          try {
+            const res = await storageGet(k, false);
+            meals = res ? JSON.parse(res.value) : [];
+          } catch(e) { meals = []; }
+          return { dateStr, totals: totalsFromMeals(meals) };
+        });
+      }
       if (fromDate) items = items.filter(it => it.dateStr >= fromDate);
       if (toDate) items = items.filter(it => it.dateStr <= toDate);
       items.sort((a,b) => a.dateStr.localeCompare(b.dateStr));
@@ -2551,12 +2793,14 @@
     app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your ledger…</div></div>';
     await checkStorageHealth();
     await loadProfile();
+    if (state.profile && state.profile.isDemo) { state.demoMode = true; }
     await loadMeals(state.currentDate);
     await loadDailyNote(state.currentDate);
     await loadChatMessages(state.currentDate);
     await loadFavorites();
     state.measurements = await loadMeasurements();
     state.activities = await loadActivities(state.currentDate);
+    if (state.demoMode) { state.demoToday = { meals: state.meals, activities: state.activities }; }
     render();
   })();
 })();
