@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_50.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_51.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -59,8 +59,25 @@
   }
   #steady-root .appfooter {
     font-size: 11px; color: var(--ink-soft); line-height: 1.5; text-align: center;
-    margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--paper-line); opacity: 0.85;
+    margin-top: 14px; opacity: 0.85;
   }
+  #steady-root .dataprivacy {
+    margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--paper-line); text-align: center;
+  }
+  #steady-root .dataprivacy summary {
+    font-size: 12px; font-weight: 600; color: var(--moss); cursor: pointer; list-style: none;
+  }
+  #steady-root .dataprivacy summary::-webkit-details-marker { display: none; }
+  #steady-root .dataprivacy summary::before { content: "▸ "; }
+  #steady-root .dataprivacy[open] summary::before { content: "▾ "; }
+  #steady-root .dataprivacy ul {
+    text-align: left; font-size: 11.5px; color: var(--ink); line-height: 1.7;
+    background: var(--paper); border-radius: 4px; padding: 14px 16px 14px 30px;
+    margin: 12px 0 0;
+  }
+  #steady-root .dataprivacy li { margin-bottom: 8px; }
+  #steady-root .dataprivacy li:last-child { margin-bottom: 0; }
+  #steady-root .dataprivacy a { color: var(--moss); }
 
   /* ---- Date nav ---- */
   #steady-root .datebar {
@@ -392,79 +409,31 @@
         This usually means the artifact isn’t published yet — saving only works once it is. Open the Publish controls for this artifact, publish it, then reload the page. If it’s already published, try a hard refresh.
       </div>
     </div>
-    <div id="app">
-      <div class="card">
-        <h2>Set up your targets</h2>
-        <p class="setup-note">A few numbers to work out a sensible starting point — a mild calorie target and a protein goal built around <b>gradual, steady</b> progress rather than a crash diet. You can adjust anything later.</p>
-        <div id="profileFormHolder">
-      <div class="field">
-        <label>Nickname</label>
-        <input type="text" id="f-nickname" value="" placeholder="What should we call you?">
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Units</label>
-          <select id="f-unit">
-            <option value="metric" selected="">Metric (kg / cm)</option>
-            <option value="imperial">Imperial (lb / in)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Gender</label>
-          <select id="f-sex">
-            <option value="female" selected="">Female</option>
-            <option value="male">Male</option>
-          </select>
-        </div>
-      </div>
-      <div class="row3">
-        <div class="field"><label>Age</label><input type="number" id="f-age" value="" min="14" max="100"></div>
-        <div class="field"><label id="f-weight-label">Weight (kg)</label><input type="number" id="f-weight" value="" min="1"></div>
-        <div class="field"><label id="f-height-label">Height (cm)</label><input type="number" id="f-height" value="" min="1"></div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label>Baseline daily activity</label>
-          <select id="f-activity">
-            <option value="sedentary">Sedentary (desk job)</option>
-            <option value="light" selected="">Light (on your feet some)</option>
-            <option value="moderate">Moderate (active job/lots of walking)</option>
-            <option value="active">Active (physical job)</option>
-            <option value="very_active">Very active</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Trainings per week</label>
-          <input type="number" id="f-trainings" value="3" min="0" max="7">
-        </div>
-      </div>
-      <div class="field">
-        <label>Goal</label>
-        <select id="f-goal">
-          <option value="recomp" selected="">Body recomposition (lose fat &amp; build muscle)</option>
-          <option value="lose">Lose weight</option>
-          <option value="gain">Gain weight / muscle</option>
-          <option value="maintain">Maintain weight</option>
-        </select>
-        <p class="setup-note" id="goal-hint" style="margin-top:8px; margin-bottom:0;">With that much training, recomposition works best in a mild, patient calorie deficit.</p>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
-        <button class="btn" id="saveProfileBtn">Save</button>
-        
-      </div>
-      <div id="profileErr" class="errmsg" style="display:none;"></div>
-    </div>
-      </div>
-      <div class="card">
-        <h2>Just testing?</h2>
-        <p class="setup-note" style="margin-bottom:12px;">Load sample data — a profile, some meals, and a few weeks of history — so you can click through the app right away. Storage isn’t saving right now, so this won’t survive a reload — it's just for exploring the interface.</p>
-        <button class="btn small" id="loadDemoBtn">Load demo data</button>
-      </div>
-    </div>
-    <div class="appfooter">This is a personal project, provided as-is with no warranty. It is not medical or professional nutrition advice — estimates and suggestions are AI-generated and may be inaccurate. Consult a doctor or registered dietitian for personalized guidance. Use at your own risk.</div>
+    <div id="app"></div>
+    <details class="dataprivacy">
+      <summary>Data &amp; privacy</summary>
+      <ul>
+        <li><b>Requires Claude Pro or higher.</b> Saving your meals, profile, and history only works if you're on a Pro, Max, Team, or Enterprise plan. On the Free plan, you can open and try the app, but nothing you enter will be saved between visits.</li>
+        <li><b>Your data is private to you.</b> Everything is stored under your own Claude account — not visible to the person who built this app, and not visible to anyone else using this same published tool.</li>
+        <li><b>Where it lives.</b> Your entries are stored in Anthropic's storage system for this artifact, tied to your Claude account — not in your browser, and not on any server the developer controls. The developer does not operate or maintain a separate database of any kind — there's no copy of your data outside Anthropic's platform. As with all data on the Claude platform, how it's collected, used, and retained is governed by <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">Anthropic's Privacy Policy</a> and <a href="https://www.anthropic.com/legal/consumer-terms" target="_blank" rel="noopener">Consumer Terms of Service</a> — not a separate policy set by this app.</li>
+        <li><b>AI features use your own usage, not a separate cost.</b> Meal estimation and the AI nutritionist chat draw from your existing Claude subscription — no extra billing.</li>
+        <li><b>Photos aren't kept.</b> A meal photo is analyzed once for its estimate, then discarded — only the resulting numbers are saved. Worth keeping the frame to just your food, since anything else in the shot is briefly sent along for that one-time analysis too.</li>
+      </ul>
+    </details>
+    <div class="appfooter">This is a personal project, provided as-is with no warranty of any kind. It is not medical or professional nutrition advice — estimates and suggestions are AI-generated and may be inaccurate. Consult a doctor or registered dietitian for personalized guidance. By using this app, you do so entirely at your own risk — the developer accepts no liability or responsibility for any outcome, loss, or harm arising from its use.</div>
   </div>
   <div id="steadyToast" class="toast"></div>
   <div id="measurementsModal" class="modal-overlay" style="display:none;"></div>
+  <div id="consentModal" class="modal-overlay" style="display: flex;">
+      <div class="modal-box">
+        <h2 style="margin:0 0 14px;">Before you start</h2>
+        <p class="setup-note" style="margin-bottom:20px;">This is an experimental portfolio project, not medical or professional nutrition software. AI-generated estimates and suggestions may be inaccurate and should not be relied upon for medical or health-related decisions. You do not need to enter personal information; demo data is provided for exploration. If you choose to use your own data, you do so at your own discretion.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn small" id="consentUnderstandBtn">I understand</button>
+          <button class="btn small" id="consentDemoBtn" style="background:transparent; color:var(--moss); border-color:var(--moss);">Try demo data instead</button>
+        </div>
+      </div>
+    </div>
   <div id="chartTooltip" class="chart-tooltip" style="display:none;"></div>
 </div>
 
@@ -510,6 +479,7 @@
     favPageSearch: '',
     measurements: {},
     measurementsModalOpen: false,
+    setupConsentAcknowledged: false,
     editingMeasurementDate: null,
   };
 
@@ -734,6 +704,11 @@
   }
 
   function renderSetup(){
+    if (!state.setupConsentAcknowledged) {
+      app.innerHTML = '';
+      openConsentModal();
+      return;
+    }
     app.innerHTML = `
       <div class="card">
         <h2>Set up your targets</h2>
@@ -748,6 +723,37 @@
     `;
     renderProfileFormInto(document.getElementById('profileFormHolder'), null);
     document.getElementById('loadDemoBtn').addEventListener('click', loadDemoData);
+  }
+
+  function openConsentModal(){
+    const overlay = document.getElementById('consentModal');
+    if (!overlay) return;
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <h2 style="margin:0 0 14px;">Before you start</h2>
+        <p class="setup-note" style="margin-bottom:20px;">This is an experimental portfolio project, not medical or professional nutrition software. AI-generated estimates and suggestions may be inaccurate and should not be relied upon for medical or health-related decisions. You do not need to enter personal information; demo data is provided for exploration. If you choose to use your own data, you do so at your own discretion.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn small" id="consentUnderstandBtn">I understand</button>
+          <button class="btn small" id="consentDemoBtn" style="background:transparent; color:var(--moss); border-color:var(--moss);">Try demo data instead</button>
+        </div>
+      </div>
+    `;
+    overlay.style.display = 'flex';
+    document.getElementById('consentUnderstandBtn').addEventListener('click', () => {
+      state.setupConsentAcknowledged = true;
+      closeConsentModal();
+      render();
+    });
+    document.getElementById('consentDemoBtn').addEventListener('click', () => {
+      state.setupConsentAcknowledged = true;
+      closeConsentModal();
+      loadDemoData();
+    });
+  }
+
+  function closeConsentModal(){
+    const overlay = document.getElementById('consentModal');
+    if (overlay) overlay.style.display = 'none';
   }
 
   async function loadDemoData(){
@@ -863,6 +869,7 @@
     try { await storageDelete('daily-index', false); } catch(e) {}
     try { await storageDelete('daily-index-built', false); } catch(e) {}
     state.profile = null;
+    state.setupConsentAcknowledged = false;
     state.currentDate = todayStr();
     state.meals = [];
     state.favorites = [];
