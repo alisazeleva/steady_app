@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_58.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_60.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -445,6 +445,7 @@
         </div>
       </div>
     </div>
+  <div id="confirmModal" class="modal-overlay" style="display:none;"></div>
   <div id="chartTooltip" class="chart-tooltip" style="display:none;"></div>
 </div>
 
@@ -783,6 +784,32 @@
     if (overlay) overlay.style.display = 'none';
   }
 
+  function confirmDialog(message){
+    return new Promise((resolve) => {
+      const overlay = document.getElementById('confirmModal');
+      if (!overlay) { resolve(window.confirm(message)); return; }
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <p class="setup-note" style="margin-bottom:20px; color:var(--ink);">${escapeHtml(message)}</p>
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn small" id="confirmCancelBtn" style="background:var(--paper); color:var(--ink-soft); border-color:var(--paper-line);">Cancel</button>
+            <button class="btn small" id="confirmOkBtn">OK</button>
+          </div>
+        </div>
+      `;
+      overlay.style.display = 'flex';
+      const cleanup = (result) => {
+        overlay.style.display = 'none';
+        overlay.innerHTML = '';
+        overlay.onclick = null;
+        resolve(result);
+      };
+      document.getElementById('confirmOkBtn').addEventListener('click', () => cleanup(true));
+      document.getElementById('confirmCancelBtn').addEventListener('click', () => cleanup(false));
+      overlay.onclick = (e) => { if (e.target === overlay) cleanup(false); };
+    });
+  }
+
   const DEMO_BREAKFASTS = [
     { name: 'Greek yogurt, berries & granola', calories: 320, protein_g: 22, carbs_g: 38, fat_g: 9 },
     { name: 'Scrambled eggs & sourdough toast', calories: 380, protein_g: 24, carbs_g: 32, fat_g: 16 },
@@ -961,7 +988,7 @@
   async function onKeepDaysClick(){
     const n = Number(document.getElementById('keepDaysInput').value);
     if (!n || n < 1) { showToast('Enter a valid number of days.', true); return; }
-    if (!confirm(`Delete all logged data older than ${n} day(s)? This can't be undone.`)) return;
+    if (!(await confirmDialog(`Delete all logged data older than ${n} day(s)? This can't be undone.`))) return;
     const cutoff = shiftDate(todayStr(), -(n - 1));
     await deleteDataByPrefix('meals:', cutoff);
     await deleteDataByPrefix('note:', cutoff);
@@ -999,15 +1026,15 @@
   }
 
   async function onDeleteAllClick(){
-    if (!confirm("Delete ALL your data in steady — every meal, note, favorite, and your profile? This can't be undone.")) return;
-    if (!confirm('Really sure? This is permanent.')) return;
+    if (!(await confirmDialog("Delete ALL your data in steady — every meal, note, favorite, and your profile? This can't be undone."))) return;
+    if (!(await confirmDialog('Really sure? This is permanent.'))) return;
     await performFullDataWipe();
     showToast('All data deleted.', false);
     render();
   }
 
   async function onSwitchToOwnData(){
-    if (!confirm("Switch to your own data? This clears the demo meals, favorites, and measurements so you can start fresh — you'll set up your own profile next.")) return;
+    if (!(await confirmDialog("Switch to your own data? This clears the demo meals, favorites, and measurements so you can start fresh — you'll set up your own profile next."))) return;
     await performFullDataWipe();
     showToast('Demo data cleared — set up your own profile below.', false);
     render();
@@ -1959,7 +1986,7 @@
   }
 
   async function deleteFavorite(favId){
-    if (!confirm('Remove this favorite?')) return;
+    if (!(await confirmDialog('Remove this favorite?'))) return;
     const removed = state.favorites.find(f => f.id === favId);
     state.favorites = state.favorites.filter(f => f.id !== favId);
     try {
@@ -2157,7 +2184,7 @@
   }
 
   async function deleteMeal(id){
-    if (!confirm('Delete this meal?')) return;
+    if (!(await confirmDialog('Delete this meal?'))) return;
     const removed = state.meals.find(m => m.id === id);
     const removedIdx = state.meals.findIndex(m => m.id === id);
     state.meals = state.meals.filter(m => m.id !== id);
@@ -2533,7 +2560,7 @@
   }
 
   async function deleteMeasurementEntry(date){
-    if (!confirm(`Delete the measurement entry for ${fmtShortDate(date)}?`)) return;
+    if (!(await confirmDialog(`Delete the measurement entry for ${fmtShortDate(date)}?`))) return;
     const previous = JSON.parse(JSON.stringify(state.measurements));
     delete state.measurements[date];
     try {
