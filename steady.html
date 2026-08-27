@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_91.html -->
+<!-- saved from url=(0047)file:///C:/Users/alisa/Downloads/steady_93.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -14,6 +14,7 @@
     --carbs: #D9A441;
     --fat: #806C61;
     --over: #B0432A;
+    --under: #999999;
     --card: #FFFFFF;
     --shadow: 0 1px 2px rgba(29,36,17,0.08), 0 4px 14px rgba(29,36,17,0.07);
     font-family: 'Inter', system-ui, sans-serif;
@@ -2790,6 +2791,11 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
           <button class="btn small" id="exportConfirmBtn">Download CSV</button>
         </div>
         <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity. Bars that clear it went over that day.</p>
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:11px; color:var(--ink-soft);">
+          <div><span style="display:inline-block; width:10px; height:10px; background:var(--moss); border-radius:2px; margin-right:4px;"></span>On target</div>
+          <div><span style="display:inline-block; width:10px; height:10px; background:var(--under); border-radius:2px; margin-right:4px;"></span>15%+ under</div>
+          <div><span style="display:inline-block; width:10px; height:10px; background:var(--over); border-radius:2px; margin-right:4px;"></span>15%+ over</div>
+        </div>
         ${chartBlock('Calories', data, 'calories', 'calories', 'var(--moss)', 'kcal')}
         ${chartBlock('Protein', data, 'protein', 'proteinG', 'var(--protein)', 'g')}
         ${chartBlock('Carbs', data, 'carbs', 'carbsG', 'var(--carbs)', 'g')}
@@ -3122,10 +3128,11 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       const barH = Math.max(1, (val / maxVal) * plotH);
       const x = marginLeft + i * (barW + gap);
       const y = marginTop + (plotH - barH);
-      const over = val > target;
+      const over = val > target * 1.15;
+      const under = val < target * 0.85;
       const tipText = `${fmtShortDate(d.date)}: ${Math.round(val)}${unit} (target ${Math.round(target)}${unit})`;
       bars += `<rect class="chartbar-hit" data-tip="${escapeAttr(tipText)}" x="${x.toFixed(1)}" y="${marginTop}" width="${barW.toFixed(1)}" height="${plotH}" fill="transparent"></rect>`;
-      bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${over ? 'var(--over)' : color}" opacity="${over ? '0.88' : '0.72'}" rx="1" style="pointer-events:none;"></rect>`;
+      bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${over ? 'var(--over)' : under ? 'var(--under)' : 'var(--moss)'}" opacity="${over || under ? '0.88' : '0.72'}" rx="1" style="pointer-events:none;"></rect>`;
       const targetY = marginTop + (plotH - (target / maxVal) * plotH);
       linePoints.push(`${x.toFixed(1)},${targetY.toFixed(1)}`);
       linePoints.push(`${(x+barW).toFixed(1)},${targetY.toFixed(1)}`);
