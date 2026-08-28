@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_112.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_113.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -157,7 +157,8 @@
     -webkit-appearance: none; margin: 0;
   }
   #steady-root textarea { resize: vertical; min-height: 64px; }
-  #steady-root input[type=date]::-webkit-calendar-picker-indicator {
+  #steady-root input[type=date]::-webkit-calendar-picker-indicator,
+  #steady-root input[type=time]::-webkit-calendar-picker-indicator {
     filter: invert(45%) sepia(24%) saturate(555%) hue-rotate(67deg) brightness(94%) contrast(86%);
     cursor: pointer;
   }
@@ -2241,15 +2242,15 @@
         return `
           <div class="editmeal">
             <div class="field"><label>Name</label><input type="text" id="e-name-${m.id}" value="${escapeAttr(m.name)}"></div>
+            <div class="field"><label>Time</label><input type="time" id="e-time-${m.id}" value="${timeStringTo24h(m.time)}"></div>
             <div class="row2">
               <div class="field"><label>Calories</label><input type="number" id="e-cal-${m.id}" value="${Math.round(m.calories)}"></div>
-              <div class="field"><label>Time</label><input type="time" id="e-time-${m.id}" value="${timeStringTo24h(m.time)}"></div>
+              <div class="field"><label>Protein (g)</label><input type="number" id="e-pro-${m.id}" value="${Math.round(m.protein_g)}"></div>
             </div>
             <div class="row2">
-              <div class="field"><label>Protein (g)</label><input type="number" id="e-pro-${m.id}" value="${Math.round(m.protein_g)}"></div>
               <div class="field"><label>Carbs (g)</label><input type="number" id="e-carb-${m.id}" value="${Math.round(m.carbs_g)}"></div>
+              <div class="field"><label>Fat (g)</label><input type="number" id="e-fat-${m.id}" value="${Math.round(m.fat_g)}"></div>
             </div>
-            <div class="field"><label>Fat (g)</label><input type="number" id="e-fat-${m.id}" value="${Math.round(m.fat_g)}"></div>
             <div class="mealrow-actions">
               <button class="btn small" data-save="${m.id}">Save</button>
               <button class="btn small btn-cancel" data-canceledit="${m.id}">Cancel</button>
