@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_110.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_112.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -151,6 +151,11 @@
     width: 100%; font-family: 'Inter', sans-serif; font-size: 14px; padding: 9px 10px;
     border: 1px solid var(--paper-line); border-radius: 3px; background: var(--paper); color: var(--ink);
   }
+  #steady-root input[type=number] { -moz-appearance: textfield; }
+  #steady-root input[type=number]::-webkit-outer-spin-button,
+  #steady-root input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
   #steady-root textarea { resize: vertical; min-height: 64px; }
   #steady-root input[type=date]::-webkit-calendar-picker-indicator {
     filter: invert(45%) sepia(24%) saturate(555%) hue-rotate(67deg) brightness(94%) contrast(86%);
@@ -204,9 +209,10 @@
   /* ---- Meal list ---- */
   #steady-root .meal {
     display: flex; justify-content: space-between; align-items: flex-start;
-    padding: 12px 0; border-bottom: 1px dashed var(--paper-line); gap: 10px;
+    padding: 12px 0 0; gap: 10px;
   }
-  #steady-root .meal:last-child { border-bottom: none; }
+  #steady-root .mealentry { border-bottom: 1px dashed var(--paper-line); padding-bottom: 12px; margin-bottom: 12px; }
+  #steady-root .mealentry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
   #steady-root .meal .mname { font-weight: 600; font-size: 14px; }
   #steady-root .meal .mtime { font-size: 11px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; }
   #steady-root .meal .mmacros { font-size: 11.5px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
@@ -457,11 +463,7 @@
   #steady-root .activitymenu-row > .tip-refresh:first-child { width: 26px; }
   #steady-root input.actdurinput {
     width: 61px; flex-shrink: 0; font-size: 12px; padding: 4px 5px; border: 1px solid var(--paper-line);
-    border-radius: 3px; background: var(--card); color: var(--ink); -moz-appearance: textfield;
-  }
-  #steady-root input.actdurinput::-webkit-outer-spin-button,
-  #steady-root input.actdurinput::-webkit-inner-spin-button {
-    -webkit-appearance: none; margin: 0;
+    border-radius: 3px; background: var(--card); color: var(--ink);
   }
   @media (max-width: 460px) {
     #steady-root input.actdurinput { width: 31px; padding: 4px; text-align: center; }
@@ -2241,12 +2243,13 @@
             <div class="field"><label>Name</label><input type="text" id="e-name-${m.id}" value="${escapeAttr(m.name)}"></div>
             <div class="row2">
               <div class="field"><label>Calories</label><input type="number" id="e-cal-${m.id}" value="${Math.round(m.calories)}"></div>
-              <div class="field"><label>Protein (g)</label><input type="number" id="e-pro-${m.id}" value="${Math.round(m.protein_g)}"></div>
+              <div class="field"><label>Time</label><input type="time" id="e-time-${m.id}" value="${timeStringTo24h(m.time)}"></div>
             </div>
             <div class="row2">
+              <div class="field"><label>Protein (g)</label><input type="number" id="e-pro-${m.id}" value="${Math.round(m.protein_g)}"></div>
               <div class="field"><label>Carbs (g)</label><input type="number" id="e-carb-${m.id}" value="${Math.round(m.carbs_g)}"></div>
-              <div class="field"><label>Fat (g)</label><input type="number" id="e-fat-${m.id}" value="${Math.round(m.fat_g)}"></div>
             </div>
+            <div class="field"><label>Fat (g)</label><input type="number" id="e-fat-${m.id}" value="${Math.round(m.fat_g)}"></div>
             <div class="mealrow-actions">
               <button class="btn small" data-save="${m.id}">Save</button>
               <button class="btn small btn-cancel" data-canceledit="${m.id}">Cancel</button>
@@ -2255,7 +2258,7 @@
         `;
       }
       return `
-      <div>
+      <div class="mealentry">
         <div class="meal">
           <div>
             <div class="mname">${escapeHtml(m.name)}</div>
@@ -2329,6 +2332,8 @@
     meal.protein_g = Number(document.getElementById('e-pro-' + id).value) || 0;
     meal.carbs_g = Number(document.getElementById('e-carb-' + id).value) || 0;
     meal.fat_g = Number(document.getElementById('e-fat-' + id).value) || 0;
+    const timeEl = document.getElementById('e-time-' + id);
+    if (timeEl && timeEl.value) meal.time = time24hToTimeString(timeEl.value);
     try {
       await saveMeals(state.currentDate, state.meals);
     } catch(e) {
@@ -3498,6 +3503,26 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     } catch(e) {
       showToast('Could not export your data — please try again.', true);
     }
+  }
+
+  function timeStringTo24h(timeStr){
+    if (!timeStr) return '';
+    const match = String(timeStr).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return '';
+    let hour = parseInt(match[1], 10);
+    const minute = match[2];
+    const period = match[3].toUpperCase();
+    if (period === 'PM' && hour !== 12) hour += 12;
+    if (period === 'AM' && hour === 12) hour = 0;
+    return String(hour).padStart(2, '0') + ':' + minute;
+  }
+
+  function time24hToTimeString(hhmm){
+    if (!hhmm) return '';
+    const [h, m] = hhmm.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const displayHour = (h % 12) || 12;
+    return `${displayHour}:${String(m).padStart(2, '0')} ${period}`;
   }
 
   function escapeHtml(str){
