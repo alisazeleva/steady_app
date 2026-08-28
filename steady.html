@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_113.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_115.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -14,7 +14,7 @@
     --carbs: #D9A441;
     --fat: #806C61;
     --over: #B0432A;
-    --under: #999999;
+    --under: #C4C4C4;
     --card: #FFFFFF;
     --shadow: 0 1px 2px rgba(29,36,17,0.08), 0 4px 14px rgba(29,36,17,0.07);
     font-family: 'Inter', system-ui, sans-serif;
@@ -1061,22 +1061,22 @@
   }
 
   const DEMO_BREAKFASTS = [
-    { name: 'Greek yogurt, berries & granola', calories: 320, protein_g: 22, carbs_g: 38, fat_g: 9 },
-    { name: 'Scrambled eggs & sourdough toast', calories: 380, protein_g: 24, carbs_g: 32, fat_g: 16 },
-    { name: 'Oatmeal, banana & peanut butter', calories: 410, protein_g: 14, carbs_g: 58, fat_g: 14 },
-    { name: 'Avocado toast & poached egg', calories: 350, protein_g: 16, carbs_g: 30, fat_g: 20 },
+    { name: 'Greek yogurt, berries & granola', calories: 380, protein_g: 22, carbs_g: 58, fat_g: 9 },
+    { name: 'Scrambled eggs & sourdough toast', calories: 430, protein_g: 24, carbs_g: 48, fat_g: 16 },
+    { name: 'Oatmeal, banana & peanut butter', calories: 460, protein_g: 14, carbs_g: 74, fat_g: 14 },
+    { name: 'Avocado toast & poached egg', calories: 400, protein_g: 16, carbs_g: 46, fat_g: 20 },
   ];
   const DEMO_LUNCHES = [
-    { name: 'Grilled chicken salad, olive oil', calories: 480, protein_g: 42, carbs_g: 20, fat_g: 24 },
-    { name: 'Turkey & hummus wrap', calories: 440, protein_g: 30, carbs_g: 45, fat_g: 14 },
-    { name: 'Quinoa bowl, roasted veggies', calories: 460, protein_g: 18, carbs_g: 62, fat_g: 16 },
-    { name: 'Tuna salad sandwich', calories: 420, protein_g: 28, carbs_g: 38, fat_g: 16 },
+    { name: 'Grilled chicken salad, olive oil', calories: 540, protein_g: 42, carbs_g: 36, fat_g: 24 },
+    { name: 'Turkey & hummus wrap', calories: 500, protein_g: 30, carbs_g: 62, fat_g: 14 },
+    { name: 'Quinoa bowl, roasted veggies', calories: 520, protein_g: 18, carbs_g: 78, fat_g: 16 },
+    { name: 'Tuna salad sandwich', calories: 480, protein_g: 28, carbs_g: 54, fat_g: 16 },
   ];
   const DEMO_DINNERS = [
-    { name: 'Salmon, rice & steamed broccoli', calories: 560, protein_g: 38, carbs_g: 48, fat_g: 22 },
-    { name: 'Beef & vegetable stir-fry', calories: 520, protein_g: 34, carbs_g: 40, fat_g: 22 },
-    { name: 'Baked chicken thighs, sweet potato', calories: 540, protein_g: 40, carbs_g: 42, fat_g: 20 },
-    { name: 'Lentil & vegetable curry', calories: 480, protein_g: 22, carbs_g: 60, fat_g: 14 },
+    { name: 'Salmon, rice & steamed broccoli', calories: 620, protein_g: 38, carbs_g: 64, fat_g: 22 },
+    { name: 'Beef & vegetable stir-fry', calories: 580, protein_g: 34, carbs_g: 56, fat_g: 22 },
+    { name: 'Baked chicken thighs, sweet potato', calories: 600, protein_g: 40, carbs_g: 58, fat_g: 20 },
+    { name: 'Lentil & vegetable curry', calories: 540, protein_g: 22, carbs_g: 76, fat_g: 14 },
   ];
   const DEMO_SNACKS = [
     { name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4 },
@@ -1134,22 +1134,45 @@
     // guarantees clear, varied "over target" examples across all four metrics, not just fat
     // (which happens to run over naturally from the base meal pool regardless).
     if (state.profile && diffDays % 4 === 0) {
+      // Deliberately push a specific metric comfortably over target on a rotating basis,
+      // calculated as a percentage of that day's real target (not a flat buffer added to
+      // the gap) — a flat buffer can fall short of the 15% "over" threshold whenever the
+      // base meal pool already lands close to target, understating the actual overage.
       const dayTargets = computeTargets(state.profile, activities);
       const soFar = totalsFromMeals(meals);
       const metricCycle = ['calories', 'protein', 'carbs'];
       const metric = metricCycle[Math.floor(diffDays / 4) % metricCycle.length];
       if (metric === 'protein') {
-        const need = Math.max(20, Math.round(dayTargets.proteinG - soFar.protein) + 15);
+        const desiredMin = dayTargets.proteinG * 1.22;
+        const need = Math.max(20, Math.round(desiredMin - soFar.protein));
         meals.push({ id: 'demo_off_' + diffDays + '_5', name: 'Extra protein shake', calories: need * 4 + 20, protein_g: need, carbs_g: 4, fat_g: 2, time: '8:30 PM', source: 'text' });
       } else if (metric === 'carbs') {
-        const need = Math.max(30, Math.round(dayTargets.carbsG - soFar.carbs) + 20);
+        const desiredMin = dayTargets.carbsG * 1.22;
+        const need = Math.max(30, Math.round(desiredMin - soFar.carbs));
         meals.push({ id: 'demo_off_' + diffDays + '_5', name: 'Extra bread & pasta', calories: need * 4 + 30, protein_g: 6, carbs_g: need, fat_g: 4, time: '8:30 PM', source: 'text' });
       } else {
-        const need = Math.max(250, Math.round(dayTargets.calories - soFar.calories) + 150);
+        const desiredMin = dayTargets.calories * 1.22;
+        const need = Math.max(250, Math.round(desiredMin - soFar.calories));
         meals.push({ id: 'demo_off_' + diffDays + '_5', ...DEMO_TREATS[diffDays % DEMO_TREATS.length], calories: need, time: '8:30 PM', source: 'text' });
       }
     } else if (diffDays % 5 === 2) {
       meals.push({ id: 'demo_off_' + diffDays + '_6', ...DEMO_PROTEIN_BOOSTS[diffDays % DEMO_PROTEIN_BOOSTS.length], time: '6:00 PM', source: 'text' });
+    } else if (state.profile && diffDays % 4 === 2) {
+      // Symmetric to the over-target logic above: deliberately push a rotating metric
+      // comfortably UNDER that day's real target (not just "no extra snack"), so the
+      // 15%+ under-target chart coloring has clear, varied examples across all metrics.
+      const dayTargets = computeTargets(state.profile, activities);
+      const metricCycle = ['calories', 'protein', 'carbs', 'fat'];
+      const metric = metricCycle[Math.floor(diffDays / 4) % metricCycle.length];
+      const macroKey = { calories: 'calories', protein: 'protein_g', carbs: 'carbs_g', fat: 'fat_g' }[metric];
+      const targetKey = { calories: 'calories', protein: 'proteinG', carbs: 'carbsG', fat: 'fatG' }[metric];
+      const targetVal = dayTargets[targetKey];
+      const soFarVal = meals.reduce((sum, m) => sum + (m[macroKey] || 0), 0);
+      const desiredMax = targetVal * 0.78; // comfortably past the 15%-under (0.85) threshold
+      if (soFarVal > desiredMax && soFarVal > 0) {
+        const scale = desiredMax / soFarVal;
+        meals.forEach(m => { m[macroKey] = Math.round((m[macroKey] || 0) * scale); });
+      }
     }
     return { meals, activities };
   }
@@ -3225,7 +3248,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     [0, 0.5, 1].forEach(f => {
       const val = yMin + f * (yMax - yMin);
       const y = marginTop + plotH - f * plotH;
-      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1"></line>`;
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
       yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${Math.round(val)}</text>`;
     });
     let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
@@ -3423,7 +3446,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     [0, 0.5, 1].forEach(f => {
       const val = Math.round(maxVal * f);
       const y = marginTop + (plotH - f * plotH);
-      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1"></line>`;
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
       yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${val}</text>`;
     });
     let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
