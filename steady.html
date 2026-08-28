@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_100.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_104.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -93,11 +93,6 @@
     font-family: 'Inter', sans-serif; font-size: 12px; border: 1px solid var(--paper-line);
     border-radius: 3px; padding: 5px 6px; background: var(--card); color: var(--ink); cursor: pointer;
   }
-  #steady-root .todaybtn {
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--moss);
-    background: none; border: none; cursor: pointer; padding: 4px 2px; text-decoration: underline;
-  }
-  #steady-root .todaybtn:disabled { color: var(--ink-soft); text-decoration: none; cursor: default; }
   #steady-root .datebar-tools { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-top: 18px; }
   #steady-root .navbtn {
     background: none; border: 1px solid var(--ink); color: var(--ink);
@@ -153,6 +148,10 @@
     border: 1px solid var(--paper-line); border-radius: 3px; background: var(--paper); color: var(--ink);
   }
   #steady-root textarea { resize: vertical; min-height: 64px; }
+  #steady-root input[type=date]::-webkit-calendar-picker-indicator {
+    filter: invert(45%) sepia(24%) saturate(555%) hue-rotate(67deg) brightness(94%) contrast(86%);
+    cursor: pointer;
+  }
   #steady-root .field { margin-bottom: 14px; min-width: 0; }
   #steady-root .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   #steady-root .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; margin-bottom: 14px; }
@@ -215,10 +214,10 @@
   #steady-root .mealrow-actions { display: flex; gap: 6px; margin-top: 6px; }
   #steady-root .icon-btn {
     width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-    background: var(--moss); color: var(--card); border: 1px solid var(--moss); font-size: 12px; line-height: 1;
+    background: var(--moss); border: none; color: var(--card); font-size: 13px; line-height: 1;
     cursor: pointer; padding: 0;
   }
-  #steady-root .icon-btn:hover { opacity: 0.85; }
+  #steady-root .icon-btn:hover { opacity: 0.7; }
   #steady-root .icon-btn:disabled { opacity: 0.5; cursor: default; }
   #steady-root .favlist { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
   #steady-root .favlist:empty { display: none; }
@@ -259,7 +258,8 @@
     font-size: 13px; color: var(--ink); margin: 0 0 10px; line-height: 1.55;
   }
   #steady-root .tip-refresh {
-    display: flex; justify-content: flex-end; color: var(--moss); cursor: pointer;
+    width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--moss); color: var(--card); font-size: 13px; cursor: pointer; flex-shrink: 0;
   }
   #steady-root .tip-refresh:hover { opacity: 0.7; }
   #steady-root .leftover {
@@ -381,10 +381,10 @@
   }
   #steady-root .chartbar-hit, #steady-root .measpoint-hit { cursor: pointer; }
   #steady-root .measgrid {
-    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
   }
   @media (max-width: 460px) {
-    #steady-root .measgrid { grid-template-columns: 1fr 1fr; }
+    #steady-root .measgrid { grid-template-columns: 1fr; }
   }
   #steady-root .measrow {
     display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -393,8 +393,14 @@
   #steady-root .measrow:last-child { border-bottom: none; }
   #steady-root .measrow-actions { display: flex; gap: 10px; flex-shrink: 0; }
   #steady-root .measrow-actions span { cursor: pointer; }
-  #steady-root .measrow .medit { color: var(--moss); font-size: 14px; }
-  #steady-root .measrow .mdel { color: var(--ink-soft); font-size: 15px; }
+  #steady-root .measrow .medit {
+    width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--moss); color: var(--card); font-size: 12px; cursor: pointer;
+  }
+  #steady-root .measrow .mdel {
+    width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--moss); color: var(--card); font-size: 14px; cursor: pointer;
+  }
   #steady-root .measrow .mdel:hover { color: var(--protein); }
   #steady-root .storage-warning {
     background: var(--protein); color: var(--ink); border-radius: 4px; padding: 12px 14px;
@@ -441,8 +447,9 @@
   }
   #steady-root .activitymenu-item:last-child { border-bottom: none; }
   #steady-root .activitymenu-item:hover { background: var(--paper); }
-  #steady-root .activitymenu-row { display: flex; align-items: center; justify-content: space-between; cursor: default; gap: 10px; }
+  #steady-root .activitymenu-row { display: flex; align-items: center; justify-content: space-between; cursor: default; gap: 6px; }
   #steady-root .activitymenu-row > span:first-child { width: 82px; flex-shrink: 0; }
+  #steady-root .activitymenu-row > .tip-refresh:first-child { width: 26px; }
   #steady-root .actdurinput {
     width: 46px; font-size: 12px; padding: 4px 5px; border: 1px solid var(--paper-line);
     border-radius: 3px; background: var(--card); color: var(--ink);
@@ -1219,11 +1226,15 @@
     await deleteDataByPrefix('meals:', cutoff);
     await deleteDataByPrefix('note:', cutoff);
     await deleteDataByPrefix('activity:', cutoff);
+    await deleteDataByPrefix('context:', cutoff);
     await deleteDataByPrefix('weekchat:', cutoff);
     await deleteDataByPrefix('chat:', cutoff);
     showToast(`Deleted entries older than ${n} day(s).`, false);
     await loadMeals(state.currentDate);
     await loadDailyNote(state.currentDate);
+    state.activities = await loadActivities(state.currentDate);
+    state.dayContext = await loadDayContext(state.currentDate);
+    render();
   }
 
   async function performFullDataWipe(){
@@ -1428,7 +1439,6 @@
     app.innerHTML = `
       <div class="datebar-tools">
         <input type="date" id="datePicker" class="datepick" value="${state.currentDate}" max="${todayStr()}">
-        <button class="todaybtn" id="jumpToday" ${state.currentDate === todayStr() ? 'disabled' : ''}>Today</button>
       </div>
       <div class="datebar">
         <button class="navbtn" id="prevDay" aria-label="Previous day">&#8249;</button>
@@ -1487,11 +1497,11 @@
           <div class="activitymenu">
             ${ACTIVITY_ORDER.filter(t => !state.activities.some(a => a.type === t)).map(t => `
               <div class="activitymenu-item activitymenu-row">
-                <span>${ACTIVITY_LABELS[t]}</span>
+                <span style="width:90px; flex-shrink:0;">${ACTIVITY_LABELS[t]}</span>
                 <span style="display:flex; align-items:center; gap:6px;">
                   <input type="number" min="1" class="actdurinput" id="adddur-${t}" value="${ACTIVITY_DEFAULT_MIN[t]}">
                   <span style="font-size:11px; color:var(--ink-soft);">min</span>
-                  <button class="btn small" data-addact="${t}">Add</button>
+                  <button class="addactbtn" data-addact="${t}" aria-label="Add ${ACTIVITY_LABELS[t]}" style="flex-shrink:0;">+</button>
                 </span>
               </div>
             `).join('') || '<div class="activitymenu-item" style="cursor:default; color:var(--ink-soft);">All added</div>'}
@@ -1505,23 +1515,39 @@
                   <span style="display:flex; align-items:center; gap:6px;">
                     <input type="number" min="1" class="actdurinput" id="adddur-custom-${c.id}" value="${c.defaultMin || 30}">
                     <span style="font-size:11px; color:var(--ink-soft);">min</span>
-                    <span class="tip-refresh" data-editcustomact="${c.id}" title="Edit" style="margin-top:0;">&#9998;</span>
-                    <span class="tip-refresh" data-delcustomact="${c.id}" title="Delete" style="margin-top:0; color:var(--ink-soft);">&times;</span>
-                    <button class="btn small" data-addcustomact="${c.id}">Add</button>
+                    <span class="tip-refresh" data-editcustomact="${c.id}" title="Edit">&#9998;</span>
+                    <span class="tip-refresh" data-delcustomact="${c.id}" title="Delete">&times;</span>
+                    <button class="addactbtn" data-addcustomact="${c.id}" aria-label="Add ${escapeAttr(c.name)}" style="flex-shrink:0;">+</button>
                   </span>
                 </div>
+                ${(state.addingCustomActivity && state.editingCustomActivityId === c.id) ? `
+                  <div class="activitymenu" style="padding:12px; margin:8px 0;">
+                    <div class="field" style="margin-bottom:8px;">
+                      <label>Name</label>
+                      <input type="text" id="customActName" value="${escapeAttr(c.name)}" placeholder="e.g. Pilates">
+                    </div>
+                    <div class="row2" style="margin-bottom:10px;">
+                      <div class="field" style="margin-bottom:0;"><label>kcal/min (optional)</label><input type="number" step="0.1" min="0" id="customActRate" value="${c.kcalPerMin ?? ''}" placeholder="AI will estimate"></div>
+                      <div class="field" style="margin-bottom:0;"><label>Default duration</label><input type="number" min="1" id="customActDefaultMin" value="${c.defaultMin || 30}"></div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                      <button class="btn small" id="saveCustomActBtn">${state.customActivitySaving ? 'Saving…' : 'Save'}</button>
+                      <button class="btn small btn-cancel" id="cancelCustomActBtn">Cancel</button>
+                    </div>
+                  </div>
+                ` : ''}
               `).join('')}
             </div>
           ` : ''}
-          ${state.addingCustomActivity ? `
+          ${(state.addingCustomActivity && !state.editingCustomActivityId) ? `
             <div class="activitymenu" style="padding:12px; margin-top:12px;">
               <div class="field" style="margin-bottom:8px;">
                 <label>Name</label>
-                <input type="text" id="customActName" value="${escapeAttr(state.editingCustomActivityId ? (getCustomActivityById(state.editingCustomActivityId)?.name || '') : '')}" placeholder="e.g. Pilates">
+                <input type="text" id="customActName" value="" placeholder="e.g. Pilates">
               </div>
               <div class="row2" style="margin-bottom:10px;">
-                <div class="field" style="margin-bottom:0;"><label>kcal/min (optional)</label><input type="number" step="0.1" min="0" id="customActRate" value="${state.editingCustomActivityId ? (getCustomActivityById(state.editingCustomActivityId)?.kcalPerMin ?? '') : ''}" placeholder="AI will estimate"></div>
-                <div class="field" style="margin-bottom:0;"><label>Default duration</label><input type="number" min="1" id="customActDefaultMin" value="${state.editingCustomActivityId ? (getCustomActivityById(state.editingCustomActivityId)?.defaultMin || 30) : 30}"></div>
+                <div class="field" style="margin-bottom:0;"><label>kcal/min (optional)</label><input type="number" step="0.1" min="0" id="customActRate" value="" placeholder="AI will estimate"></div>
+                <div class="field" style="margin-bottom:0;"><label>Default duration</label><input type="number" min="1" id="customActDefaultMin" value="30"></div>
               </div>
               <div style="display:flex; gap:8px;">
                 <button class="btn small" id="saveCustomActBtn">${state.customActivitySaving ? 'Saving…' : 'Save'}</button>
@@ -1547,7 +1573,7 @@
             ${CONTEXT_PRESETS.filter(c => !state.dayContext.includes(c.id)).map(c => `
               <div class="activitymenu-item activitymenu-row">
                 <span style="width:auto; flex:1;">${c.label}</span>
-                <button class="btn small" data-addctx="${c.id}">Add</button>
+                <button class="addactbtn" data-addctx="${c.id}" aria-label="Add ${c.label}" style="flex-shrink:0;">+</button>
               </div>
             `).join('') || '<div class="activitymenu-item" style="cursor:default; color:var(--ink-soft);">All added</div>'}
           </div>
@@ -1557,20 +1583,30 @@
               ${state.customContextTags.filter(c => !state.dayContext.includes('custom:' + c.id)).map(c => `
                 <div class="activitymenu-item activitymenu-row">
                   <span style="width:auto; flex:1;">${escapeHtml(c.label)}</span>
-                  <span style="display:flex; align-items:center; gap:6px;">
-                    <span class="tip-refresh" data-editcustomctx="${c.id}" title="Edit" style="margin-top:0;">&#9998;</span>
-                    <span class="tip-refresh" data-delcustomctx="${c.id}" title="Delete" style="margin-top:0; color:var(--ink-soft);">&times;</span>
-                    <button class="btn small" data-addctx="custom:${c.id}">Add</button>
-                  </span>
+                  <span class="tip-refresh" data-editcustomctx="${c.id}" title="Edit">&#9998;</span>
+                  <span class="tip-refresh" data-delcustomctx="${c.id}" title="Delete">&times;</span>
+                  <button class="addactbtn" data-addctx="custom:${c.id}" aria-label="Add ${escapeAttr(c.label)}" style="flex-shrink:0;">+</button>
                 </div>
+                ${(state.addingCustomContext && state.editingCustomContextId === c.id) ? `
+                  <div class="activitymenu" style="padding:12px; margin:8px 0;">
+                    <div class="field" style="margin-bottom:10px;">
+                      <label>Tag name</label>
+                      <input type="text" id="customCtxLabel" value="${escapeAttr(c.label)}" placeholder="e.g. New medication, PMS">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                      <button class="btn small" id="saveCustomCtxBtn">Save</button>
+                      <button class="btn small btn-cancel" id="cancelCustomCtxBtn">Cancel</button>
+                    </div>
+                  </div>
+                ` : ''}
               `).join('')}
             </div>
           ` : ''}
-          ${state.addingCustomContext ? `
+          ${(state.addingCustomContext && !state.editingCustomContextId) ? `
             <div class="activitymenu" style="padding:12px; margin-top:12px;">
               <div class="field" style="margin-bottom:10px;">
                 <label>Tag name</label>
-                <input type="text" id="customCtxLabel" value="${state.editingCustomContextId ? escapeAttr((state.customContextTags.find(x => x.id === state.editingCustomContextId) || {}).label || '') : ''}" placeholder="e.g. New medication, PMS">
+                <input type="text" id="customCtxLabel" value="" placeholder="e.g. New medication, PMS">
               </div>
               <div style="display:flex; gap:8px;">
                 <button class="btn small" id="saveCustomCtxBtn">Save</button>
@@ -1620,7 +1656,6 @@
     document.getElementById('datePicker').addEventListener('change', (e) => {
       if (e.target.value) switchDate(e.target.value);
     });
-    document.getElementById('jumpToday').addEventListener('click', () => switchDate(todayStr()));
     document.getElementById('addActivityBtn').addEventListener('click', () => {
       state.activityMenuOpen = !state.activityMenuOpen;
       render();
@@ -2202,7 +2237,7 @@
         <div class="mealrow-actions">
           <button class="icon-btn" data-edit="${m.id}" title="Edit" aria-label="Edit meal">&#9998;</button>
           <button class="icon-btn" data-fav="${m.id}" title="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}" aria-label="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}">${m.favorited ? '&#9733;' : '&#9734;'}</button>
-          <button class="icon-btn tipbtn" data-id="${m.id}" title="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" aria-label="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '…' : '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2.5a5.5 5.5 0 0 0-3 10.1c.5.35.8.9.8 1.5v.4h4.4v-.4c0-.6.3-1.15.8-1.5A5.5 5.5 0 0 0 10 2.5z" stroke="#FFFFFF" stroke-width="1.4" stroke-linejoin="round"/><line x1="8.2" y1="17" x2="11.8" y2="17" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/><line x1="8.6" y1="14.5" x2="11.4" y2="14.5" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/></svg>'}</button>
+          <button class="icon-btn tipbtn" data-id="${m.id}" title="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" aria-label="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '…' : '<b>!</b>'}</button>
         </div>
         <div class="mealtip">
           ${(m.coachNote && state.tipVisibleIds[m.id]) ? `
@@ -2215,8 +2250,10 @@
                 </div>
               </div>
               <p class="tipnote">${escapeHtml(m.coachNote)}</p>
-              <div class="tip-refresh" data-refreshtip="${m.id}" title="Refresh tip" aria-label="Refresh tip" ${state.tipLoadingId===m.id ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
-                <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div style="display:flex; justify-content:flex-end;">
+                <div class="tip-refresh" data-refreshtip="${m.id}" title="Refresh tip" aria-label="Refresh tip" ${state.tipLoadingId===m.id ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
+                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
               </div>
             </div>
           ` : ''}
@@ -2320,7 +2357,7 @@
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <h2 style="margin:0;">Favorite recipes</h2>
-          <button class="icon-btn" id="exportFavCsvBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          <button class="icon-btn" id="exportFavCsvBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
         <p class="setup-note">Meals you eat often, saved with ingredients so you can log them again in seconds from the Log a meal tab.</p>
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:14px;">
@@ -2984,7 +3021,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <h2 style="margin:0;">Last 4 weeks</h2>
-          <button class="icon-btn" id="exportCsvBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          <button class="icon-btn" id="exportCsvBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
         <div id="exportPickerPanel" style="display:none; margin-bottom:14px;">
           <div class="row2">
@@ -3008,7 +3045,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
           <h2 style="margin:0;">Body measurements</h2>
-          <button class="icon-btn" id="exportMeasBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          <button class="icon-btn" id="exportMeasBtn" title="Export CSV" aria-label="Export CSV"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
         <div id="measurementsHolder"></div>
       </div>
@@ -3205,8 +3242,8 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
   function measFormHtml(existing){
     const e = existing || {};
     return `
+      <div class="field" style="margin-bottom:10px;"><label>Date</label><input type="date" id="measDate" value="${e.date || todayStr()}" max="${todayStr()}"></div>
       <div class="measgrid">
-        <div class="field" style="margin-bottom:0;"><label>Date</label><input type="date" id="measDate" value="${e.date || todayStr()}" max="${todayStr()}"></div>
         <div class="field" style="margin-bottom:0;"><label>Bust (cm)</label><input type="number" step="0.1" min="0" id="measBust" value="${e.bust ?? ''}"></div>
         <div class="field" style="margin-bottom:0;"><label>Waist (cm)</label><input type="number" step="0.1" min="0" id="measWaist" value="${e.waist ?? ''}"></div>
         <div class="field" style="margin-bottom:0;"><label>Hips (cm)</label><input type="number" step="0.1" min="0" id="measHips" value="${e.hips ?? ''}"></div>
