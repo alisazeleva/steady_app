@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_106.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_107.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -2421,13 +2421,15 @@
 
   function exportRecipesCSV(){
     if (!state.favorites.length) { showToast('No favorites to export yet.', true); return; }
-    const rows = [['name','calories','protein_g','carbs_g','fat_g','ingredients']];
+    const rows = [['name','calories_per_100g','protein_g_per_100g','carbs_g_per_100g','fat_g_per_100g','total_yield_g','typical_portion_g','ingredients_and_notes']];
     state.favorites.forEach(f => rows.push([
       f.name,
       Math.round(f.calories || 0),
       Math.round(f.protein_g || 0),
       Math.round(f.carbs_g || 0),
       Math.round(f.fat_g || 0),
+      f.totalYieldG || '',
+      f.typicalPortionG || '',
       f.ingredients || ''
     ]));
     const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
