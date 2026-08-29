@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_118.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_119.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -3563,6 +3563,46 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     } catch(e) {
       showToast('Could not export your data — please try again.', true);
     }
+  }
+
+  function buildMealTipSnapshot(meal, allMealsForDay){
+    const mealTime24 = timeStringTo24h(meal.time) || '';
+    const earlier = allMealsForDay.filter(m => m.id !== meal.id && (timeStringTo24h(m.time) || '9999') < mealTime24);
+    const earlierTotals = earlier.reduce((acc, m) => {
+      acc.calories += m.calories || 0;
+      acc.protein += m.protein_g || 0;
+      acc.carbs += m.carbs_g || 0;
+      acc.fat += m.fat_g || 0;
+      return acc;
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+    return {
+      mealSnapshot: {
+        calories: meal.calories, protein_g: meal.protein_g, carbs_g: meal.carbs_g, fat_g: meal.fat_g,
+        time: meal.time, ingredients: meal.ingredients || ''
+      },
+      earlierCount: earlier.length,
+      earlierTotals
+    };
+  }
+
+  function isMealTipStale(meal, snapshot, allMealsForDay){
+    if (!snapshot) return false;
+    const s = snapshot.mealSnapshot;
+    if (
+      s.calories !== meal.calories || s.protein_g !== meal.protein_g ||
+      s.carbs_g !== meal.carbs_g || s.fat_g !== meal.fat_g ||
+      s.time !== meal.time || (s.ingredients || '') !== (meal.ingredients || '')
+    ) return true;
+    const fresh = buildMealTipSnapshot(meal, allMealsForDay);
+    if (snapshot.earlierCount !== fresh.earlierCount) return true;
+    const et = snapshot.earlierTotals, ft = fresh.earlierTotals;
+    if (
+      Math.round(et.calories) !== Math.round(ft.calories) ||
+      Math.round(et.protein) !== Math.round(ft.protein) ||
+      Math.round(et.carbs) !== Math.round(ft.carbs) ||
+      Math.round(et.fat) !== Math.round(ft.fat)
+    ) return true;
+    return false;
   }
 
   function timeStringTo24h(timeStr){
