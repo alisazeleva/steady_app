@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_133.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_136.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -2245,6 +2245,10 @@
         </div>
 
         <div class="formdivider"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div class="formsection" style="margin:0;">Nutrients</div>
+          <button class="icon-btn" id="p-aiest" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
+        </div>
         <div class="row2">
           <div class="field"><label>Calories</label><input type="number" id="p-cal" value="${Math.round(p.calories||0)}"></div>
           <div class="field"><label>Protein (g)</label><input type="number" id="p-pro" value="${Math.round(p.protein_g||0)}"></div>
@@ -2262,6 +2266,40 @@
     `;
     document.getElementById('confirmAdd').addEventListener('click', confirmAddMeal);
     document.getElementById('discardAdd').addEventListener('click', () => { state.pending = null; renderPending(); });
+    const aiBtn = document.getElementById('p-aiest');
+    const enableAiBtn = () => { if (aiBtn) aiBtn.disabled = false; };
+    document.getElementById('p-name').addEventListener('input', enableAiBtn);
+    document.getElementById('p-ingredients').addEventListener('input', enableAiBtn);
+    document.getElementById('p-amount').addEventListener('input', enableAiBtn);
+    document.getElementById('p-amountunit').addEventListener('change', enableAiBtn);
+    if (aiBtn) aiBtn.addEventListener('click', reEstimatePendingMacros);
+  }
+
+  async function reEstimatePendingMacros(){
+    const name = document.getElementById('p-name').value.trim();
+    const ingredients = document.getElementById('p-ingredients').value.trim();
+    const amount = Number(document.getElementById('p-amount').value) || null;
+    const amountUnit = document.getElementById('p-amountunit').value || 'g';
+    if (!name && !ingredients) { showToast('Add a name or ingredients first.', true); return; }
+    const btn = document.getElementById('p-aiest');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '…';
+    btn.disabled = true;
+    try {
+      const amountNote = amount ? ` The portion is ${amount}${amountUnit} — calculate nutrients for exactly this amount.` : ' No specific amount given — assume a reasonable average portion.';
+      const prompt = `${dietContext()}Meal name: ${name || '(untitled)'}. ${ingredients ? 'Ingredients: ' + ingredients + '.' : 'No ingredients given — estimate from the name alone as a reasonable average version of this meal.'} Calculate the nutrition for this meal.${amountNote}\nRespond with ONLY raw JSON, no markdown fences, no commentary: {"calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "note": "one short sentence on your reasoning"}`;
+      const result = await callRecipeEstimate(prompt);
+      document.getElementById('p-cal').value = Math.round(result.calories);
+      document.getElementById('p-pro').value = Math.round(result.protein_g);
+      document.getElementById('p-carb').value = Math.round(result.carbs_g);
+      document.getElementById('p-fat').value = Math.round(result.fat_g);
+      showToast('Nutrients updated — review before adding.', false);
+    } catch(e) {
+      showToast('Could not re-estimate: ' + (e.message || 'please try again.'), true);
+    } finally {
+      btn.innerHTML = originalHtml;
+      btn.disabled = true;
+    }
   }
 
   async function confirmAddMeal(){
@@ -3004,6 +3042,7 @@ In under 90 words of plain text (no markdown, no emojis), give feedback on this 
 - Where ingredients are known, comment on actual composition (fiber, protein quality, micronutrient variety, processed vs whole) — but only surface a quality dimension when it's genuinely relevant to this meal, not every time.
 - Never frame any food as good/bad/allowed/forbidden. Describe effects and trade-offs, not moral judgments.
 - Offer at most ONE concrete alternative or adjustment — not a list.
+- The targets and totals above are for your own context only — don't restate them back as a "Remaining: X kcal, Yg protein..." style breakdown or list of numbers. Reference a specific figure only when it's the actual point of a sentence (e.g. "that's a big protein boost toward today's target"), not as a routine recap.
 - Alcohol/caffeine safety check, considering this meal PLUS everything logged earlier today combined: if the running total today amounts to a large single-occasion quantity of alcohol (roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man — one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits) OR a large dose of caffeine (roughly 400mg+ combined today, e.g. concentrated caffeine powder/liquid, multiple energy drinks, or several espresso shots), skip the usual macro framing entirely for this response — briefly note this is a safety-relevant amount, not a calorie moment, and suggest water/food/rest or contacting someone if needed, while still returning valid macro totals. Otherwise, ordinary alcohol/caffeine amounts get normal, non-alarmed feedback like any other food.
 
 Respond in plain text only, under 90 words, no markdown, no emojis.`;
