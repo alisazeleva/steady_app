@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_126.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_127.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -192,12 +192,6 @@
     padding: 6px 10px; border-radius: 6px; cursor: pointer;
   }
   #steady-root .btn-ai:hover { background: #F7EFD8; }
-  #steady-root .btn-ai-icon {
-    background: #FDF8E9; border: 1.5px solid var(--moss); color: var(--moss);
-    padding: 5px 7px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-  }
-  #steady-root .btn-ai-icon:hover { background: #F7EFD8; }
-  #steady-root .btn-ai-icon:disabled { opacity: 0.5; cursor: default; }
   #steady-root .sectiontitle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   #steady-root .btn-ai:disabled { opacity: 0.5; cursor: default; }
 
@@ -2317,7 +2311,7 @@
             <div class="formdivider"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <div class="formsection" style="margin:0;">Nutrients</div>
-              <button class="btn-ai-icon" id="e-aiest-${m.id}" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.2 4.5L15.5 8l-4.3 1.5L10 14l-1.2-4.5L4.5 8l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
+              <button class="icon-btn" id="e-aiest-${m.id}" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
             </div>
             <div class="row2">
               <div class="field"><label>Calories</label><input type="number" id="e-cal-${m.id}" value="${Math.round(m.calories)}"></div>
@@ -2589,7 +2583,7 @@
   }
 
   function favEditFormHtml(f, idPrefix){
-    const starSvg = '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.2 4.5L15.5 8l-4.3 1.5L10 14l-1.2-4.5L4.5 8l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+    const starSvg = '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
     return `
       <div class="editmeal">
         <div class="formsection">Recipe</div>
@@ -2602,7 +2596,7 @@
         <div class="formdivider"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div class="formsection" style="margin:0;">Portions</div>
-          <button class="btn-ai-icon" id="${idPrefix}-estimateportions" type="button" disabled title="AI estimate portions">${starSvg}</button>
+          <button class="icon-btn" id="${idPrefix}-estimateportions" type="button" disabled title="AI estimate portions">${starSvg}</button>
         </div>
         <div class="field">
           <label>Unit</label>
@@ -2617,7 +2611,7 @@
         <div class="formdivider"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div class="formsection" style="margin:0;">Nutrition (per 100g)</div>
-          <button class="btn-ai-icon" id="${idPrefix}-estimatenutrition" type="button" disabled title="AI estimate nutrition">${starSvg}</button>
+          <button class="icon-btn" id="${idPrefix}-estimatenutrition" type="button" disabled title="AI estimate nutrition">${starSvg}</button>
         </div>
         <div class="row2">
           <div class="field"><label>Calories</label><input type="number" id="${idPrefix}-cal" value="${Math.round(f.calories || 0)}"></div>
