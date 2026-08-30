@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_119.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_120.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -2858,7 +2858,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
   }
 
   const TODAY_QUICK_ACTIONS = [
-    { label: 'Get summary', message: "How's today looking so far, and what should I adjust?" },
+    { label: "Get today's summary", message: "How's today looking so far, and what should I adjust?" },
     { label: 'Quick tip for today', message: "Give me one quick, specific tip for the rest of today." },
     { label: 'Suggest next meal', message: "What should I eat next, based on what I've logged and my remaining targets?" },
     { label: 'What should I focus on?', message: "What should I focus on right now — am I getting enough vegetables, fiber, or any nutrients I might be missing today?" },
@@ -2870,7 +2870,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     if (!holder) return;
     const msgs = state.chatMessages;
     const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
-    const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. How can I help you?</div></div>`;
+    const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
     const bubbles = msgs.map(m => m.role === 'coach'
       ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`
       : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
@@ -3180,7 +3180,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
   }
 
   const WEEK_QUICK_ACTIONS = [
-    { label: 'Get summary', message: "How did this week trend, and what should I focus on?" },
+    { label: 'Get last 7 days summary', message: "How did the last 7 days trend, and what should I focus on?" },
     { label: 'Focus for next week?', message: "Based on this week, what should I focus on or adjust for next week?" },
     { label: "Any patterns you're noticing?", message: "Are there any patterns you're noticing in my week — good or worth changing?" },
   ];
@@ -3190,7 +3190,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     if (!holder) return;
     const msgs = state.weekChatMessages;
     const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
-    const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. How did your week go?</div></div>`;
+    const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about from the past 7 days?</div></div>`;
     const bubbles = msgs.map(m => m.role === 'coach'
       ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`
       : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
