@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_127.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_128.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -2395,10 +2395,12 @@
     if (state.editingMealId) {
       const id = state.editingMealId;
       const aiBtn = document.getElementById('e-aiest-' + id);
+      const nameEl = document.getElementById('e-name-' + id);
       const ingredientsEl = document.getElementById('e-ingredients-' + id);
       const amountEl = document.getElementById('e-amount-' + id);
       const amountUnitEl = document.getElementById('e-amountunit-' + id);
       const enableAiBtn = () => { if (aiBtn) aiBtn.disabled = false; };
+      if (nameEl) nameEl.addEventListener('input', enableAiBtn);
       if (ingredientsEl) ingredientsEl.addEventListener('input', enableAiBtn);
       if (amountEl) amountEl.addEventListener('input', enableAiBtn);
       if (amountUnitEl) amountUnitEl.addEventListener('change', enableAiBtn);
@@ -2407,17 +2409,18 @@
   }
 
   async function reEstimateMealMacros(id){
+    const name = document.getElementById('e-name-' + id).value.trim();
     const ingredients = document.getElementById('e-ingredients-' + id).value.trim();
     const amount = Number(document.getElementById('e-amount-' + id).value) || null;
     const amountUnit = document.getElementById('e-amountunit-' + id).value || 'g';
-    if (!ingredients) { showToast('Add ingredients first.', true); return; }
+    if (!name && !ingredients) { showToast('Add a name or ingredients first.', true); return; }
     const btn = document.getElementById('e-aiest-' + id);
     const originalHtml = btn.innerHTML;
     btn.innerHTML = '…';
     btn.disabled = true;
     try {
       const amountNote = amount ? ` The portion actually consumed is ${amount}${amountUnit} — calculate nutrients for exactly this amount.` : ' No specific amount given — assume a reasonable average portion.';
-      const prompt = `${dietContext()}Calculate the nutrition for this logged meal based on its ingredients. Only estimate the nutrients below — the amount/portion size is already set by the user and should not be changed.\nIngredients: ${ingredients}.${amountNote}\nRespond with ONLY raw JSON, no markdown fences, no commentary: {"name": "short meal name, max 6 words", "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "note": "one short sentence on your reasoning"}`;
+      const prompt = `${dietContext()}Meal name: ${name || '(untitled)'}. ${ingredients ? 'Ingredients: ' + ingredients + '.' : 'No ingredients given — estimate from the name alone as a reasonable average version of this meal.'} Calculate the nutrition for this logged meal. Only estimate the nutrients below — the amount/portion size is already set by the user and should not be changed.${amountNote}\nRespond with ONLY raw JSON, no markdown fences, no commentary: {"calories": number, "protein_g": number, "carbs_g": number, "fat_g": number, "note": "one short sentence on your reasoning"}`;
       const result = await callRecipeEstimate(prompt);
       document.getElementById('e-cal-' + id).value = Math.round(result.calories);
       document.getElementById('e-pro-' + id).value = Math.round(result.protein_g);
