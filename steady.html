@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_141.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_143.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -268,7 +268,7 @@
   #steady-root .tipcard-name { font-weight: 700; font-size: 14px; color: var(--ink); }
   #steady-root .tipcard-role { font-size: 11px; color: var(--ink-soft); }
   #steady-root .tipnote {
-    font-size: 13px; color: var(--ink); margin: 0 0 10px; line-height: 1.55;
+    font-size: 13px; color: var(--ink); margin: 0 0 10px; line-height: 1.55; white-space: pre-wrap;
   }
   #steady-root .tip-refresh {
     width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
@@ -280,9 +280,6 @@
     font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
   }
   #steady-root .leftover b { color: var(--ink); }
-  #steady-root .coachnote {
-    font-size: 13.5px; line-height: 1.65; margin: 0 0 12px; white-space: pre-wrap; color: var(--ink);
-  }
   #steady-root .stalenote {
     font-size: 12px; color: var(--over); font-style: italic; margin: 0 0 12px;
   }
@@ -573,8 +570,9 @@
     editingActivityType: null,
     editingMealId: null,
     favorites: [],
-    weekChatMessages: [],
-    weekChatLoading: false,
+    weekSummary: null,
+    weekSummaryMeta: null,
+    weekSummaryLoading: false,
     storageOk: true,
     chatMessages: [],
     chatLoading: false,
@@ -685,6 +683,18 @@
   async function saveDailyNote(dateStr, text, meta){
     await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories }), false);
   }
+  async function loadWeekSummary(){
+    try {
+      const res = await storageGet('weeksummary', false);
+      if (!res || !res.value) { state.weekSummary = null; state.weekSummaryMeta = null; return; }
+      const parsed = JSON.parse(res.value);
+      state.weekSummary = parsed.text;
+      state.weekSummaryMeta = { mealCount: parsed.mealCount, calories: parsed.calories };
+    } catch(e) { state.weekSummary = null; state.weekSummaryMeta = null; }
+  }
+  async function saveWeekSummary(text, meta){
+    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories }), false);
+  }
   async function loadChatMessages(dateStr){
     try {
       const res = await storageGet('chat:' + dateStr, false);
@@ -768,15 +778,6 @@
   }
   async function saveMeasurementsStorage(measurements){
     await storageSet('measurements', JSON.stringify(measurements), false);
-  }
-  async function loadWeekChatMessages(dateStr){
-    try {
-      const res = await storageGet('weekchat:' + dateStr, false);
-      state.weekChatMessages = res ? JSON.parse(res.value) : [];
-    } catch(e) { state.weekChatMessages = []; }
-  }
-  async function saveWeekChatMessages(dateStr, messages){
-    await storageSet('weekchat:' + dateStr, JSON.stringify(messages), false);
   }
 
   // ---------------- Targets calc ----------------
@@ -904,27 +905,20 @@
     bubble.style.bottom = '20px'; bubble.style.right = '20px';
   }
 
-  function scrollToAinoChat(){
-    const targetId = state.view === 'trends' ? 'weekChatHolder' : 'dailyNoteHolder';
-    const target = document.getElementById(targetId);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
   function updateAinoBubble(){
     const bubble = document.getElementById('ainoBubble');
     if (!bubble) return;
     const img = document.getElementById('ainoBubbleImg');
     if (img && !img.getAttribute('src')) img.src = AINO_AVATAR;
 
-    const onEligiblePage = !!state.profile && (state.view === 'trends' || !state.view || state.view === 'log');
+    const onEligiblePage = !!state.profile && (state.view === 'log' || !state.view) && state.currentDate === todayStr();
     if (!onEligiblePage) {
       bubble.style.display = 'none';
       if (ainoBubbleObserver) { ainoBubbleObserver.disconnect(); ainoBubbleObserver = null; }
       return;
     }
 
-    const targetId = state.view === 'trends' ? 'weekChatHolder' : 'dailyNoteHolder';
-    const target = document.getElementById(targetId);
+    const target = document.getElementById('dailyNoteHolder');
     if (ainoBubbleObserver) ainoBubbleObserver.disconnect();
     if (target) {
       ainoBubbleObserver = new IntersectionObserver((entries) => {
@@ -941,7 +935,10 @@
   function initAinoBubbleClick(){
     const bubble = document.getElementById('ainoBubble');
     if (!bubble) return;
-    bubble.addEventListener('click', scrollToAinoChat);
+    bubble.addEventListener('click', () => {
+      const target = document.getElementById('dailyNoteHolder');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   function render(){
@@ -1307,6 +1304,7 @@
     try { await storageDelete('customContextTags', false); } catch(e) {}
     try { await storageDelete('daily-index', false); } catch(e) {}
     try { await storageDelete('daily-index-built', false); } catch(e) {}
+    try { await storageDelete('weeksummary', false); } catch(e) {}
     state.profile = null;
     state.setupConsentAcknowledged = false;
     state.demoMode = false;
@@ -1316,7 +1314,8 @@
     state.favorites = [];
     state.measurements = {};
     state.dailyNote = null;
-    state.weekChatMessages = [];
+    state.weekSummary = null;
+    state.weekSummaryMeta = null;
     state.chatMessages = [];
     state.activities = [];
     state.dayContext = [];
@@ -1711,7 +1710,7 @@
       </div>
 
       <div class="card">
-        <h2>Chat with AI-nutritionist</h2>
+        <h2>${state.currentDate === todayStr() ? 'Chat with AI-nutritionist' : 'This day summary'}</h2>
         <div id="dailyNoteHolder"></div>
       </div>
     `;
@@ -3079,9 +3078,22 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       const targetChanged = state.dailyNoteMeta && state.dailyNoteMeta.targetCalories !== undefined && Math.round(state.dailyNoteMeta.targetCalories) !== Math.round(t.calories);
       const stale = state.dailyNoteMeta && (state.dailyNoteMeta.mealCount !== state.meals.length || Math.round(state.dailyNoteMeta.calories) !== Math.round(totals.calories) || targetChanged);
       holder.innerHTML = `
-        ${stale ? '<p class="stalenote">Meals or activity have changed since this summary &mdash; tap Regenerate for an updated one.</p>' : ''}
-        <p class="coachnote">${escapeHtml(state.dailyNote)}</p>
-        <button class="btn small" id="refreshDailyNote">${stale ? 'Regenerate summary' : 'Refresh'}</button>
+        <div class="tipcard">
+          ${stale ? '<p class="stalenote">Meals or activity have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
+          <div class="tipcard-header">
+            <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
+            <div>
+              <div class="tipcard-name">Aino</div>
+              <div class="tipcard-role">Your AI-nutritionist</div>
+            </div>
+          </div>
+          <p class="tipnote">${escapeHtml(state.dailyNote)}</p>
+          <div style="display:flex; justify-content:flex-end;">
+            <div class="tip-refresh" id="refreshDailyNote" title="Refresh summary" aria-label="Refresh summary" ${state.dailyNoteLoading ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
       `;
       document.getElementById('refreshDailyNote').addEventListener('click', () => getDailySummary(totals, t));
     } else {
@@ -3217,25 +3229,30 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
   }
 
   async function sendChatMessage(text, hiddenInstruction){
+    const targetDate = state.currentDate;
     const input = document.getElementById('chatInput');
     if (input) input.value = '';
     state.chatMessages.push({ role: 'user', text, time: nowTimeString() });
+    const localMessages = state.chatMessages;
     state.chatLoading = true;
     renderCoachChat();
     try {
       const context = buildTodayContext();
-      const reply = await callCoachChat(state.chatMessages, context, hiddenInstruction || '');
-      state.chatMessages.push({ role: 'coach', text: reply, time: nowTimeString() });
-      await saveChatMessages(state.currentDate, state.chatMessages);
+      const reply = await callCoachChat(localMessages, context, hiddenInstruction || '');
+      localMessages.push({ role: 'coach', text: reply, time: nowTimeString() });
+      await saveChatMessages(targetDate, localMessages);
     } catch(e) {
       showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
     } finally {
-      state.chatLoading = false;
-      renderCoachChat();
+      if (state.currentDate === targetDate) {
+        state.chatLoading = false;
+        renderCoachChat();
+      }
     }
   }
 
   async function getDailySummary(totals, t){
+    const targetDate = state.currentDate;
     if (!state.meals.length) {
       state.dailyNote = "Nothing was logged for this day.";
       renderDailyNote(totals, t);
@@ -3247,14 +3264,19 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       const mealsSummary = state.meals.map(m => `${m.name}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
       const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.`;
       const result = await callCoachText(prompt);
-      state.dailyNote = result;
-      state.dailyNoteMeta = { mealCount: state.meals.length, calories: totals.calories, targetCalories: t.calories };
-      await saveDailyNote(state.currentDate, result, state.dailyNoteMeta);
+      const meta = { mealCount: state.meals.length, calories: totals.calories, targetCalories: t.calories };
+      await saveDailyNote(targetDate, result, meta);
+      if (state.currentDate === targetDate) {
+        state.dailyNote = result;
+        state.dailyNoteMeta = meta;
+      }
     } catch(e) {
       showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
     } finally {
-      state.dailyNoteLoading = false;
-      renderDailyNote(totals, t);
+      if (state.currentDate === targetDate) {
+        state.dailyNoteLoading = false;
+        renderDailyNote(totals, t);
+      }
     }
   }
 
@@ -3353,10 +3375,10 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       }
       const totals = totalsFromMeals(meals);
       const dayTargets = computeTargets(state.profile, dayActivities);
-      return { date: d, totals, targets: dayTargets, activities: dayActivities };
+      return { date: d, totals, targets: dayTargets, activities: dayActivities, meals };
     });
     if (state.view !== 'trends') return; // user navigated away while loading
-    await loadWeekChatMessages(todayStr());
+    await loadWeekSummary();
     app.innerHTML = `
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -3391,7 +3413,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       </div>
 
       <div class="card">
-        <h2>Chat with AI-nutritionist</h2>
+        <h2>Last 7 days summary</h2>
         <div id="weekChatHolder"></div>
       </div>
     `;
@@ -3409,77 +3431,91 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     });
     renderMeasurementsCard();
     document.getElementById('exportMeasBtn').addEventListener('click', exportMeasurementsCSV);
-    renderWeekChat(data);
+    renderWeekSummaryCard(data);
     updateAinoBubble();
   }
 
-  function buildWeekContext(data){
-    const last7 = data.slice(-7);
-    const lines = last7.map(d => `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)})`).join('; ');
-    return `${nameContext()}${dietContext()}${bmiContext()}Last 7 days, logged vs target: ${lines}. Person's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
+  function buildWeekSummaryContext(days){
+    const last7 = days.slice(-7);
+    const loggedDays = last7.filter(d => d.meals && d.meals.length);
+    const dayLines = last7.map(d => {
+      if (!d.meals || !d.meals.length) return `${d.date}: no meals logged`;
+      const mealLines = d.meals.map(m => {
+        const ingr = m.ingredients ? ` (${m.ingredients})` : '';
+        return `${m.name}${ingr} at ${m.time}, ${Math.round(m.calories)} kcal`;
+      }).join('; ');
+      return `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)}). Meals: ${mealLines}`;
+    }).join('\n');
+    const loggingNote = loggedDays.length < 7 ? `Note: only ${loggedDays.length} of the last 7 days have any logged meals — the other ${7 - loggedDays.length} day(s) simply weren't logged, don't treat them as zero-intake days or factor them into averages as if they were.` : '';
+    return `${nameContext()}${dietContext()}${bmiContext()}Here is the last 7 days, in order:\n${dayLines}\n${loggingNote}\nPerson's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
   }
 
-  const WEEK_QUICK_ACTIONS = [
-    { label: 'Get last 7 days summary', message: "How did the last 7 days trend, and what should I focus on?" },
-    { label: 'Focus for next week?', message: "Based on this week, what should I focus on or adjust for next week?" },
-    { label: "Any patterns you're noticing?", message: "Are there any patterns you're noticing in my week — good or worth changing?" },
-  ];
-
-  function renderWeekChat(data){
+  function renderWeekSummaryCard(days){
     const holder = document.getElementById('weekChatHolder');
     if (!holder) return;
-    const msgs = state.weekChatMessages;
-    const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
-    const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about from the past 7 days?</div></div>`;
-    const bubbles = msgs.map(m => m.role === 'coach'
-      ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`
-      : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
-    ).join('');
-    const loadingBubble = state.weekChatLoading ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach"><span class="spinner"></span>Thinking…</div></div>` : '';
-    const topSection = `<div class="chatlist">${greetingBubble}${bubbles}${loadingBubble}</div>`;
-    const quickActionsHtml = WEEK_QUICK_ACTIONS.map((qa, i) =>
-      `<button class="quickaction-btn" data-qaindex="${i}" ${state.weekChatLoading ? 'disabled' : ''}>${escapeHtml(qa.label)}</button>`
-    ).join('');
-    holder.innerHTML = `
-      ${topSection}
-      <div class="chatinput-wrap">
-        <textarea id="weekChatInput" placeholder="Ask a question…" ${state.weekChatLoading ? 'disabled' : ''}></textarea>
-        <button class="chatsend-icon" id="weekChatSendBtn" aria-label="Send" ${state.weekChatLoading ? 'disabled' : ''}>
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 15V5M10 5L5 10M10 5l5 5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="quickactions">${quickActionsHtml}</div>
-    `;
-    holder.querySelectorAll('[data-qaindex]').forEach(btn => {
-      btn.addEventListener('click', () => sendWeekChatMessage(WEEK_QUICK_ACTIONS[Number(btn.dataset.qaindex)].message, data));
-    });
-    document.getElementById('weekChatSendBtn').addEventListener('click', () => {
-      const input = document.getElementById('weekChatInput');
-      const text = input.value.trim();
-      if (!text) return;
-      sendWeekChatMessage(text, data);
-    });
-    holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
-    const list = holder.querySelector('.chatlist');
-    if (list) list.scrollTop = list.scrollHeight;
+    if (state.weekSummaryLoading) {
+      holder.innerHTML = '<div class="empty"><span class="spinner"></span>Thinking it over…</div>';
+      return;
+    }
+    if (state.weekSummary) {
+      const last7 = days.slice(-7);
+      const freshMealCount = last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0);
+      const freshCalories = last7.reduce((sum, d) => sum + d.totals.calories, 0);
+      const stale = state.weekSummaryMeta && (state.weekSummaryMeta.mealCount !== freshMealCount || Math.round(state.weekSummaryMeta.calories) !== Math.round(freshCalories));
+      holder.innerHTML = `
+        <div class="tipcard">
+          ${stale ? '<p class="stalenote">Meals or activity have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
+          <div class="tipcard-header">
+            <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
+            <div>
+              <div class="tipcard-name">Aino</div>
+              <div class="tipcard-role">Your AI-nutritionist</div>
+            </div>
+          </div>
+          <p class="tipnote">${escapeHtml(state.weekSummary)}</p>
+          <div style="display:flex; justify-content:flex-end;">
+            <div class="tip-refresh" id="refreshWeekSummary" title="Refresh summary" aria-label="Refresh summary">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('refreshWeekSummary').addEventListener('click', () => getWeekSummary(days));
+      holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
+    } else {
+      holder.innerHTML = `<p class="setup-note" style="margin-bottom:12px;">Get a short read on the last 7 days.</p><button class="btn small" id="getWeekSummary">Get summary</button>`;
+      document.getElementById('getWeekSummary').addEventListener('click', () => getWeekSummary(days));
+    }
   }
 
-  async function sendWeekChatMessage(text, data){
-    const input = document.getElementById('weekChatInput');
-    if (input) input.value = '';
-    state.weekChatMessages.push({ role: 'user', text, time: nowTimeString() });
-    state.weekChatLoading = true;
-    renderWeekChat(data);
+  async function getWeekSummary(days){
+    const targetView = state.view;
+    const last7 = days.slice(-7);
+    const loggedDays = last7.filter(d => d.meals && d.meals.length);
+    if (!loggedDays.length) {
+      state.weekSummary = "Nothing was logged in the last 7 days.";
+      renderWeekSummaryCard(days);
+      return;
+    }
+    state.weekSummaryLoading = true;
+    renderWeekSummaryCard(days);
     try {
-      const context = buildWeekContext(data);
-      const reply = await callCoachChat(state.weekChatMessages, context);
-      state.weekChatMessages.push({ role: 'coach', text: reply, time: nowTimeString() });
-      await saveWeekChatMessages(todayStr(), state.weekChatMessages);
+      const context = buildWeekSummaryContext(days);
+      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Only cover what's genuinely present in the data — don't pad the reply to cover every possible topic. Consider, where relevant: how the week tracked against targets overall; genuine trends or patterns you notice (only call something a trend if it holds across most of the days, not from one or two data points — this includes any alcohol/caffeine pattern, mentioned plainly and neutrally if it stands out, not as a required topic); overall food quality (processed vs whole, diversity vs repetition, any clear gaps); and satiety-related observations (e.g. meals that would likely leave someone hungry sooner due to missing protein or fiber). Never frame any food as good/bad/forbidden — describe effects and trade-offs.`;
+      const result = await callCoachText(prompt);
+      const meta = { mealCount: last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0), calories: last7.reduce((sum, d) => sum + d.totals.calories, 0) };
+      await saveWeekSummary(result, meta);
+      if (state.view === targetView) {
+        state.weekSummary = result;
+        state.weekSummaryMeta = meta;
+      }
     } catch(e) {
-      showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
+      showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
     } finally {
-      state.weekChatLoading = false;
-      renderWeekChat(data);
+      if (state.view === targetView) {
+        state.weekSummaryLoading = false;
+        renderWeekSummaryCard(days);
+      }
     }
   }
 
