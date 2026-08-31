@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_145.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_148.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -1310,6 +1310,7 @@
     try { await storageDelete('daily-index', false); } catch(e) {}
     try { await storageDelete('daily-index-built', false); } catch(e) {}
     try { await storageDelete('weeksummary', false); } catch(e) {}
+    try { await storageDelete('__healthcheck', false); } catch(e) {}
     state.profile = null;
     state.setupConsentAcknowledged = false;
     state.demoMode = false;
@@ -2253,7 +2254,7 @@
         <div class="formdivider"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div class="formsection" style="margin:0;">Nutrients</div>
-          <button class="icon-btn" id="p-aiest" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
+          <button class="icon-btn" id="p-aiest" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="row2">
           <div class="field"><label>Calories</label><input type="number" id="p-cal" value="${Math.round(p.calories||0)}"></div>
@@ -2368,7 +2369,7 @@
             <div class="formdivider"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <div class="formsection" style="margin:0;">Nutrients</div>
-              <button class="icon-btn" id="e-aiest-${m.id}" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></button>
+              <button class="icon-btn" id="e-aiest-${m.id}" type="button" disabled title="AI estimate nutrients"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             </div>
             <div class="row2">
               <div class="field"><label>Calories</label><input type="number" id="e-cal-${m.id}" value="${Math.round(m.calories)}"></div>
@@ -2645,7 +2646,7 @@
   }
 
   function favEditFormHtml(f, idPrefix){
-    const starSvg = '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 4l1.2 4.5L15.5 10l-4.3 1.5L10 16l-1.2-4.5L4.5 10l4.3-1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+    const starSvg = '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     return `
       <div class="editmeal">
         <div class="formsection">Recipe</div>
@@ -3024,14 +3025,16 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
   }
 
   async function getMealTip(id){
-    const meal = state.meals.find(m => m.id === id);
+    const targetDate = state.currentDate;
+    const targetMeals = state.meals;
+    const meal = targetMeals.find(m => m.id === id);
     if (!meal) return;
     state.tipLoadingId = id;
     render();
     try {
       const t = computeTargets(state.profile, state.activities);
       const mealTime24h = timeStringTo24h(meal.time || '');
-      const earlierMeals = state.meals
+      const earlierMeals = targetMeals
         .filter(m => m.id !== meal.id && timeStringTo24h(m.time || '') < mealTime24h)
         .sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
       const earlierLines = earlierMeals.map(m => {
@@ -3060,9 +3063,9 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
       const { score, text } = parseScoreFromResponse(result);
       meal.coachNote = text;
       meal.tipScore = score;
-      meal.tipSnapshot = buildMealTipSnapshot(meal, state.meals);
+      meal.tipSnapshot = buildMealTipSnapshot(meal, targetMeals);
       state.tipVisibleIds[id] = true;
-      await saveMeals(state.currentDate, state.meals);
+      await saveMeals(targetDate, targetMeals);
     } catch(e) {
       showToast('Could not get a tip: ' + (e.message || 'please try again.'), true);
     } finally {
@@ -3350,10 +3353,10 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     state.editingActivityType = null;
     const demoEntry = state.demoMode && newDate !== todayStr() ? getDemoOffsetData(newDate) : null;
     if (demoEntry) {
-      state.meals = demoEntry.meals;
+      await loadMeals(newDate); // a tip or edit may have already been saved for this date — that takes priority over a fresh demo set
+      if (!state.meals.length) state.meals = demoEntry.meals;
       state.activities = demoEntry.activities;
-      state.dailyNote = null;
-      state.dailyNoteScore = null;
+      await loadDailyNote(newDate); // demo meals are fake, but a real summary may genuinely be saved for this date
       state.chatMessages = [];
       state.dayContext = [];
     } else {
