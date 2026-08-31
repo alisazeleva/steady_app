@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_143.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_144.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -265,8 +265,8 @@
   #steady-root .tipcard-header {
     display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
   }
-  #steady-root .tipcard-name { font-weight: 700; font-size: 14px; color: var(--ink); }
-  #steady-root .tipcard-role { font-size: 11px; color: var(--ink-soft); }
+  #steady-root .tipcard-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px; color: var(--ink); }
+  #steady-root .tipcard-role { font-size: 13px; color: var(--ink-soft); }
   #steady-root .tipnote {
     font-size: 13px; color: var(--ink); margin: 0 0 10px; line-height: 1.55; white-space: pre-wrap;
   }
@@ -563,6 +563,7 @@
     photoData: null, // {base64, mediaType, previewUrl}
     dailyNote: null,
     dailyNoteMeta: null,
+    dailyNoteScore: null,
     dailyNoteLoading: false,
     tipLoadingId: null,
     activities: [],
@@ -572,6 +573,7 @@
     favorites: [],
     weekSummary: null,
     weekSummaryMeta: null,
+    weekSummaryScore: null,
     weekSummaryLoading: false,
     storageOk: true,
     chatMessages: [],
@@ -666,34 +668,37 @@
   async function loadDailyNote(dateStr){
     try {
       const res = await storageGet('note:' + dateStr, false);
-      if (!res || !res.value) { state.dailyNote = null; state.dailyNoteMeta = null; return; }
+      if (!res || !res.value) { state.dailyNote = null; state.dailyNoteMeta = null; state.dailyNoteScore = null; return; }
       const raw = res.value;
       if (raw.trim().startsWith('{')) {
         try {
           const parsed = JSON.parse(raw);
           state.dailyNote = parsed.text;
           state.dailyNoteMeta = { mealCount: parsed.mealCount, calories: parsed.calories, targetCalories: parsed.targetCalories };
-        } catch(e) { state.dailyNote = raw; state.dailyNoteMeta = null; }
+          state.dailyNoteScore = parsed.score ?? null;
+        } catch(e) { state.dailyNote = raw; state.dailyNoteMeta = null; state.dailyNoteScore = null; }
       } else {
         state.dailyNote = raw; // older plain-text note, no snapshot to compare against
         state.dailyNoteMeta = null;
+        state.dailyNoteScore = null;
       }
-    } catch(e) { state.dailyNote = null; state.dailyNoteMeta = null; }
+    } catch(e) { state.dailyNote = null; state.dailyNoteMeta = null; state.dailyNoteScore = null; }
   }
-  async function saveDailyNote(dateStr, text, meta){
-    await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories }), false);
+  async function saveDailyNote(dateStr, text, meta, score){
+    await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories, score: score ?? null }), false);
   }
   async function loadWeekSummary(){
     try {
       const res = await storageGet('weeksummary', false);
-      if (!res || !res.value) { state.weekSummary = null; state.weekSummaryMeta = null; return; }
+      if (!res || !res.value) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; return; }
       const parsed = JSON.parse(res.value);
       state.weekSummary = parsed.text;
       state.weekSummaryMeta = { mealCount: parsed.mealCount, calories: parsed.calories };
-    } catch(e) { state.weekSummary = null; state.weekSummaryMeta = null; }
+      state.weekSummaryScore = parsed.score ?? null;
+    } catch(e) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; }
   }
-  async function saveWeekSummary(text, meta){
-    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories }), false);
+  async function saveWeekSummary(text, meta, score){
+    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, score: score ?? null }), false);
   }
   async function loadChatMessages(dateStr){
     try {
@@ -1314,8 +1319,10 @@
     state.favorites = [];
     state.measurements = {};
     state.dailyNote = null;
+    state.dailyNoteScore = null;
     state.weekSummary = null;
     state.weekSummaryMeta = null;
+    state.weekSummaryScore = null;
     state.chatMessages = [];
     state.activities = [];
     state.dayContext = [];
@@ -2407,6 +2414,7 @@
                   <div class="tipcard-role">Your AI-nutritionist</div>
                 </div>
               </div>
+              ${scoreBadgeHtml(m.tipScore)}
               <p class="tipnote">${escapeHtml(m.coachNote)}</p>
               <div style="display:flex; justify-content:flex-end;">
                 <div class="tip-refresh" data-refreshtip="${m.id}" title="Refresh tip" aria-label="Refresh tip" ${state.tipLoadingId===m.id ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
@@ -3045,9 +3053,13 @@ In under 90 words of plain text (no markdown, no emojis), give feedback on this 
 - The targets and totals above are for your own context only — don't restate them back as a "Remaining: X kcal, Yg protein..." style breakdown or list of numbers. Reference a specific figure only when it's the actual point of a sentence (e.g. "that's a big protein boost toward today's target"), not as a routine recap.
 - Alcohol/caffeine safety check, considering this meal PLUS everything logged earlier today combined: if the running total today amounts to a large single-occasion quantity of alcohol (roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man — one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits) OR a large dose of caffeine (roughly 400mg+ combined today, e.g. concentrated caffeine powder/liquid, multiple energy drinks, or several espresso shots), skip the usual macro framing entirely for this response — briefly note this is a safety-relevant amount, not a calorie moment, and suggest water/food/rest or contacting someone if needed, while still returning valid macro totals. Otherwise, ordinary alcohol/caffeine amounts get normal, non-alarmed feedback like any other food.
 
-Respond in plain text only, under 90 words, no markdown, no emojis.`;
+Respond in plain text only, under 90 words, no markdown, no emojis.
+
+${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
-      meal.coachNote = result;
+      const { score, text } = parseScoreFromResponse(result);
+      meal.coachNote = text;
+      meal.tipScore = score;
       meal.tipSnapshot = buildMealTipSnapshot(meal, state.meals);
       state.tipVisibleIds[id] = true;
       await saveMeals(state.currentDate, state.meals);
@@ -3087,6 +3099,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
               <div class="tipcard-role">Your AI-nutritionist</div>
             </div>
           </div>
+          ${scoreBadgeHtml(state.dailyNoteScore)}
           <p class="tipnote">${escapeHtml(state.dailyNote)}</p>
           <div style="display:flex; justify-content:flex-end;">
             <div class="tip-refresh" id="refreshDailyNote" title="Refresh summary" aria-label="Refresh summary" ${state.dailyNoteLoading ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
@@ -3096,6 +3109,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
         </div>
       `;
       document.getElementById('refreshDailyNote').addEventListener('click', () => getDailySummary(totals, t));
+      holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
     } else {
       holder.innerHTML = `<p class="setup-note" style="margin-bottom:12px;">Get a short read on how this day went.</p><button class="btn small" id="getDailyNote">Get summary</button>`;
       document.getElementById('getDailyNote').addEventListener('click', () => getDailySummary(totals, t));
@@ -3103,7 +3117,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
   }
 
   const TODAY_QUICK_ACTIONS = [
-    { label: "Get today's summary", message: "How's today looking so far, and what should I adjust?", hidden: "For this reply specifically, go beyond just macros vs targets: comment on the quality and variety of what's been eaten (fiber, processed vs whole foods, micronutrient variety), note anything today that seems like a gap or deficiency worth mentioning, and name one real strength alongside anything to improve. Keep it balanced, not just a list of problems." },
+    { label: "Get today's summary", message: "How's today looking so far, and what should I adjust?", hidden: "For this reply specifically, go beyond just macros vs targets: comment on the quality and variety of what's been eaten (fiber, processed vs whole foods, micronutrient variety), note anything today that seems like a gap or deficiency worth mentioning, and name one real strength alongside anything to improve. Keep it balanced, not just a list of problems. Also, as the very first sentence of your reply, state today's score so far out of 10 in plain words (e.g. \"Today's score so far is 7/10.\"), reflecting how well today supports the goal so far: 10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned. Then continue with the rest of your reply as normal." },
     { label: 'Quick tip for today', message: "Give me one quick, specific tip for the rest of today." },
     { label: 'Suggest next meal', message: "What should I eat next, based on what I've logged and my remaining targets?" },
     { label: 'What should I focus on?', message: "What should I focus on right now — am I getting enough vegetables, fiber, or any nutrients I might be missing today?" },
@@ -3198,7 +3212,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
   }
 
   async function callCoachChat(conversationHistory, contextText, hiddenInstruction){
-    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day. If asked your name, you are Aino. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown formatting (no **bold**, no # headers, no numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability, break longer replies into short paragraphs (2-4 sentences each) separated by a blank line, rather than one dense block — and when listing several distinct items (like macros, or a few suggestions), put each on its own line starting with a dash, still no markdown symbols beyond that dash. Short replies can stay a single line. You may occasionally — not in most messages — use one of these emojis where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply; most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app. If asked something unrelated to that (general knowledge, trivia, math, or any other off-topic request), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nAll-or-nothing thinking: if the person expresses that one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back on that framing using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not a single off day, but repeated language like this being a recurring struggle), gently and non-judgmentally suggest that talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Never infer this from logged data alone, only from what they actually say.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or asks for advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is a safety-relevant amount, not just a nutrition one, and suggest water/food/rest or contacting someone if needed. If they describe this as a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.";
+    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day. If asked your name, you are Aino. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown formatting (no **bold**, no # headers, no numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability, break longer replies into short paragraphs (2-4 sentences each) separated by a blank line, rather than one dense block — and when listing several distinct items (like macros, or a few suggestions), put each on its own line starting with a dash, still no markdown symbols beyond that dash. Short replies can stay a single line. You may occasionally — not in most messages — use one of these emojis where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply; most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app. If asked something unrelated to that (general knowledge, trivia, math, or any other off-topic request), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nAll-or-nothing thinking: if the person expresses that one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back on that framing using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not a single off day, but repeated language like this being a recurring struggle), gently and non-judgmentally suggest that talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Never infer this from logged data alone, only from what they actually say.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or asks for advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is a safety-relevant amount, not just a nutrition one, and suggest water/food/rest or contacting someone if needed. If they describe this as a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, you also state today's running score as your first sentence, and should keep doing so every time it's used. If asked what the score means, explain it plainly and factually as this real feature — do not apologize for including it, call it unofficial, or offer to stop using it.";
     const messages = conversationHistory.map((m, i) => {
       const isLastUserMsg = i === conversationHistory.length - 1 && m.role === 'user';
       const content = (isLastUserMsg && hiddenInstruction) ? `${m.text}\n\n[Instruction for this reply only, not from the user: ${hiddenInstruction}]` : m.text;
@@ -3255,6 +3269,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     const targetDate = state.currentDate;
     if (!state.meals.length) {
       state.dailyNote = "Nothing was logged for this day.";
+      state.dailyNoteScore = null;
       renderDailyNote(totals, t);
       return;
     }
@@ -3262,13 +3277,17 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     renderDailyNote(totals, t);
     try {
       const mealsSummary = state.meals.map(m => `${m.name}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
-      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.`;
+      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
+
+${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal scores — weigh total intake vs. target, protein distribution across the day, macro balance, and overall food quality together. The 130-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
+      const { score, text } = parseScoreFromResponse(result);
       const meta = { mealCount: state.meals.length, calories: totals.calories, targetCalories: t.calories };
-      await saveDailyNote(targetDate, result, meta);
+      await saveDailyNote(targetDate, text, meta, score);
       if (state.currentDate === targetDate) {
-        state.dailyNote = result;
+        state.dailyNote = text;
         state.dailyNoteMeta = meta;
+        state.dailyNoteScore = score;
       }
     } catch(e) {
       showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
@@ -3279,6 +3298,8 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       }
     }
   }
+
+  const SCORE_INSTRUCTION = `Before your response, on its own first line, output exactly "SCORE: N" where N is a whole number from 1-10 rating how well this supports the person's stated goal — not a moral judgment of the food. Scale: 10 = excellent, no meaningful weaknesses. 8-9 = very good, minor opportunities only. 6-7 = good, manageable imbalances. 4-5 = average, several areas to improve. 2-3 = weak, multiple aspects work against the goal. 1 = poorly aligned with the goal. Follow the SCORE line with a blank line, then your response as normal.`;
 
   async function callCoachText(userText){
     const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, helping with gradual, steady progress toward the person's nutrition goal (which may be fat loss, muscle gain, weight maintenance, or body recomposition). If asked your name, you are Aino. Be warm but concise and concrete, and never suggest extreme restriction, rapid weight loss, or skipping meals. Do not use emojis. Respond in plain text only — no markdown, no headers, no bullet points.";
@@ -3332,6 +3353,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
       state.meals = demoEntry.meals;
       state.activities = demoEntry.activities;
       state.dailyNote = null;
+      state.dailyNoteScore = null;
       state.chatMessages = [];
       state.dayContext = [];
     } else {
@@ -3472,6 +3494,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
               <div class="tipcard-role">Your AI-nutritionist</div>
             </div>
           </div>
+          ${scoreBadgeHtml(state.weekSummaryScore)}
           <p class="tipnote">${escapeHtml(state.weekSummary)}</p>
           <div style="display:flex; justify-content:flex-end;">
             <div class="tip-refresh" id="refreshWeekSummary" title="Refresh summary" aria-label="Refresh summary">
@@ -3494,6 +3517,7 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     const loggedDays = last7.filter(d => d.meals && d.meals.length);
     if (!loggedDays.length) {
       state.weekSummary = "Nothing was logged in the last 7 days.";
+      state.weekSummaryScore = null;
       renderWeekSummaryCard(days);
       return;
     }
@@ -3501,13 +3525,17 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     renderWeekSummaryCard(days);
     try {
       const context = buildWeekSummaryContext(days);
-      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Only cover what's genuinely present in the data — don't pad the reply to cover every possible topic. Consider, where relevant: how the week tracked against targets overall; genuine trends or patterns you notice (only call something a trend if it holds across most of the days, not from one or two data points — this includes any alcohol/caffeine pattern, mentioned plainly and neutrally if it stands out, not as a required topic); overall food quality (processed vs whole, diversity vs repetition, any clear gaps); and satiety-related observations (e.g. meals that would likely leave someone hungry sooner due to missing protein or fiber). Never frame any food as good/bad/forbidden — describe effects and trade-offs.`;
+      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Only cover what's genuinely present in the data — don't pad the reply to cover every possible topic. Consider, where relevant: how the week tracked against targets overall; genuine trends or patterns you notice (only call something a trend if it holds across most of the days, not from one or two data points — this includes any alcohol/caffeine pattern, mentioned plainly and neutrally if it stands out, not as a required topic); overall food quality (processed vs whole, diversity vs repetition, any clear gaps); and satiety-related observations (e.g. meals that would likely leave someone hungry sooner due to missing protein or fiber). Never frame any food as good/bad/forbidden — describe effects and trade-offs.
+
+${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores — weigh consistency against targets, genuine multi-day trends, variety across the week, and any recurring gaps together. The 150-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
+      const { score, text } = parseScoreFromResponse(result);
       const meta = { mealCount: last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0), calories: last7.reduce((sum, d) => sum + d.totals.calories, 0) };
-      await saveWeekSummary(result, meta);
+      await saveWeekSummary(text, meta, score);
       if (state.view === targetView) {
-        state.weekSummary = result;
+        state.weekSummary = text;
         state.weekSummaryMeta = meta;
+        state.weekSummaryScore = score;
       }
     } catch(e) {
       showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
@@ -3905,6 +3933,22 @@ Respond in plain text only, under 90 words, no markdown, no emojis.`;
     const d = new Date();
     const hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
     return time24hToTimeString(hhmm);
+  }
+
+  // Extracts a leading "SCORE: N" line from an AI response, returning the clamped
+  // integer score and the remaining prose with that line (and one trailing blank
+  // line, if any) stripped out. Returns score: null if the line isn't present,
+  // so older/malformed responses just render without a badge.
+  function parseScoreFromResponse(raw){
+    const m = raw.match(/^\s*SCORE:\s*(\d{1,2})\s*\n?\n?/i);
+    if (!m) return { score: null, text: raw.trim() };
+    const score = Math.max(1, Math.min(10, parseInt(m[1], 10)));
+    return { score, text: raw.slice(m[0].length).trim() };
+  }
+
+  function scoreBadgeHtml(score){
+    if (score === null || score === undefined) return '';
+    return `<div style="display:flex; align-items:baseline; gap:8px; margin:0 0 10px;"><span style="font-family:'Fraunces',serif; font-weight:700; font-size:14px; color:var(--ink);">Score</span><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--moss);">${score}/10</span></div>`;
   }
 
   function escapeHtml(str){
