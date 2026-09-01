@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_148.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_150.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -545,12 +545,19 @@
   const app = document.getElementById('app');
   const profileBtn = document.getElementById('profileBtn');
 
+  // ==========================================================================
+  // CONSTANTS — macro display metadata, referenced by target/totals rendering
+  // ==========================================================================
   const MACRO_META = {
     protein: { label: 'Protein', color: 'var(--protein)', kcalPerG: 4 },
     carbs:   { label: 'Carbs',   color: 'var(--carbs)',   kcalPerG: 4 },
     fat:     { label: 'Fat',     color: 'var(--fat)',     kcalPerG: 9 },
   };
 
+  // ==========================================================================
+  // STATE — single mutable object holding everything in memory. Nothing here
+  // is reactive; every mutation is followed by an explicit render() call.
+  // ==========================================================================
   let state = {
     profile: null,
     currentDate: todayStr(),
@@ -601,8 +608,14 @@
     editingMeasurementDate: null,
   };
 
+  // ==========================================================================
+  // STORAGE I/O — low-level wrappers around window.storage, plus small
+  // utilities (concurrency-limited map, date string helpers) used throughout
+  // ==========================================================================
   const STORAGE_TIMEOUT_MS = 8000;
   function withStorageTimeout(promise){
+    // Race every storage call against a timeout — window.storage can hang
+    // silently (e.g. artifact not published) with no error otherwise.
     return Promise.race([
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error('Storage request timed out — please try again.')), STORAGE_TIMEOUT_MS))
@@ -613,6 +626,8 @@
   function storageList(prefix, shared){ return withStorageTimeout(window.storage.list(prefix, shared)); }
   function storageDelete(key, shared){ return withStorageTimeout(window.storage.delete(key, shared)); }
 
+  // Small concurrency-limited Promise.all — used by Trends to fetch 28 days
+  // of storage without firing all requests at once.
   async function mapWithConcurrency(items, limit, fn){
     const results = new Array(items.length);
     let idx = 0;
@@ -646,6 +661,11 @@
   }
 
   // ---------------- Storage ----------------
+  // ==========================================================================
+  // PER-ENTITY STORAGE — one load*/save* pair per data type. Naming follows
+  // the schema: 'meals:<date>', 'activity:<date>', 'note:<date>' etc. See
+  // steady-technical-documentation.md §3 for the full key reference.
+  // ==========================================================================
   async function loadProfile(){
     try {
       const res = await storageGet('profile', false);
@@ -709,6 +729,9 @@
   async function saveChatMessages(dateStr, messages){
     await storageSet('chat:' + dateStr, JSON.stringify(messages), false);
   }
+  // Normalizes the 3 historical shapes activity:<date> has been stored in
+  // (see steady-technical-documentation.md §3.1) to the current
+  // [{type, minutes}] array. Nothing is rewritten in storage on read.
   async function loadActivities(dateStr){
     try {
       const res = await storageGet('activity:' + dateStr, false);
@@ -786,6 +809,12 @@
   }
 
   // ---------------- Targets calc ----------------
+  // ==========================================================================
+  // DOMAIN CALCULATIONS — targets, BMI, activity calories. computeTargets()
+  // is the single source of truth for calorie/macro targets; it's pure and
+  // recomputed fresh everywhere (never cached), so activity/goal changes
+  // always show up immediately.
+  // ==========================================================================
   const ACTIVITY_KCAL_PER_MIN = { strength: 6, cardio: 10, walk: 4, hike: 7, stretching: 2.5, yoga: 3 };
   const ACTIVITY_DEFAULT_MIN = { strength: 45, cardio: 30, walk: 30, hike: 60, stretching: 15, yoga: 30 };
   const ACTIVITY_LABELS = { strength: 'Strength', cardio: 'Cardio', walk: 'Walk', hike: 'Hike', stretching: 'Stretching', yoga: 'Yoga' };
@@ -875,6 +904,11 @@
   }
 
   // ---------------- Rendering ----------------
+  // ==========================================================================
+  // GLOBAL UI CHROME — storage/demo banners and the floating Aino bubble.
+  // These render outside the main render() dispatcher below, since they need
+  // to persist/update across every view rather than being one screen's job.
+  // ==========================================================================
   function updateStorageBanner(){
     const el = document.getElementById('storageBanner');
     if (!el) return;
@@ -946,6 +980,10 @@
     });
   }
 
+  // ==========================================================================
+  // TOP-LEVEL RENDER DISPATCHER — state.view is the only router; there's no
+  // URL/history integration (artifacts can't manage browser history).
+  // ==========================================================================
   function render(){
     updateStorageBanner();
     updateDemoBanner();
@@ -957,6 +995,9 @@
     updateAinoBubble();
   }
 
+  // ==========================================================================
+  // RENDERING — SETUP / ONBOARDING (first-run profile creation, consent)
+  // ==========================================================================
   function renderSetup(){
     if (!state.setupConsentAcknowledged) {
       app.innerHTML = '';
@@ -1060,6 +1101,11 @@
     });
   }
 
+  // ==========================================================================
+  // DEMO DATA — canned meals/activities used by demo mode to showcase every
+  // visual state (green/grey/red bars, custom activities, context tags,
+  // deliberate over/under-target days) without requiring real logged data.
+  // ==========================================================================
   const DEMO_BREAKFASTS = [
     { name: 'Greek yogurt, berries & granola', calories: 380, protein_g: 22, carbs_g: 58, fat_g: 9 },
     { name: 'Scrambled eggs & sourdough toast', calories: 430, protein_g: 24, carbs_g: 48, fat_g: 16 },
@@ -1237,6 +1283,9 @@
     render();
   }
 
+  // ==========================================================================
+  // RENDERING — PROFILE / SETTINGS (edit profile, data management, wipe)
+  // ==========================================================================
   function renderProfileForm(existing){
     app.innerHTML = `
       <div class="card"><h2>Profile &amp; targets</h2><div id="profileFormHolder"></div></div>
@@ -1260,6 +1309,12 @@
     document.getElementById('deleteAllBtn').addEventListener('click', onDeleteAllClick);
   }
 
+  // ==========================================================================
+  // DATA MANAGEMENT — retention trim ("keep last N days") and full wipe.
+  // Single-record keys (favorites, profile, measurements, weeksummary, etc.)
+  // are deliberately excluded from date-based retention trim but included
+  // in the full wipe — see steady-technical-documentation.md §5.7.
+  // ==========================================================================
   async function deleteDataByPrefix(prefix, olderThanDate){
     try {
       const listRes = await storageList(prefix, false);
@@ -1500,6 +1555,10 @@
     });
   }
 
+  // ==========================================================================
+  // RENDERING — TODAY / LOG VIEW (the default screen: targets, meal list,
+  // activity picker, day-context tags, chat/summary card)
+  // ==========================================================================
   function renderLog(){
     const t = computeTargets(state.profile, state.activities);
     const totals = state.meals.reduce((acc,m) => {
@@ -1818,6 +1877,10 @@
     else { renderDailyNote(totals, t); }
   }
 
+  // ==========================================================================
+  // ACTIVITY LOGGING — add/remove/edit today's activities, custom activity
+  // types with an AI-estimated kcal/min rate (estimateActivityRate)
+  // ==========================================================================
   async function addActivity(type, minutes){
     if (state.activities.some(a => a.type === type)) return;
     const previous = state.activities.slice();
@@ -1858,6 +1921,8 @@
     render();
   }
 
+  // One-time AI estimate of kcal/min for a user-defined custom activity,
+  // used to seed ACTIVITY_KCAL_PER_MIN-equivalent data for that activity.
   async function estimateActivityRate(name){
     const system = "You are a fitness estimation assistant. Given the name of a physical activity, estimate a reasonable average calories burned per minute for a typical adult doing it at moderate effort. Respond with ONLY raw JSON, no markdown fences, no commentary: {\"kcalPerMin\": number}. Use your best realistic estimate.";
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -1930,6 +1995,11 @@
     render();
   }
 
+  // ==========================================================================
+  // DAY-CONTEXT TAGS — free-text/preset tags (e.g. "traveling", "poor sleep")
+  // attached to a day, shown in "About today" and factored into Aino's
+  // context for tips/summaries via todayContextSummary()
+  // ==========================================================================
   async function addDayContext(id){
     if (state.dayContext.includes(id)) return;
     const previous = state.dayContext.slice();
@@ -2024,6 +2094,11 @@
     });
   }
 
+  // ==========================================================================
+  // MEAL LOGGING — add form (text/photo), AI estimation (callEstimate),
+  // pending-review card. The AI never writes directly to storage; every
+  // estimate is shown for user review/edit before being committed.
+  // ==========================================================================
   function renderAddForm(){
     const holder = document.getElementById('addForm');
     if (state.addMode === 'text') {
@@ -2334,6 +2409,9 @@
     render();
   }
 
+  // ==========================================================================
+  // MEAL LIST — today's logged meals, inline edit form, favoriting
+  // ==========================================================================
   function renderMealList(totals){
     const holder = document.getElementById('mealList');
     if (!state.meals.length) {
@@ -2568,6 +2646,11 @@
     render();
   }
 
+  // ==========================================================================
+  // FAVORITES / RECIPES — save frequent meals with ingredients for one-tap
+  // re-logging. Favoriting/un-favoriting keeps meal.favoriteRef and the
+  // favorite's star state in sync in both directions.
+  // ==========================================================================
   function renderFavoritesPage(){
     app.innerHTML = `
       <div class="card">
@@ -3024,6 +3107,13 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     if (state.view === 'favorites') { renderFavEditArea(); renderFavList(); }
   }
 
+  // ==========================================================================
+  // AI-NUTRITIONIST (AINO) — meal tips, past-day static summary, and today's
+  // live chat. Today's chat rebuilds its grounding context fresh on every
+  // message (never stale); past days get a single regeneratable summary
+  // instead of a chat thread. All three share the SCORE_INSTRUCTION /
+  // parseScoreFromResponse pattern for the 1-10 goal-alignment score.
+  // ==========================================================================
   async function getMealTip(id){
     const targetDate = state.currentDate;
     const targetMeals = state.meals;
@@ -3373,6 +3463,12 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     render();
   }
 
+  // ==========================================================================
+  // TRENDS PAGE — 4-week hand-drawn SVG charts, the static 7-day AI summary,
+  // and body measurements. renderTrends' day-fetch also retains each day's
+  // raw meals array so the last 7 days have full detail for the summary,
+  // avoiding a second redundant fetch.
+  // ==========================================================================
   async function renderTrends(){
     app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your last 4 weeks…</div></div>';
     const days = [];
@@ -3812,6 +3908,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     `;
   }
 
+  // ==========================================================================
+  // CSV EXPORT — two independent exporters. Daily totals are numeric-only
+  // (no escaping needed); recipes include free-text ingredients, so they use
+  // proper RFC 4180 escaping via csvEscape().
+  // ==========================================================================
   async function exportCSV(fromDate, toDate){
     try {
       let items = [];
@@ -3872,6 +3973,14 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     }
   }
 
+  // ==========================================================================
+  // UTILITIES — staleness detection, time-string parsing/formatting, HTML
+  // escaping, toast/tooltip helpers. Grouped here since they're used across
+  // multiple sections above rather than belonging to any one screen.
+  // ==========================================================================
+  // Snapshots a meal's own macros plus totals for earlier-that-day meals at
+  // tip-generation time. Comparison is totals-only (not ingredient-level) —
+  // a deliberate tradeoff so a typo fix doesn't flag every earlier tip stale.
   function buildMealTipSnapshot(meal, allMealsForDay){
     const mealTime24 = timeStringTo24h(meal.time) || '';
     const earlier = allMealsForDay.filter(m => m.id !== meal.id && (timeStringTo24h(m.time) || '9999') < mealTime24);
@@ -3912,6 +4021,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     return false;
   }
 
+  // Time strings round-trip as "H:MM AM/PM" (display/storage) <-> "HH:MM"
+  // (sort/input[time]) via this pair, plus nowTimeString() below for "now".
+  // Never use toLocaleTimeString() for these — it's locale-dependent (e.g.
+  // Finnish locale omits AM/PM, silently breaking the regex here) and caused
+  // a real bug where meals sorted to the bottom of the list.
   function timeStringTo24h(timeStr){
     if (!timeStr) return '';
     const match = String(timeStr).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -3959,6 +4073,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
   }
   function escapeAttr(str){ return escapeHtml(str); }
 
+  // ==========================================================================
+  // UI FEEDBACK — toasts, chart tooltips, and friendly API error messages
+  // (e.g. surfacing the resetsAt timestamp on a rate-limit error instead of
+  // a raw API error string)
+  // ==========================================================================
   let toastTimer = null;
   function friendlyErrorFromBody(errBody){
     if (errBody && errBody.type === 'exceeded_limit' && errBody.resetsAt) {
@@ -4022,6 +4141,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
   document.getElementById('favNavBtn').addEventListener('click', () => { state.view = 'favorites'; render(); });
 
   // ---------------- Init ----------------
+  // ==========================================================================
+  // APP INIT — storage health probe, then load profile/data and render.
+  // window.storage fails silently by default, so this probe is the only way
+  // to distinguish "code bug" from "storage inactive" and show the banner.
+  // ==========================================================================
   async function checkStorageHealth(){
     try {
       const probe = 'ok-' + Date.now();
