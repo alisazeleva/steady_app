@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_172.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_175.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -25,6 +25,7 @@
     box-sizing: border-box;
   }
   #steady-root * { box-sizing: border-box; }
+  #steady-root button, #steady-root input, #steady-root select, #steady-root textarea { font-family: inherit; }
   #steady-root .wrap { max-width: 640px; margin: 0 auto; }
 
   /* ---- Header ---- */
@@ -351,15 +352,15 @@
   #steady-root #ainoBubble img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
   #steady-root .quickactions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-left: 48px; }
   #steady-root .quickaction-btn {
-    background: none; border: 1.5px solid var(--moss); color: var(--moss); font-size: 12px; font-weight: 600;
-    padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    background: var(--card); border: 1px solid var(--paper-line); color: var(--ink-soft); font-size: 12px; font-weight: 500;
+    padding: 6px 12px; border-radius: 14px; cursor: pointer;
   }
   #steady-root .quickaction-btn:hover { background: var(--paper); }
   #steady-root .quickaction-btn:disabled { opacity: 0.4; cursor: default; }
   #steady-root .chartblock { margin-bottom: 22px; }
   #steady-root .chartblock:last-child { margin-bottom: 0; }
   #steady-root .chartblock .chead {
-    display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft);
+    display: flex; justify-content: center; gap: 6px; font-size: 11.5px; color: var(--ink-soft);
     margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
   }
 
@@ -383,6 +384,12 @@
   #steady-root .newchat-row {
     text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--paper-line);
   }
+  #steady-root .newchat-pill {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--paper-line);
+    border-radius: 14px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--ink-soft); cursor: pointer;
+  }
+  #steady-root .newchat-pill svg { color: var(--moss); }
+  #steady-root .newchat-pill:hover { border-color: var(--moss); color: var(--ink); }
   #steady-root details > summary { cursor: pointer; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; list-style: none; }
   #steady-root details > summary::-webkit-details-marker { display: none; }
   #steady-root .toast {
@@ -2608,7 +2615,7 @@
               <div style="display:flex; justify-content:flex-end; gap:8px;">
                 ${state.currentDate === todayStr() ? `
                 <div class="tip-refresh" data-citetip="${m.id}" title="Ask Aino about this tip" aria-label="Ask Aino about this tip">
-                  <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8.5L6 16v-2.5H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8.5L6 16v-2.5H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
                 </div>
                 ` : ''}
                 <div class="tip-refresh" data-refreshtip="${m.id}" title="Refresh tip" aria-label="Refresh tip" ${state.tipLoadingId===m.id ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
@@ -3328,11 +3335,11 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
   }
 
   const TODAY_QUICK_ACTIONS = [
-    { label: "Get today's summary", message: "How's today looking so far, and what should I adjust?", hidden: "For this reply specifically, go beyond just macros vs targets: comment on the quality and variety of what's been eaten (fiber, processed vs whole foods, micronutrient variety), note anything today that seems like a gap or deficiency worth mentioning, and name one real strength alongside anything to improve. Keep it balanced, not just a list of problems. Also, as the very first sentence of your reply, state today's score so far out of 10 in plain words (e.g. \"Today's score so far is 7/10.\"), reflecting how well today supports the goal so far: 10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned. Then continue with the rest of your reply as normal." },
-    { label: 'Quick tip for today', message: "Give me one quick, specific tip for the rest of today." },
-    { label: 'Suggest next meal', message: "What should I eat next, based on what I've logged and my remaining targets?" },
-    { label: 'What should I focus on?', message: "What should I focus on right now â€” am I getting enough vegetables, fiber, or any nutrients I might be missing today?" },
-    { label: 'Evaluate my meals quality', message: "How would you rate the overall quality of what I've eaten today â€” not just the macros, but things like how processed or nutrient-dense it was? Point out anything worth flagging and suggest better alternatives if there's junk food or low-quality choices in there." },
+    { label: 'Today so far', message: "How's today looking so far, and what should I adjust?", hidden: "For this reply specifically, go beyond just macros vs targets: comment on the quality and variety of what's been eaten (fiber, processed vs whole foods, micronutrient variety), note anything today that seems like a gap or deficiency worth mentioning, and name one real strength alongside anything to improve. Keep it balanced, not just a list of problems. Also, as the very first sentence of your reply, state today's score so far out of 10 in plain words (e.g. \"Today's score so far is 7/10.\"), reflecting how well today supports the goal so far: 10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned. Then continue with the rest of your reply as normal." },
+    { label: 'Quick advice', message: "Give me one quick, specific tip for the rest of today." },
+    { label: 'Next meal', message: "What should I eat next, based on what I've logged and my remaining targets?" },
+    { label: 'Next focus', message: "What should I focus on right now â€” am I getting enough vegetables, fiber, or any nutrients I might be missing today?" },
+    { label: 'Meal quality', message: "How would you rate the overall quality of what I've eaten today â€” not just the macros, but things like how processed or nutrient-dense it was? Point out anything worth flagging and suggest better alternatives if there's junk food or low-quality choices in there." },
   ];
 
   function renderCoachChat(){
@@ -3369,7 +3376,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
         </button>
       </div>
       <div class="quickactions">${quickActionsHtml}</div>
-      ${msgs.length ? '<div class="newchat-row"><span class="toggle-link" id="newChatBtn">Start new chat</span></div>' : ''}
+      ${msgs.length ? `<div class="newchat-row"><span class="newchat-pill" id="newChatBtn"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Start new chat</span></div>` : ''}
     `;
     holder.querySelectorAll('[data-qaindex]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -3389,7 +3396,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     };
     document.getElementById('chatSendBtn').addEventListener('click', triggerChatSend);
     document.getElementById('chatInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.shiftKey) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         triggerChatSend();
       }
@@ -3679,7 +3686,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
           <button class="btn small" id="exportConfirmBtn">Download CSV</button>
         </div>
         <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity. Bars that clear it went over that day.</p>
-        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:11px; color:var(--ink-soft);">
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:11px; color:var(--ink-soft);">
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--moss); border-radius:2px; margin-right:4px;"></span>On target</div>
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--under); border-radius:2px; margin-right:4px;"></span>15%+ under</div>
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--over); border-radius:2px; margin-right:4px;"></span>15%+ over</div>
@@ -3843,8 +3850,8 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     const yMin = minV - pad, yMax = maxV + pad;
     const firstDate = new Date(pts[0].date), lastDate = new Date(pts[pts.length - 1].date);
     const totalMs = Math.max(1, lastDate - firstDate);
-    const W = 600, H = 90, marginLeft = 40, marginBottom = 18, marginTop = 6;
-    const plotW = W - marginLeft, plotH = H - marginBottom - marginTop;
+    const W = 600, H = 90, marginLeft = 40, marginRight = 10, marginBottom = 18, marginTop = 6;
+    const plotW = W - marginLeft - marginRight, plotH = H - marginBottom - marginTop;
     const xPos = (d) => marginLeft + (new Date(d) - firstDate) / totalMs * plotW;
     const yPos = (v) => marginTop + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
 
@@ -3872,18 +3879,9 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
       dots += `<circle cx="${cx}" cy="${cy}" r="3" fill="${color}" style="pointer-events:none;"></circle>`;
     });
 
-    const latest = pts[pts.length - 1].value;
-    const prev = pts.length > 1 ? pts[pts.length - 2].value : null;
-    let deltaHtml = '';
-    if (prev !== null) {
-      const delta = Math.round((latest - prev) * 10) / 10;
-      const dc = delta < 0 ? 'var(--moss)' : (delta > 0 ? 'var(--over)' : 'var(--ink-soft)');
-      deltaHtml = ` <span style="color:${dc};">${delta > 0 ? '+' : ''}${delta}</span>`;
-    }
-
     return `
       <div class="chartblock">
-        <div class="chead"><span>${label}</span><span>${latest}${unit}${deltaHtml}</span></div>
+        <div class="chead"><span>${label}</span></div>
         <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
           ${yAxis}${line}${dots}${xAxis}
         </svg>
@@ -4062,7 +4060,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     });
     return `
       <div class="chartblock">
-        <div class="chead"><span>${label}</span><span>avg target ${avgTarget}${unit}</span></div>
+        <div class="chead"><span>${label}</span><span style="opacity:0.6;">&mdash;</span><span>avg target ${avgTarget}${unit}</span></div>
         <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
           ${yAxis}
           <polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
