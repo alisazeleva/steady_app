@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_170.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_171.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -3375,13 +3375,20 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     });
     const chipX = document.getElementById('citationChipX');
     if (chipX) chipX.addEventListener('click', () => { state.chatCitation = null; renderCoachChat(); });
-    document.getElementById('chatSendBtn').addEventListener('click', () => {
+    const triggerChatSend = () => {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
       if (!text) return;
       const hiddenInstruction = citedMeal ? buildCitationInstruction(citedMeal) : '';
       state.chatCitation = null; // one-shot — clears the moment the message is sent
       sendChatMessage(text, hiddenInstruction);
+    };
+    document.getElementById('chatSendBtn').addEventListener('click', triggerChatSend);
+    document.getElementById('chatInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault();
+        triggerChatSend();
+      }
     });
     holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
     const list = holder.querySelector('.chatlist');
