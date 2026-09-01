@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_150.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_154.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -79,6 +79,25 @@
   #steady-root .dataprivacy li { margin-bottom: 8px; }
   #steady-root .dataprivacy li:last-child { margin-bottom: 0; }
   #steady-root .dataprivacy a { color: var(--moss); }
+  #steady-root .docsub { margin-bottom: 2px; }
+  #steady-root .docsub summary {
+    font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; list-style: none;
+    padding: 10px 0; border-bottom: 1px solid var(--paper-line);
+  }
+  #steady-root .docsub:last-child summary { border-bottom: none; }
+  #steady-root .docsub summary::-webkit-details-marker { display: none; }
+  #steady-root .docsub summary::before { content: "▸ "; color: var(--moss); }
+  #steady-root .docsub[open] summary::before { content: "▾ "; color: var(--moss); }
+  #steady-root .docsub-body {
+    font-size: 12.5px; color: var(--ink); line-height: 1.65;
+    background: var(--paper); border-radius: 4px; padding: 12px 14px; margin: 8px 0 12px;
+  }
+  #steady-root .docsub-body p { margin: 0 0 10px; }
+  #steady-root .docsub-body p:last-child { margin-bottom: 0; }
+  #steady-root .docsub-body ul { margin: 0 0 10px; padding-left: 18px; }
+  #steady-root .docsub-body ul:last-child { margin-bottom: 0; }
+  #steady-root .docsub-body li { margin-bottom: 6px; }
+  #steady-root .docsub-body li:last-child { margin-bottom: 0; }
 
   /* ---- Date nav ---- */
   #steady-root .datebar {
@@ -1302,6 +1321,78 @@
           <button class="btn small" id="deleteAllBtn" style="background:var(--protein); border-color:var(--protein); color:var(--ink);">Delete all data</button>
           <p class="setup-note" style="margin-top:8px; margin-bottom:0;">Permanently erases every meal, note, favorite, and your profile. This can&rsquo;t be undone.</p>
         </div>
+      </div>
+      <div class="card">
+        <h2>How steady works</h2>
+        <details class="docsub">
+          <summary>What steady is for</summary>
+          <div class="docsub-body">
+            <p><span style="font-family:'Fraunces',serif; font-weight:700;">steady</span> is a daily ledger for gradual, steady body recomposition &mdash; not a crash diet.</p>
+            <ul>
+              <li>Log meals by text or photo and get AI-estimated macros</li>
+              <li>Calorie and macro targets that adjust with your goal and today's activity</li>
+              <li>Short reflections and a 1&ndash;10 score from Aino, your AI-nutritionist</li>
+              <li>4-week trends and body measurements</li>
+              <li>Save recipes as favorites for one-tap logging</li>
+              <li>Export or delete your data any time</li>
+            </ul>
+          </div>
+        </details>
+        <details class="docsub">
+          <summary>Who is Aino</summary>
+          <div class="docsub-body">
+            <p>Aino is <span style="font-family:'Fraunces',serif; font-weight:700;">steady</span>'s AI-nutritionist &mdash; not a real person, and not a licensed dietitian. She's Claude, given a nutrition-focused persona: warm and concise, and grounded fresh in your actual logged data every time she responds, rather than working from a fixed memory of you.</p>
+            <p>Her guidance follows one consistent stance: gradual, steady progress, never extreme restriction or rapid weight loss. She won't suggest skipping meals or crash-dieting, however a question is phrased.</p>
+            <p>Her estimates and reflections are AI-generated and can be wrong &mdash; review them the way you would any estimate, and talk to a doctor or registered dietitian for medical or personalized nutrition advice.</p>
+          </div>
+        </details>
+        <details class="docsub">
+          <summary>Usage &amp; how Aino works</summary>
+          <div class="docsub-body">
+            <p>Aino shows up in three places:</p>
+            <ul>
+              <li>A short tip on an individual meal</li>
+              <li>A one-time reflection for a completed day (&ldquo;This day summary&rdquo;) or the trailing 7 days (&ldquo;Last 7 days summary&rdquo;)</li>
+              <li>A live back-and-forth chat for today only &mdash; once the date changes, that conversation isn't shown again; you'll see a summary of the day instead, not the chat itself</li>
+            </ul>
+            <p>Past days and the trailing week get a single regeneratable summary rather than an ongoing conversation.</p>
+            <p>AI features draw on your own Claude usage, not a separate cost. Normal day-to-day use &mdash; a few meals, occasional tips or short chats &mdash; is a small draw on your plan's allowance. Long back-and-forth conversations with Aino in one sitting use meaningfully more, since the whole conversation resends each time you send a message.</p>
+          </div>
+        </details>
+        <details class="docsub">
+          <summary>How targets work</summary>
+          <div class="docsub-body">
+            <p>Your calorie and macro targets are calculated fresh every time, from:</p>
+            <ul>
+              <li>Your goal &mdash; recomposition, fat loss, muscle gain, or maintenance</li>
+              <li>Your training frequency</li>
+              <li>Whatever activity you've logged today &mdash; a workout adds calories back for that day only</li>
+            </ul>
+            <p>Nothing is cached, so changing your goal or activity updates your targets instantly.</p>
+          </div>
+        </details>
+        <details class="docsub">
+          <summary>The 1&ndash;10 score</summary>
+          <div class="docsub-body">Meal tips and both summaries include a 1&ndash;10 score for how well that meal, day, or week supports your goal &mdash; not a moral judgment of the food. A day's score isn't an average of its meals, and a week's score isn't an average of its days: Aino weighs the whole pattern rather than letting one weak spot drag down an otherwise solid stretch.</div>
+        </details>
+        <details class="docsub">
+          <summary>Best practices</summary>
+          <div class="docsub-body">
+            <ul>
+              <li>AI estimates &mdash; calories, macros, tips &mdash; are a starting point, not a lab result. Review and edit them, especially for homemade meals or uncertain portions.</li>
+              <li>Adding ingredients and amounts to a meal noticeably improves the quality of tips and summaries, since Aino can see what's actually in a meal, not just its macros.</li>
+              <li>Demo mode writes real data to your storage the same as normal use &mdash; editing or getting a tip on a demo day saves it for real.</li>
+              <li>Using steady on more than one device close together: the most recent save wins silently, with no conflict warning.</li>
+              <li>&ldquo;Today&rdquo; follows your browser's local clock, so logging right around midnight or while traveling can land a meal on a date you didn't expect.</li>
+            </ul>
+          </div>
+        </details>
+        <details class="docsub">
+          <summary>Troubleshooting</summary>
+          <div class="docsub-body">
+            <p>If you see &ldquo;Nothing you enter is being saved right now,&rdquo; it usually means the artifact isn't published &mdash; publish it and reload, or try a hard refresh if it's already published. If that doesn't help, it may be a temporary issue with the storage service itself, not something wrong with your data.</p>
+          </div>
+        </details>
       </div>
     `;
     renderProfileFormInto(document.getElementById('profileFormHolder'), existing);
