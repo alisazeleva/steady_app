@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_163.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_164.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -2572,7 +2572,7 @@
         <div class="mealrow-actions">
           <button class="icon-btn" data-edit="${m.id}" title="Edit" aria-label="Edit meal">&#9998;</button>
           <button class="icon-btn" data-fav="${m.id}" title="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}" aria-label="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}">${m.favorited ? '&#9733;' : '&#9734;'}</button>
-          <button class="icon-btn tipbtn" data-id="${m.id}" title="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" aria-label="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get AI-nutritionist tip'}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '…' : '<b>!</b>'}</button>
+          <button class="icon-btn tipbtn" data-id="${m.id}" title="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get tip'}" aria-label="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get tip'}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '…' : '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 3.2a5 5 0 0 0-2.6 9.3c.55.33.9.93.9 1.58v.32h3.4v-.32c0-.65.35-1.25.9-1.58A5 5 0 0 0 10 3.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="8.3" y1="16.3" x2="11.7" y2="16.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="8.6" y1="17.6" x2="11.4" y2="17.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'}</button>
         </div>
         <div class="mealtip">
           ${(m.coachNote && state.tipVisibleIds[m.id]) ? `
