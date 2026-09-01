@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_168.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_169.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -325,6 +325,13 @@
     border-bottom-left-radius: 3px; max-width: 78%;
   }
   #steady-root .chatinput-wrap { position: relative; margin-top: 4px; margin-left: 48px; }
+  #steady-root .citation-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--paper-line);
+    border-radius: 14px; padding: 5px 8px 5px 10px; margin: 6px 0 6px 48px; font-size: 11.5px; color: var(--ink-soft);
+  }
+  #steady-root .citation-chip b { color: var(--ink); }
+  #steady-root .citation-chip-x { color: var(--ink-soft); font-weight: 700; margin-left: 2px; cursor: pointer; padding: 0 2px; }
+  #steady-root .citation-chip-x:hover { color: var(--ink); }
   #steady-root .chatinput-wrap textarea {
     width: 100%; min-height: 64px; padding: 9px 40px 9px 10px; font-family: 'Inter', sans-serif;
     font-size: 13px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper);
@@ -694,6 +701,7 @@
     demoMode: false,
     demoToday: null,
     tipVisibleIds: {},
+    chatCitation: null, // { mealId } or null - resolved live, never stores a name/text copy
     favIngredientsExpanded: {},
     customActivities: [],
     dayContext: [],
@@ -2594,7 +2602,12 @@
               </div>
               ${scoreBadgeHtml(m.tipScore)}
               <p class="tipnote">${escapeHtml(m.coachNote)}</p>
-              <div style="display:flex; justify-content:flex-end;">
+              <div style="display:flex; justify-content:flex-end; gap:8px;">
+                ${state.currentDate === todayStr() ? `
+                <div class="tip-refresh" data-citetip="${m.id}" title="Ask Aino about this tip" aria-label="Ask Aino about this tip">
+                  <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M4 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8.5L6 16v-2.5H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </div>
+                ` : ''}
                 <div class="tip-refresh" data-refreshtip="${m.id}" title="Refresh tip" aria-label="Refresh tip" ${state.tipLoadingId===m.id ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
                   <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
@@ -2613,6 +2626,9 @@
     });
     holder.querySelectorAll('[data-refreshtip]').forEach(btn => {
       btn.addEventListener('click', () => getMealTip(btn.dataset.refreshtip));
+    });
+    holder.querySelectorAll('[data-citetip]').forEach(btn => {
+      btn.addEventListener('click', () => citeTipInChat(btn.dataset.citetip));
     });
     holder.querySelectorAll('.chat-avatar').forEach(img => {
       img.addEventListener('click', openAinoProfileModal);
@@ -3319,6 +3335,8 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
   function renderCoachChat(){
     const holder = document.getElementById('dailyNoteHolder');
     if (!holder) return;
+    const citedMeal = state.chatCitation ? state.meals.find(m => m.id === state.chatCitation.mealId) : null;
+    if (state.chatCitation && !citedMeal) state.chatCitation = null; // meal was deleted since citing — nothing left to attach to
     const msgs = state.chatMessages;
     const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
     const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
@@ -3331,8 +3349,16 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const quickActionsHtml = TODAY_QUICK_ACTIONS.map((qa, i) =>
       `<button class="quickaction-btn" data-qaindex="${i}" ${state.chatLoading ? 'disabled' : ''}>${escapeHtml(qa.label)}</button>`
     ).join('');
+    const citationChip = citedMeal ? `
+      <div class="citation-chip">
+        <svg width="11" height="11" viewBox="0 0 20 20" fill="none"><path d="M4 5.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8.5L6 16v-2.5H6a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span>Re: <b>${escapeHtml(citedMeal.name)}</b> tip</span>
+        <span class="citation-chip-x" id="citationChipX">&times;</span>
+      </div>
+    ` : '';
     holder.innerHTML = `
       ${topSection}
+      ${citationChip}
       <div class="chatinput-wrap">
         <textarea id="chatInput" placeholder="Ask a question…" ${state.chatLoading ? 'disabled' : ''}></textarea>
         <button class="chatsend-icon" id="chatSendBtn" aria-label="Send" ${state.chatLoading ? 'disabled' : ''}>
@@ -3347,15 +3373,32 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
         sendChatMessage(qa.message, qa.hidden || '');
       });
     });
+    const chipX = document.getElementById('citationChipX');
+    if (chipX) chipX.addEventListener('click', () => { state.chatCitation = null; renderCoachChat(); });
     document.getElementById('chatSendBtn').addEventListener('click', () => {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
       if (!text) return;
-      sendChatMessage(text);
+      const hiddenInstruction = citedMeal ? buildCitationInstruction(citedMeal) : '';
+      state.chatCitation = null; // one-shot — clears the moment the message is sent
+      sendChatMessage(text, hiddenInstruction);
     });
     holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
     const list = holder.querySelector('.chatlist');
     if (list) list.scrollTop = list.scrollHeight;
+  }
+
+  function buildCitationInstruction(meal){
+    const ingr = meal.ingredients ? ` Ingredients: ${meal.ingredients}.` : '';
+    const tip = meal.coachNote ? ` The tip you gave on it was: "${meal.coachNote}"` : ' No tip has been generated for it yet.';
+    return `The person is asking a follow-up question about a specific meal they logged: ${meal.name} at ${meal.time}, ${Math.round(meal.calories)} kcal, P${Math.round(meal.protein_g)}g/C${Math.round(meal.carbs_g)}g/F${Math.round(meal.fat_g)}g.${ingr}${tip} Answer their question with this specific meal in mind.`;
+  }
+
+  function citeTipInChat(mealId){
+    state.chatCitation = { mealId };
+    renderCoachChat();
+    const holder = document.getElementById('dailyNoteHolder');
+    if (holder) holder.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function nameContext(){
@@ -3397,8 +3440,9 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
   function buildTodayContext(){
     const t = computeTargets(state.profile, state.activities);
     const totals = totalsFromMeals(state.meals);
-    const mealsSummary = state.meals.length
-      ? state.meals.map(m => `${m.name} (${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g)`).join('; ')
+    const sortedMeals = [...state.meals].sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
+    const mealsSummary = sortedMeals.length
+      ? sortedMeals.map((m, i) => `${m.name} at ${m.time}${i === sortedMeals.length - 1 ? ' (this is the most recent meal today, chronologically)' : ''} (${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g)`).join('; ')
       : 'nothing logged yet';
     return `${nameContext()}${dietContext()}${bmiContext()}Today's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (today's activity: ${activitiesLabel(state.activities)}). ${todayContextSummary() ? 'Context for today, worth factoring into your response: ' + todayContextSummary() + '. ' : ''}Logged so far: ${mealsSummary}. Totals so far: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. Person's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
   }
@@ -3468,7 +3512,8 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     state.dailyNoteLoading = true;
     renderDailyNote(totals, t);
     try {
-      const mealsSummary = state.meals.map(m => `${m.name}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
+      const sortedMeals = [...state.meals].sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
+      const mealsSummary = sortedMeals.map(m => `${m.name} at ${m.time}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
       const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
 
 ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal scores — weigh total intake vs. target, protein distribution across the day, macro balance, and overall food quality together. The 130-word limit above applies only to your response text, not the SCORE line.`;
