@@ -1,5 +1,5 @@
 
-<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_175.html -->
+<!-- saved from url=(0048)file:///C:/Users/alisa/Downloads/steady_178.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
@@ -314,6 +314,10 @@
     align-self: flex-end; background: var(--moss); color: var(--card); border-bottom-right-radius: 3px;
     max-width: 78%;
   }
+  #steady-root .citation-tag {
+    font-size: 10.5px; color: var(--ink-soft); padding-right: 4px;
+  }
+  #steady-root .citation-tag b { color: var(--ink); }
   #steady-root .chatrow-coach {
     display: flex; align-items: flex-end; gap: 8px;
   }
@@ -441,11 +445,12 @@
     width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
     background: var(--moss); color: var(--card); font-size: 13px; cursor: pointer;
   }
+  #steady-root .measrow .medit:hover { opacity: 0.7; }
   #steady-root .measrow .mdel {
     width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
     background: var(--moss); color: var(--card); font-size: 13px; cursor: pointer;
   }
-  #steady-root .measrow .mdel:hover { color: var(--protein); }
+  #steady-root .measrow .mdel:hover { opacity: 0.7; }
   #steady-root .storage-warning {
     background: var(--protein); color: var(--ink); border-radius: 4px; padding: 12px 14px;
     margin-bottom: 18px; font-size: 13px; line-height: 1.5;
@@ -3352,7 +3357,9 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
     const bubbles = msgs.map(m => m.role === 'coach'
       ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`
-      : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
+      : m.citedMealName
+        ? `<div style="display:flex; flex-direction:column; align-items:flex-end; align-self:flex-end; gap:2px;"><div class="citation-tag">Re: <b>${escapeHtml(m.citedMealName)}</b> tip</div><div class="chatbubble user">${escapeHtml(m.text)}</div></div>`
+        : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
     ).join('');
     const loadingBubble = state.chatLoading ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach"><span class="spinner"></span>Thinkingâ€¦</div></div>` : '';
     const topSection = `<div class="chatlist">${greetingBubble}${bubbles}${loadingBubble}</div>`;
@@ -3391,8 +3398,9 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
       const text = input.value.trim();
       if (!text) return;
       const hiddenInstruction = citedMeal ? buildCitationInstruction(citedMeal) : '';
+      const citedMealName = citedMeal ? citedMeal.name : null;
       state.chatCitation = null; // one-shot â€” clears the moment the message is sent
-      sendChatMessage(text, hiddenInstruction);
+      sendChatMessage(text, hiddenInstruction, citedMealName);
     };
     document.getElementById('chatSendBtn').addEventListener('click', triggerChatSend);
     document.getElementById('chatInput').addEventListener('keydown', (e) => {
@@ -3506,11 +3514,11 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     return textBlock.text.trim();
   }
 
-  async function sendChatMessage(text, hiddenInstruction){
+  async function sendChatMessage(text, hiddenInstruction, citedMealName){
     const targetDate = state.currentDate;
     const input = document.getElementById('chatInput');
     if (input) input.value = '';
-    state.chatMessages.push({ role: 'user', text, time: nowTimeString() });
+    state.chatMessages.push({ role: 'user', text, time: nowTimeString(), citedMealName: citedMealName || null });
     const localMessages = state.chatMessages;
     state.chatLoading = true;
     renderCoachChat();
@@ -3824,6 +3832,16 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
+  const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'];
+  // Locale-independent "D Mon YY" format (e.g. "1 Sept 26") â€” built manually
+  // rather than via toLocaleDateString, since that caused a real locale bug
+  // elsewhere (see nowTimeString). Used where the year needs to be visible,
+  // e.g. the measurement list rows.
+  function fmtDateWithYear(dstr){
+    const [y,m,d] = dstr.split('-').map(Number);
+    return `${d} ${MONTH_ABBR[m-1]} ${String(y).slice(-2)}`;
+  }
+
   const MEASUREMENT_META = {
     waist: { label: 'Waist', color: 'var(--moss)' },
     bust:  { label: 'Bust',  color: 'var(--protein)' },
@@ -3948,7 +3966,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
       if (m.hips !== undefined) parts.push(`Hips ${m.hips}`);
       return `
         <div class="measrow">
-          <span><b>${fmtShortDate(d)}</b>&nbsp; ${parts.join(' &middot; ')}</span>
+          <span><b>${fmtDateWithYear(d)}</b>&nbsp; ${parts.join(' &middot; ')}</span>
           <span class="measrow-actions">
             <span class="medit" data-editmeas="${d}" title="Edit" aria-label="Edit measurement">&#9998;</span>
             <span class="mdel" data-delmeas="${d}" title="Delete" aria-label="Delete measurement">&times;</span>
@@ -4228,7 +4246,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
 
   function scoreBadgeHtml(score){
     if (score === null || score === undefined) return '';
-    return `<div style="display:flex; align-items:baseline; gap:8px; margin:0 0 10px;"><span style="font-family:'Fraunces',serif; font-weight:700; font-size:14px; color:var(--ink);">Score</span><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--moss);">${score}/10</span></div>`;
+    return `<div style="display:flex; align-items:baseline; gap:8px; margin:0 0 10px;"><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--ink);">Score</span><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--moss);">${score}/10</span></div>`;
   }
 
   // Tip button icon, three states: no tip generated yet (plain outline), a tip
