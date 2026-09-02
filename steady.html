@@ -237,7 +237,7 @@
   #steady-root .meal .mtime { font-size: 11px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; }
   #steady-root .meal .mmacros { font-size: 11.5px; color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
   #steady-root .meal .mkcal { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; white-space: nowrap; }
-  #steady-root .meal .del { background: none; border: none; color: var(--ink-soft); cursor: pointer; font-size: 16px; padding: 2px 6px; }
+  #steady-root .meal .del { background: none; border: none; color: var(--ink-soft); cursor: pointer; padding: 2px 6px; display: inline-flex; align-items: center; }
   #steady-root .meal .del:hover { color: var(--protein); }
   #steady-root .empty { color: var(--ink-soft); font-size: 13.5px; padding: 10px 0; font-style: italic; }
   #steady-root .mealtip { margin-top: 10px; }
@@ -486,7 +486,6 @@
     border: none; font-size: 16px; line-height: 1; cursor: pointer; display: inline-flex;
     align-items: center; justify-content: center; padding: 0;
   }
-  #steady-root .addactbtn:not(:has(svg)) { padding-top: 2px; }
   #steady-root .addactbtn:hover { opacity: 0.85; }
   #steady-root .activitymenu {
     border: 1px solid var(--paper-line); border-radius: 4px; margin-top: 10px; overflow: hidden;
@@ -505,8 +504,7 @@
   }
   @media (max-width: 460px) {
     #steady-root input.actdurinput { width: 31px; padding: 4px; text-align: center; }
-    #steady-root .activitymenu-row .tip-refresh,
-    #steady-root .activitymenu-row .addactbtn { width: 20px; height: 20px; font-size: 11px; }
+    #steady-root .activitymenu-row .tip-refresh { width: 20px; height: 20px; font-size: 11px; }
   }
   #steady-root .activitychip.editing { background: var(--paper); border: 1px solid var(--moss); padding: 4px 6px; }
   #steady-root .activitychip.editing .actdurinput { background: var(--card); }
@@ -1743,7 +1741,7 @@
                 <span style="display:flex; align-items:center; gap:6px;">
                   <input type="number" min="1" class="actdurinput" id="adddur-${t}" value="${ACTIVITY_DEFAULT_MIN[t]}">
                   <span style="font-size:11px; color:var(--ink-soft);">min</span>
-                  <button class="addactbtn" data-addact="${t}" aria-label="Add ${ACTIVITY_LABELS[t]}" style="flex-shrink:0; margin-left:10px;">+</button>
+                  <button class="addactbtn" data-addact="${t}" aria-label="Add ${ACTIVITY_LABELS[t]}" style="flex-shrink:0; margin-left:10px;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                 </span>
               </div>
             `).join('') || '<div class="activitymenu-item" style="cursor:default; color:var(--ink-soft);">All added</div>'}
@@ -1757,9 +1755,9 @@
                   <span style="display:flex; align-items:center; gap:6px;">
                     <input type="number" min="1" class="actdurinput" id="adddur-custom-${c.id}" value="${c.defaultMin || 30}">
                     <span style="font-size:11px; color:var(--ink-soft);">min</span>
-                    <span class="tip-refresh" data-editcustomact="${c.id}" title="Edit" style="margin-left:10px;">&#9998;</span>
-                    <span class="tip-refresh" data-delcustomact="${c.id}" title="Delete">&times;</span>
-                    <button class="addactbtn" data-addcustomact="${c.id}" aria-label="Add ${escapeAttr(c.name)}" style="flex-shrink:0;">+</button>
+                    <span class="icon-btn" data-editcustomact="${c.id}" title="Edit" style="margin-left:10px;"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                    <span class="icon-btn" data-delcustomact="${c.id}" title="Delete"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                    <button class="addactbtn" data-addcustomact="${c.id}" aria-label="Add ${escapeAttr(c.name)}" style="flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                   </span>
                 </div>
                 ${(state.addingCustomActivity && state.editingCustomActivityId === c.id) ? `
@@ -1815,7 +1813,7 @@
             ${CONTEXT_PRESETS.filter(c => !state.dayContext.includes(c.id)).map(c => `
               <div class="activitymenu-item activitymenu-row">
                 <span style="width:auto; flex:1; min-width:0; overflow-wrap:break-word;">${c.label}</span>
-                <button class="addactbtn" data-addctx="${c.id}" aria-label="Add ${c.label}" style="flex-shrink:0; margin-left:10px;">+</button>
+                <button class="addactbtn" data-addctx="${c.id}" aria-label="Add ${c.label}" style="flex-shrink:0; margin-left:10px;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
               </div>
             `).join('') || '<div class="activitymenu-item" style="cursor:default; color:var(--ink-soft);">All added</div>'}
           </div>
@@ -1825,9 +1823,9 @@
               ${state.customContextTags.filter(c => !state.dayContext.includes('custom:' + c.id)).map(c => `
                 <div class="activitymenu-item activitymenu-row">
                   <span style="width:auto; flex:1; min-width:0; overflow-wrap:break-word;">${escapeHtml(c.label)}</span>
-                  <span class="tip-refresh" data-editcustomctx="${c.id}" title="Edit">&#9998;</span>
-                  <span class="tip-refresh" data-delcustomctx="${c.id}" title="Delete">&times;</span>
-                  <button class="addactbtn" data-addctx="custom:${c.id}" aria-label="Add ${escapeAttr(c.label)}" style="flex-shrink:0;">+</button>
+                  <span class="icon-btn" data-editcustomctx="${c.id}" title="Edit"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                  <span class="icon-btn" data-delcustomctx="${c.id}" title="Delete"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+                  <button class="addactbtn" data-addctx="custom:${c.id}" aria-label="Add ${escapeAttr(c.label)}" style="flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                 </div>
                 ${(state.addingCustomContext && state.editingCustomContextId === c.id) ? `
                   <div class="activitymenu" style="padding:12px; margin:8px 0;">
@@ -2427,7 +2425,7 @@
           <label>Amount</label>
           <div style="display:flex; gap:8px;">
             <input type="number" id="p-amount" min="1" value="${p.amount || ''}" style="flex:1;">
-            <select id="p-amountunit" style="width:70px;">
+            <select id="p-amountunit" title="Unit" aria-label="Unit" style="width:70px;">
               <option value="g" ${(p.unit || 'g') === 'g' ? 'selected' : ''}>g</option>
               <option value="ml" ${p.unit === 'ml' ? 'selected' : ''}>ml</option>
             </select>
@@ -2541,11 +2539,14 @@
               <textarea id="e-ingredients-${m.id}" placeholder="e.g. grilled salmon, avocado, mixed greens, olive oil dressing">${escapeHtml(m.ingredients || '')}</textarea>
             </div>
             <div class="field"><label>Time</label><input type="time" id="e-time-${m.id}" value="${timeStringTo24h(m.time)}"></div>
-            <div class="field">
-              <label>Amount</label>
-              <div style="display:flex; gap:8px;">
-                <input type="number" id="e-amount-${m.id}" min="1" value="${m.amountValue || ''}" style="flex:1;">
-                <select id="e-amountunit-${m.id}" style="width:70px;">
+            <div style="display:flex; gap:8px;">
+              <div class="field" style="margin-bottom:0; flex:1;">
+                <label>Amount</label>
+                <input type="number" id="e-amount-${m.id}" min="1" value="${m.amountValue || ''}">
+              </div>
+              <div class="field" style="margin-bottom:0; width:70px;">
+                <label>Unit</label>
+                <select id="e-amountunit-${m.id}">
                   <option value="g" ${(m.amountUnit || 'g') === 'g' ? 'selected' : ''}>g</option>
                   <option value="ml" ${m.amountUnit === 'ml' ? 'selected' : ''}>ml</option>
                 </select>
@@ -2582,12 +2583,12 @@
           </div>
           <div style="text-align:right; display:flex; align-items:center; gap:10px;">
             <div class="mkcal">${Math.round(m.calories)} kcal</div>
-            <button class="del" data-id="${m.id}" aria-label="Delete meal">&times;</button>
+            <button class="del" data-id="${m.id}" aria-label="Delete meal"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           </div>
         </div>
         <div class="mealrow-actions">
-          <button class="icon-btn" data-edit="${m.id}" title="Edit" aria-label="Edit meal">&#9998;</button>
-          <button class="icon-btn" data-fav="${m.id}" title="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}" aria-label="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}">${m.favorited ? '&#9733;' : '&#9734;'}</button>
+          <button class="icon-btn" data-edit="${m.id}" title="Edit" aria-label="Edit meal"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="icon-btn" data-fav="${m.id}" title="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}" aria-label="${m.favorited ? 'Remove from favorites' : 'Save as favorite'}"><svg width="13" height="13" viewBox="0 0 20 20" ${m.favorited ? 'fill="currentColor"' : 'fill="none"'}><path d="M10 2.5l2.35 4.76 5.25.76-3.8 3.7.9 5.23L10 14.5l-4.7 2.45.9-5.23-3.8-3.7 5.25-.76z" ${m.favorited ? '' : 'stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"'}/></svg></button>
           <button class="icon-btn tipbtn" data-id="${m.id}" title="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get tip'}" aria-label="${m.coachNote ? (state.tipVisibleIds[m.id] ? 'Hide tip' : 'Show tip') : 'Get tip'}" ${state.tipLoadingId===m.id ? 'disabled' : ''}>${state.tipLoadingId===m.id ? '<span class="icon-spinner"></span>' : tipBulbIcon(!!m.coachNote, !!state.tipVisibleIds[m.id])}</button>
         </div>
         <div class="mealtip">
@@ -3012,8 +3013,8 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
             ` : '<div class="mmacros" style="margin-top:4px; font-style:italic;">No ingredients added yet.</div>'}
           </div>
           <div class="mealrow-actions" style="margin-top:0;">
-            <button class="icon-btn" data-editfav="${f.id}" title="Edit" aria-label="Edit favorite">&#9998;</button>
-            <button class="icon-btn" data-delfav="${f.id}" title="Delete" aria-label="Delete favorite">&times;</button>
+            <button class="icon-btn" data-editfav="${f.id}" title="Edit" aria-label="Edit favorite"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            <button class="icon-btn" data-delfav="${f.id}" title="Delete" aria-label="Delete favorite"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           </div>
         </div>
       </div>
@@ -3144,7 +3145,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
           <label>Amount</label>
           <div style="display:flex; gap:8px;">
             <input type="number" id="logfav-weight" min="1" value="${defaultWeight}" style="flex:1;">
-            <select id="logfav-unit" disabled style="width:70px;">
+            <select id="logfav-unit" disabled title="Unit" aria-label="Unit" style="width:70px;">
               <option value="g" ${(fav.portionUnit || 'g') === 'g' ? 'selected' : ''}>g</option>
               <option value="ml" ${fav.portionUnit === 'ml' ? 'selected' : ''}>ml</option>
             </select>
@@ -3953,8 +3954,8 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
         <div class="measrow">
           <span><b>${fmtDateWithYear(d)}</b>&nbsp; ${parts.join(' &middot; ')}</span>
           <span class="measrow-actions">
-            <span class="medit" data-editmeas="${d}" title="Edit" aria-label="Edit measurement">&#9998;</span>
-            <span class="mdel" data-delmeas="${d}" title="Delete" aria-label="Delete measurement">&times;</span>
+            <span class="medit" data-editmeas="${d}" title="Edit" aria-label="Edit measurement"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <span class="mdel" data-delmeas="${d}" title="Delete" aria-label="Delete measurement"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
           </span>
         </div>
       `;
