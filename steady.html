@@ -35,7 +35,7 @@
     display: flex; align-items: baseline; justify-content: flex-start; gap: 12px; flex-wrap: wrap;
   }
   #steady-root h1 {
-    font-family: 'Fraunces', serif; font-weight: 700; font-size: 40px; letter-spacing: -0.01em;
+    font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 40px; letter-spacing: -0.01em;
     margin: 0; color: var(--ink);
   }
   #steady-root .titleflank {
@@ -104,10 +104,10 @@
     margin: 18px 0 20px;
   }
   #steady-root .datebar .date {
-    font-family: 'Fraunces', serif; font-size: 19px; font-weight: 500;
+    font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 500;
   }
   #steady-root .date-today-label {
-    font-family: 'Fraunces', serif; font-size: 11px; font-weight: 700; color: var(--moss); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;
+    font-family: 'Fraunces', Georgia, serif; font-size: 11px; font-weight: 700; color: var(--moss); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;
   }
   #steady-root .datebar .sub { font-size: 12px; color: var(--ink-soft); }
   #steady-root .datepick {
@@ -134,11 +134,11 @@
     box-shadow: var(--shadow); padding: 20px; margin-bottom: 18px;
   }
   #steady-root .card h2 {
-    font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; margin: 0 0 14px;
+    font-family: 'Fraunces', Georgia, serif; font-size: 15px; font-weight: 600; margin: 0 0 14px;
     text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft);
   }
   #steady-root .modal-box h2 {
-    font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; margin: 0 0 14px;
+    font-family: 'Fraunces', Georgia, serif; font-size: 15px; font-weight: 600; margin: 0 0 14px;
     text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft);
   }
 
@@ -187,7 +187,7 @@
   #steady-root .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   #steady-root .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; margin-bottom: 14px; }
   #steady-root .formsection {
-    font-size: 14px; font-weight: 700; color: var(--moss); text-transform: uppercase;
+    font-family: 'Fraunces', Georgia, serif; font-size: 14px; font-weight: 600; color: var(--moss); text-transform: uppercase;
     letter-spacing: 0.05em; margin-bottom: 16px;
   }
   #steady-root .formdivider { border-top: 1px solid var(--paper-line); margin: 18px 0; }
@@ -281,7 +281,7 @@
   #steady-root .tipcard-header {
     display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
   }
-  #steady-root .tipcard-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px; color: var(--ink); }
+  #steady-root .tipcard-name { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 15px; color: var(--ink); }
   #steady-root .tipcard-role { font-size: 13px; color: var(--ink-soft); }
   #steady-root .tipnote {
     font-size: 13px; color: var(--ink); margin: 0 0 10px; line-height: 1.55; white-space: pre-wrap;
@@ -545,9 +545,9 @@
       <summary>User guidelines</summary>
       <div style="text-align:left; margin-top:12px; padding: 0 16px 0 30px;">
         <details class="docsub">
-          <summary>What <span style="font-family:'Fraunces',serif; font-weight:700;">steady</span> is for</summary>
+          <summary>What <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span> is for</summary>
           <div class="docsub-body">
-            <p><span style="font-family:'Fraunces',serif; font-weight:700;">steady</span> is a daily ledger for gradual, steady body recomposition &mdash; not a crash diet.</p>
+            <p><span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span> is a daily ledger for gradual, steady body recomposition &mdash; not a crash diet.</p>
             <ul>
               <li>Log meals by text or photo and get AI-estimated macros</li>
               <li>Calorie and macro targets that adjust with your goal and today's activity</li>
@@ -561,7 +561,7 @@
         <details class="docsub">
           <summary>Who is Aino</summary>
           <div class="docsub-body">
-            <p>Aino is <span style="font-family:'Fraunces',serif; font-weight:700;">steady</span>'s AI-nutritionist &mdash; not a real person, and not a licensed dietitian. She's Claude, given a nutrition-focused persona: warm and concise, and grounded fresh in your actual logged data every time she responds, rather than working from a fixed memory of you.</p>
+            <p>Aino is <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span>'s AI-nutritionist &mdash; not a real person, and not a licensed dietitian. She's Claude, given a nutrition-focused persona: warm and concise, and grounded fresh in your actual logged data every time she responds, rather than working from a fixed memory of you.</p>
             <p>Her guidance follows one consistent stance: gradual, steady progress, never extreme restriction or rapid weight loss. She won't suggest skipping meals or crash-dieting, however a question is phrased.</p>
             <p>Her estimates and reflections are AI-generated and can be wrong &mdash; review them the way you would any estimate, and talk to a doctor or registered dietitian for medical or personalized nutrition advice.</p>
           </div>
@@ -602,7 +602,7 @@
               <li>AI estimates &mdash; calories, macros, tips &mdash; are a starting point, not a lab result. Review and edit them, especially for homemade meals or uncertain portions.</li>
               <li>Adding ingredients and amounts to a meal noticeably improves the quality of tips and summaries, since Aino can see what's actually in a meal, not just its macros.</li>
               <li>Demo mode writes real data to your storage the same as normal use &mdash; editing or getting a tip on a demo day saves it for real.</li>
-              <li>Using <span style="font-family:'Fraunces',serif; font-weight:700;">steady</span> on more than one device close together: the most recent save wins silently, with no conflict warning.</li>
+              <li>Using <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span> on more than one device close together: the most recent save wins silently, with no conflict warning.</li>
               <li>&ldquo;Today&rdquo; follows your browser's local clock, so logging right around midnight or while traveling can land a meal on a date you didn't expect.</li>
               <li>Chat conversations don't persist past the day they happened &mdash; if Aino says something worth keeping, copy it somewhere else before the day ends.</li>
             </ul>
@@ -1165,9 +1165,9 @@
           <button class="modal-close" id="closeAinoProfileBtn" aria-label="Close">&times;</button>
         </div>
         <img src="${AINO_AVATAR}" alt="Aino" style="width:140px; height:140px; border-radius:50%; margin-bottom:14px;">
-        <div style="font-family:'Fraunces',serif; font-weight:700; font-size:22px; color:var(--ink); margin-bottom:2px;">Aino</div>
+        <div style="font-family:'Fraunces', Georgia, serif; font-weight:700; font-size:22px; color:var(--ink); margin-bottom:2px;">Aino</div>
         <div style="font-size:12px; color:var(--moss); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Your AI-nutritionist</div>
-        <p style="font-size:13px; color:var(--ink); line-height:1.6; text-align:center; margin:0;">I&rsquo;m here to help with gradual, steady progress &mdash; chatting about your day, reviewing how your week trended, and giving quick, specific tips based on what you&rsquo;ve actually logged. I stay focused on nutrition and your goals here in <span style="font-family:'Fraunces',serif; font-weight:700;">steady</span>, and I&rsquo;ll never suggest extreme restriction or rushing.</p>
+        <p style="font-size:13px; color:var(--ink); line-height:1.6; text-align:center; margin:0;">I&rsquo;m here to help with gradual, steady progress &mdash; chatting about your day, reviewing how your week trended, and giving quick, specific tips based on what you&rsquo;ve actually logged. I stay focused on nutrition and your goals here in <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span>, and I&rsquo;ll never suggest extreme restriction or rushing.</p>
       </div>
     `;
     overlay.style.display = 'flex';
