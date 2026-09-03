@@ -178,6 +178,10 @@
     -webkit-appearance: none; margin: 0;
   }
   #steady-root textarea { resize: vertical; min-height: 64px; }
+  #steady-root #chatInput {
+    resize: none; min-height: 38px; max-height: 120px; overflow-y: auto; border-radius: 18px;
+    padding: 9px 34px 9px 12px; line-height: 1.4;
+  }
   #steady-root input[type=date]::-webkit-calendar-picker-indicator,
   #steady-root input[type=time]::-webkit-calendar-picker-indicator {
     filter: invert(45%) sepia(24%) saturate(555%) hue-rotate(67deg) brightness(94%) contrast(86%);
@@ -227,6 +231,14 @@
     #steady-root .tabbtn-label { display: none; }
   }
 
+  #steady-root .photopick-row { display: flex; gap: 8px; }
+  #steady-root .photopick-btn {
+    flex: 1; background: var(--card); border: 1px solid var(--paper-line); border-radius: 6px;
+    padding: 9px 10px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; color: var(--moss);
+  }
+  #steady-root .photopick-btn span { font-size: 12px; font-weight: 600; color: var(--ink); }
+  #steady-root .photopick-btn:hover { border-color: var(--moss); }
   #steady-root .photo-preview { max-width: 100%; max-height: 200px; border-radius: 4px; margin-top: 10px; display: none; border: 1px solid var(--paper-line); }
 
   /* ---- Meal list ---- */
@@ -326,7 +338,8 @@
     background: #FDF8E9; color: var(--ink); border: 1px solid #F0E8CC;
     border-bottom-left-radius: 3px; max-width: 78%;
   }
-  #steady-root .chatinput-wrap { position: relative; margin-top: 4px; margin-left: 48px; }
+  #steady-root .chatinput-wrap { display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; margin-left: 48px; }
+  #steady-root .chatinput-box { position: relative; flex: 1; min-width: 0; }
   #steady-root .citation-chip {
     display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--paper-line);
     border-radius: 14px; padding: 5px 8px 5px 10px; margin: 6px 0 6px 48px; font-size: 11.5px; color: var(--ink-soft);
@@ -340,10 +353,29 @@
     color: var(--ink); resize: none; box-sizing: border-box;
   }
   #steady-root .chatsend-icon {
-    position: absolute; bottom: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; margin-bottom: 8px;
     background: var(--moss); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   #steady-root .chatsend-icon:disabled { opacity: 0.5; cursor: default; }
+  #steady-root .chat-paperclip {
+    position: absolute; bottom: 15px; right: 10px; width: 18px; height: 18px; background: none; border: none;
+    color: var(--moss); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 2;
+  }
+  #steady-root .photo-menu {
+    position: absolute; bottom: 34px; right: 0; background: var(--card); border: 1px solid var(--paper-line);
+    border-radius: 8px; overflow: hidden; width: 170px; box-shadow: var(--shadow); z-index: 3;
+  }
+  #steady-root .photo-menu-item {
+    padding: 9px 12px; font-size: 12.5px; color: var(--ink); display: flex; align-items: center; gap: 7px;
+    cursor: pointer; border-bottom: 1px solid var(--paper-line);
+  }
+  #steady-root .photo-menu-item:last-child { border-bottom: none; }
+  #steady-root .photo-menu-item:hover { background: var(--paper); }
+  #steady-root .photo-menu-item svg { color: var(--moss); flex-shrink: 0; }
+  #steady-root .photo-sent-marker {
+    display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--ink-soft);
+  }
+  #steady-root .photo-sent-marker svg { color: var(--ink-soft); }
   #steady-root #ainoBubble {
     position: fixed; width: 56px; height: 56px; border-radius: 50%; padding: 0;
     border: 2px solid #FFFFFF; box-shadow: 0 4px 14px rgba(29,36,17,0.25); cursor: pointer;
@@ -577,6 +609,7 @@
             </ul>
             <p>Past days and the trailing week get a single regeneratable summary rather than an ongoing conversation.</p>
             <p>AI features draw on your own Claude usage, not a separate cost. Normal day-to-day use &mdash; a few meals, occasional tips or short chats &mdash; is a small draw on your plan's allowance. Long back-and-forth conversations with Aino in one sitting use meaningfully more, since the whole conversation resends each time you send a message.</p>
+            <p>You can attach a photo in today's chat &mdash; of food you're deciding on, a menu, or anything you want Aino's take on. This is advisory only: nothing sent this way gets saved or logged, and the photo itself is never kept, not even for the rest of the conversation. If you want the meal actually logged, use the dedicated photo upload in the meal-logging form instead. Attaching a photo also uses noticeably more of your usage than a text-only message, similar to the long-conversation note above.</p>
           </div>
         </details>
         <details class="docsub">
@@ -613,7 +646,7 @@
           <div class="docsub-body">
             <ul>
               <li>If you see &ldquo;Nothing you enter is being saved right now,&rdquo; it usually means the artifact isn't published &mdash; publish it and reload, or try a hard refresh if it's already published. If that doesn't help, it may be a temporary issue with the storage service itself, not something wrong with your data.</li>
-              <li>Photo logging may not work inside the Claude mobile app's built-in view &mdash; if &ldquo;Choose file&rdquo; does nothing when tapped, try opening this artifact's link in your phone's regular browser instead, or use text logging, which isn't affected.</li>
+              <li>Photo logging may not work inside the Claude mobile app's built-in view &mdash; if &ldquo;Take Photo&rdquo; or &ldquo;Choose from Library&rdquo; does nothing when tapped, try opening this artifact's link in your phone's regular browser instead, or use text logging, which isn't affected.</li>
             </ul>
           </div>
         </details>
@@ -700,6 +733,8 @@
     demoToday: null,
     tipVisibleIds: {},
     chatCitation: null, // { mealId } or null - resolved live, never stores a name/text copy
+    chatPhotoMenuOpen: false,
+    chatPendingPhoto: null, // { base64, mediaType, previewUrl } held in memory only until sent, then discarded
     favIngredientsExpanded: {},
     customActivities: [],
     dayContext: [],
@@ -2220,7 +2255,12 @@
       holder.innerHTML = `
         <div class="field">
           <label>Photo of your meal</label>
-          <input type="file" accept="image/*" id="photoInput">
+          <div class="photopick-row">
+            <button type="button" class="photopick-btn" id="takePhotoBtn"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="3" y="6" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="11" r="2.8" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 6l1-1.5h3l1 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Take Photo</span></button>
+            <button type="button" class="photopick-btn" id="chooseLibraryBtn"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/><path d="M4 14l4-4 3 3 3-4 3 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Library</span></button>
+          </div>
+          <input type="file" accept="image/*" capture="environment" id="photoInputCamera" style="display:none;">
+          <input type="file" accept="image/*" id="photoInputLibrary" style="display:none;">
           <img id="photoPreview" class="photo-preview">
           ${state.photoData ? '<br><button type="button" class="removePhotoBtn" id="removePhotoBtn">Remove photo</button>' : ''}
         </div>
@@ -2231,7 +2271,10 @@
         <button class="btn small" id="estimatePhotoBtn" ${state.photoData ? '' : 'disabled'}>${state.loading ? '<span class="spinner"></span>Estimating…' : 'Estimate macros'}</button>
         <div id="addErr" class="errmsg" style="display:none;"></div>
       `;
-      document.getElementById('photoInput').addEventListener('change', onPhotoSelect);
+      document.getElementById('photoInputCamera').addEventListener('change', onPhotoSelect);
+      document.getElementById('photoInputLibrary').addEventListener('change', onPhotoSelect);
+      document.getElementById('takePhotoBtn').addEventListener('click', () => document.getElementById('photoInputCamera').click());
+      document.getElementById('chooseLibraryBtn').addEventListener('click', () => document.getElementById('photoInputLibrary').click());
       document.getElementById('estimatePhotoBtn').addEventListener('click', onEstimatePhoto);
       if (document.getElementById('removePhotoBtn')) {
         document.getElementById('removePhotoBtn').addEventListener('click', () => {
@@ -3344,12 +3387,15 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const msgs = state.chatMessages;
     const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
     const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
-    const bubbles = msgs.map(m => m.role === 'coach'
-      ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`
-      : m.citedMealName
-        ? `<div style="display:flex; flex-direction:column; align-items:flex-end; align-self:flex-end; gap:2px;"><div class="citation-tag">Re: <b>${escapeHtml(m.citedMealName)}</b> tip</div><div class="chatbubble user">${escapeHtml(m.text)}</div></div>`
-        : `<div class="chatbubble user">${escapeHtml(m.text)}</div>`
-    ).join('');
+    const cameraSvg = '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="3" y="6" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="11" r="2.8" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 6l1-1.5h3l1 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const bubbles = msgs.map(m => {
+      if (m.role === 'coach') return `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`;
+      const photoMarker = m.hasPhoto ? `<div class="photo-sent-marker">${cameraSvg}Photo attached</div>` : '';
+      if (m.citedMealName || m.hasPhoto) {
+        return `<div style="display:flex; flex-direction:column; align-items:flex-end; align-self:flex-end; gap:2px;">${m.citedMealName ? `<div class="citation-tag">Re: <b>${escapeHtml(m.citedMealName)}</b> tip</div>` : ''}${photoMarker}<div class="chatbubble user">${escapeHtml(m.text)}</div></div>`;
+      }
+      return `<div class="chatbubble user">${escapeHtml(m.text)}</div>`;
+    }).join('');
     const loadingBubble = state.chatLoading ? `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach"><span class="spinner"></span>Thinking…</div></div>` : '';
     const topSection = `<div class="chatlist">${greetingBubble}${bubbles}${loadingBubble}</div>`;
     const quickActionsHtml = TODAY_QUICK_ACTIONS.map((qa, i) =>
@@ -3362,11 +3408,33 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
         <span class="citation-chip-x" id="citationChipX">&times;</span>
       </div>
     ` : '';
+    const pendingPhotoChip = state.chatPendingPhoto ? `
+      <div class="citation-chip">
+        ${cameraSvg}
+        <span>Photo attached</span>
+        <span class="citation-chip-x" id="pendingPhotoX">&times;</span>
+      </div>
+    ` : '';
+    const photoMenu = state.chatPhotoMenuOpen ? `
+      <div class="photo-menu" id="chatPhotoMenu">
+        <div class="photo-menu-item" id="chatTakePhotoBtn">${cameraSvg}Take Photo</div>
+        <div class="photo-menu-item" id="chatChooseLibraryBtn"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="7.5" cy="7.5" r="1.3" fill="currentColor"/><path d="M4 14l4-4 3 3 3-4 3 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Choose from Library</div>
+      </div>
+    ` : '';
     holder.innerHTML = `
       ${topSection}
       ${citationChip}
+      ${pendingPhotoChip}
       <div class="chatinput-wrap">
-        <textarea id="chatInput" placeholder="Ask a question…" ${state.chatLoading ? 'disabled' : ''}></textarea>
+        <div class="chatinput-box">
+          ${photoMenu}
+          <textarea id="chatInput" placeholder="Ask a question…" rows="1" ${state.chatLoading ? 'disabled' : ''}></textarea>
+          <button class="chat-paperclip" id="chatPaperclipBtn" aria-label="Attach photo" title="Attach photo">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M13.5 5.2L7.3 11.4a2.3 2.3 0 0 0 3.25 3.25l5.7-5.7a4.1 4.1 0 0 0-5.8-5.8L4.2 9.4a5.9 5.9 0 0 0 8.35 8.35" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <input type="file" accept="image/*" capture="environment" id="chatPhotoInputCamera" style="display:none;">
+          <input type="file" accept="image/*" id="chatPhotoInputLibrary" style="display:none;">
+        </div>
         <button class="chatsend-icon" id="chatSendBtn" aria-label="Send" ${state.chatLoading ? 'disabled' : ''}>
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 15V5M10 5L5 10M10 5l5 5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -3382,14 +3450,30 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     });
     const chipX = document.getElementById('citationChipX');
     if (chipX) chipX.addEventListener('click', () => { state.chatCitation = null; renderCoachChat(); });
+    const pendingPhotoX = document.getElementById('pendingPhotoX');
+    if (pendingPhotoX) pendingPhotoX.addEventListener('click', () => { state.chatPendingPhoto = null; renderCoachChat(); });
+    document.getElementById('chatPaperclipBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.chatPhotoMenuOpen = !state.chatPhotoMenuOpen;
+      renderCoachChat();
+    });
+    const takeBtn = document.getElementById('chatTakePhotoBtn');
+    if (takeBtn) takeBtn.addEventListener('click', () => { document.getElementById('chatPhotoInputCamera').click(); });
+    const libBtn = document.getElementById('chatChooseLibraryBtn');
+    if (libBtn) libBtn.addEventListener('click', () => { document.getElementById('chatPhotoInputLibrary').click(); });
+    document.getElementById('chatPhotoInputCamera').addEventListener('change', onChatPhotoSelect);
+    document.getElementById('chatPhotoInputLibrary').addEventListener('change', onChatPhotoSelect);
     const triggerChatSend = () => {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
-      if (!text) return;
+      if (!text && !state.chatPendingPhoto) return;
       const hiddenInstruction = citedMeal ? buildCitationInstruction(citedMeal) : '';
       const citedMealName = citedMeal ? citedMeal.name : null;
+      const photo = state.chatPendingPhoto;
       state.chatCitation = null; // one-shot — clears the moment the message is sent
-      sendChatMessage(text, hiddenInstruction, citedMealName);
+      state.chatPendingPhoto = null; // never retained past the single send it was attached to
+      state.chatPhotoMenuOpen = false;
+      sendChatMessage(text || '(see attached photo)', hiddenInstruction, citedMealName, photo);
     };
     document.getElementById('chatSendBtn').addEventListener('click', triggerChatSend);
     document.getElementById('chatInput').addEventListener('keydown', (e) => {
@@ -3398,11 +3482,48 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
         triggerChatSend();
       }
     });
+    document.getElementById('chatInput').addEventListener('input', (e) => {
+      e.target.style.height = 'auto';
+      e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+    });
     const resetChatBtn = document.getElementById('resetChatBtn');
     if (resetChatBtn) resetChatBtn.addEventListener('click', resetChat);
     holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
     const list = holder.querySelector('.chatlist');
     if (list) list.scrollTop = list.scrollHeight;
+    if (state.chatPhotoMenuOpen) {
+      const closeMenuOnOutsideClick = (e) => {
+        const menu = document.getElementById('chatPhotoMenu');
+        const btn = document.getElementById('chatPaperclipBtn');
+        if (menu && !menu.contains(e.target) && btn && !btn.contains(e.target)) {
+          state.chatPhotoMenuOpen = false;
+          renderCoachChat();
+        }
+        document.removeEventListener('click', closeMenuOnOutsideClick);
+      };
+      setTimeout(() => document.addEventListener('click', closeMenuOnOutsideClick), 0);
+    }
+  }
+
+  function onChatPhotoSelect(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const resized = await resizeImageDataUrl(reader.result, 1024, 0.82);
+        const base64 = resized.split(',')[1];
+        state.chatPendingPhoto = { base64, mediaType: 'image/jpeg', previewUrl: resized };
+        state.chatPhotoMenuOpen = false;
+        renderCoachChat();
+      } catch(err) {
+        showToast('Could not process that image — try a different file.', true);
+      }
+    };
+    reader.onerror = () => {
+      showToast('Could not read that image — try a different file.', true);
+    };
+    reader.readAsDataURL(file);
   }
 
   function buildCitationInstruction(meal){
@@ -3472,11 +3593,17 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     return `${nameContext()}${dietContext()}${bmiContext()}Today's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (today's activity: ${activitiesLabel(state.activities)}). ${todayContextSummary() ? 'Context for today, worth factoring into your response: ' + todayContextSummary() + '. ' : ''}Logged so far: ${mealsSummary}. Totals so far: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. Person's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
   }
 
-  async function callCoachChat(conversationHistory, contextText, hiddenInstruction){
-    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day. If asked your name, you are Aino. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown formatting (no **bold**, no # headers, no numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability, break longer replies into short paragraphs (2-4 sentences each) separated by a blank line, rather than one dense block — and when listing several distinct items (like macros, or a few suggestions), put each on its own line starting with a dash, still no markdown symbols beyond that dash. Short replies can stay a single line. You may occasionally — not in most messages — use one of these emojis where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply; most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app. If asked something unrelated to that (general knowledge, trivia, math, or any other off-topic request), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nAll-or-nothing thinking: if the person expresses that one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back on that framing using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not a single off day, but repeated language like this being a recurring struggle), gently and non-judgmentally suggest that talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Never infer this from logged data alone, only from what they actually say.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or asks for advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is a safety-relevant amount, not just a nutrition one, and suggest water/food/rest or contacting someone if needed. If they describe this as a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, you also state today's running score as your first sentence, and should keep doing so every time it's used. If asked what the score means, explain it plainly and factually as this real feature — do not apologize for including it, call it unofficial, or offer to stop using it.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output directly (the score, a tip, a summary) as instructed above — only redirect for app-mechanics questions unrelated to what you just said.";
+  async function callCoachChat(conversationHistory, contextText, hiddenInstruction, photo){
+    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day. If asked your name, you are Aino. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown formatting (no **bold**, no # headers, no numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability, break longer replies into short paragraphs (2-4 sentences each) separated by a blank line, rather than one dense block — and when listing several distinct items (like macros, or a few suggestions), put each on its own line starting with a dash, still no markdown symbols beyond that dash. Short replies can stay a single line. You may occasionally — not in most messages — use one of these emojis where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply; most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app. If asked something unrelated to that (general knowledge, trivia, math, or any other off-topic request), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nAll-or-nothing thinking: if the person expresses that one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back on that framing using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not a single off day, but repeated language like this being a recurring struggle), gently and non-judgmentally suggest that talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Never infer this from logged data alone, only from what they actually say.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or asks for advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is a safety-relevant amount, not just a nutrition one, and suggest water/food/rest or contacting someone if needed. If they describe this as a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, you also state today's running score as your first sentence, and should keep doing so every time it's used. If asked what the score means, explain it plainly and factually as this real feature — do not apologize for including it, call it unofficial, or offer to stop using it.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output directly (the score, a tip, a summary) as instructed above — only redirect for app-mechanics questions unrelated to what you just said.\n\nPhotos in chat: the person may occasionally attach a photo here — of food they're considering, a menu, or a plate they're deciding what to do with. You can give estimates, opinions, or advice about it when asked (rough calories/macros, what to remove, healthier swaps, etc.) — this is a normal, expected use of the chat. But this chat has no ability to save or log anything: if they want the meal actually logged, tell them to use the app's own meal-logging photo upload for that, since only that path saves anything.";
     const messages = conversationHistory.map((m, i) => {
       const isLastUserMsg = i === conversationHistory.length - 1 && m.role === 'user';
       const content = (isLastUserMsg && hiddenInstruction) ? `${m.text}\n\n[Instruction for this reply only, not from the user: ${hiddenInstruction}]` : m.text;
+      if (isLastUserMsg && photo) {
+        return { role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: photo.mediaType, data: photo.base64 } },
+          { type: 'text', text: content }
+        ]};
+      }
       return { role: m.role === 'coach' ? 'assistant' : 'user', content };
     });
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -3503,17 +3630,17 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     return textBlock.text.trim();
   }
 
-  async function sendChatMessage(text, hiddenInstruction, citedMealName){
+  async function sendChatMessage(text, hiddenInstruction, citedMealName, photo){
     const targetDate = state.currentDate;
     const input = document.getElementById('chatInput');
     if (input) input.value = '';
-    state.chatMessages.push({ role: 'user', text, time: nowTimeString(), citedMealName: citedMealName || null });
+    state.chatMessages.push({ role: 'user', text, time: nowTimeString(), citedMealName: citedMealName || null, hasPhoto: !!photo });
     const localMessages = state.chatMessages;
     state.chatLoading = true;
     renderCoachChat();
     try {
       const context = buildTodayContext();
-      const reply = await callCoachChat(localMessages, context, hiddenInstruction || '');
+      const reply = await callCoachChat(localMessages, context, hiddenInstruction || '', photo || null);
       localMessages.push({ role: 'coach', text: reply, time: nowTimeString() });
       await saveChatMessages(targetDate, localMessages);
     } catch(e) {
