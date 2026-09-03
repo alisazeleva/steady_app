@@ -782,10 +782,16 @@
     return results;
   }
 
+  // "YYYY-MM-DD" for the browser's local clock — the canonical date-string
+  // format used throughout storage keys and state.currentDate. No timezone
+  // handling (see technical docs §7 "Known limitations").
   function todayStr(){
     const d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
+  // Weekday/month/day label for a "YYYY-MM-DD" string, with a "Today" chip
+  // prepended when it's the current date. Display-only, so toLocaleDateString
+  // is safe here (unlike the time-string helpers below, which aren't).
   function fmtDateLabel(dstr){
     const [y,m,d] = dstr.split('-').map(Number);
     const dt = new Date(y, m-1, d);
@@ -793,6 +799,8 @@
     const label = dt.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
     return isToday ? '<div class="date-today-label">Today</div>' + label : label;
   }
+  // Adds (or, with a negative count, subtracts) days to a "YYYY-MM-DD"
+  // string, returning the same format. Used for date-picker nav and demo data.
   function shiftDate(dstr, days){
     const [y,m,d] = dstr.split('-').map(Number);
     const dt = new Date(y, m-1, d);
@@ -891,6 +899,8 @@
       return types.map(type => ({ type, minutes: ACTIVITY_DEFAULT_MIN[type] || 30 }));
     } catch(e) { return []; }
   }
+  // Always writes the current [{type, minutes}] shape — loadActivities() above
+  // is the only place that still needs to understand the legacy formats.
   async function saveActivities(dateStr, activities){
     await storageSet('activity:' + dateStr, JSON.stringify(activities), false);
   }
@@ -902,6 +912,9 @@
       return acc;
     }, { calories:0, protein:0, carbs:0, fat:0 });
   }
+  // Favorite recipes list — one key, loaded once at init (see §"New global
+  // data" pattern in the technical docs). state.favorites is set directly
+  // here rather than returned, since favorites are used from many screens.
   async function loadFavorites(){
     try {
       const res = await storageGet('favorites', false);
@@ -911,12 +924,16 @@
   async function saveFavoritesStorage(favs){
     await storageSet('favorites', JSON.stringify(favs), false);
   }
+  // User-defined activities beyond the built-in presets (Walk/Hike/Cardio/
+  // Strength/Yoga), each with an AI-estimated kcal/min rate.
   async function loadCustomActivities(){
     try {
       const res = await storageGet('customActivities', false);
       return res ? JSON.parse(res.value) : [];
     } catch(e) { return []; }
   }
+  // Day-context tags (e.g. "traveling", "poor sleep") selected for a given
+  // date — a plain array of tag ID strings, no legacy formats to normalize.
   async function loadDayContext(dateStr){
     try {
       const res = await storageGet('context:' + dateStr, false);
@@ -926,6 +943,7 @@
   async function saveDayContext(dateStr, list){
     await storageSet('context:' + dateStr, JSON.stringify(list), false);
   }
+  // User-defined context tags beyond the built-in presets.
   async function loadCustomContextTags(){
     try {
       const res = await storageGet('customContextTags', false);
@@ -938,6 +956,8 @@
   async function saveCustomActivitiesStorage(list){
     await storageSet('customActivities', JSON.stringify(list), false);
   }
+  // Body measurements (waist/bust/hips) — single object keyed by date,
+  // not date-prefixed keys, since entries are sparse (see technical docs §5.7).
   async function loadMeasurements(){
     try {
       const res = await storageGet('measurements', false);
@@ -1014,11 +1034,15 @@
     return ACTIVITY_LABELS[type] || type;
   }
 
+  // Human-readable summary of a day's logged activities, e.g.
+  // "Walk (30m) + Strength (45m)", or "Rest day" when nothing is logged.
   function activitiesLabel(activities){
     if (!activities || !activities.length) return 'Rest day';
     return activities.map(a => `${activityLabelFor(a.type)} (${a.minutes}m)`).join(' + ');
   }
 
+  // Extra calories burned by one logged activity entry, using its per-minute
+  // rate (built-in preset rate or an AI-estimated custom rate).
   function activityKcal(a){
     return Math.round((a.minutes || 0) * activityRatePerMin(a.type));
   }
@@ -1202,7 +1226,7 @@
         <img src="${AINO_AVATAR}" alt="Aino" style="width:140px; height:140px; border-radius:50%; margin-bottom:14px;">
         <div style="font-family:'Fraunces', Georgia, serif; font-weight:700; font-size:22px; color:var(--ink); margin-bottom:2px;">Aino</div>
         <div style="font-size:12px; color:var(--moss); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:16px;">Your AI-nutritionist</div>
-        <p style="font-size:13px; color:var(--ink); line-height:1.6; text-align:center; margin:0;">I&rsquo;m here to help with gradual, steady progress &mdash; chatting about your day, reviewing how your week trended, and giving quick, specific tips based on what you&rsquo;ve actually logged. I stay focused on nutrition and your goals here in <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span>, and I&rsquo;ll never suggest extreme restriction or rushing.</p>
+        <p style="font-size:13px; color:var(--ink); line-height:1.6; text-align:center; margin:0;">Hi, I&rsquo;m Aino! I&rsquo;m here to keep you company on the gradual, steady kind of progress &mdash; the sort that actually sticks. I&rsquo;ll chat with you about your day, check in on how your week&rsquo;s been trending, and offer tips that are actually about <em>you</em>, based on what you&rsquo;ve logged, not generic advice. Nutrition and your goals are my whole focus here in <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span>, and you&rsquo;ll never hear me push extreme restriction or rushing &mdash; steady wins, always.</p>
       </div>
     `;
     overlay.style.display = 'flex';
@@ -2840,6 +2864,10 @@
     renderFavList();
   }
 
+  // RFC 4180 CSV field escaping — quotes a field and doubles internal quotes
+  // when it contains a comma, quote, or newline. Only needed by exporters
+  // that include free-text fields (recipes, not the numeric daily-totals
+  // export near the bottom of the file, which skips this entirely).
   function csvEscape(val){
     const str = String(val ?? '');
     if (/[",\n\r]/.test(str)) {
@@ -2848,6 +2876,8 @@
     return str;
   }
 
+  // Exports all favorite recipes, including free-text ingredients — hence
+  // csvEscape() on every field, unlike the numeric-only daily-totals export.
   function exportRecipesCSV(){
     if (!state.favorites.length) { showToast('No favorites to export yet.', true); return; }
     const rows = [['name','calories_per_100g','protein_g_per_100g','carbs_g_per_100g','fat_g_per_100g','total_yield_g','typical_portion_g','ingredients_and_notes']];
@@ -2870,6 +2900,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  // Exports the full sparse measurements object as one row per logged date.
   function exportMeasurementsCSV(){
     const dates = Object.keys(state.measurements).sort();
     if (!dates.length) { showToast('No measurements to export yet.', true); return; }
@@ -3942,6 +3973,9 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     }
   }
 
+  // Compact "Mon D" label (e.g. "Sep 3") for chart axes and week-summary
+  // ranges. Display-only, month/day only — no AM/PM parsing involved, so
+  // toLocaleDateString is safe here (contrast with fmtDateWithYear below).
   function fmtShortDate(dstr){
     const [y,m,d] = dstr.split('-').map(Number);
     const dt = new Date(y, m-1, d);
@@ -4359,6 +4393,9 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     return { score, text: raw.slice(m[0].length).trim() };
   }
 
+  // Renders the "Score N/10" badge shared by meal tips, daily summaries, and
+  // the weekly summary. Returns '' (no badge) for old content saved before
+  // the score feature existed, which parses to a null score.
   function scoreBadgeHtml(score){
     if (score === null || score === undefined) return '';
     return `<div style="display:flex; align-items:baseline; gap:8px; margin:0 0 10px;"><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--ink);">Score</span><span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:var(--moss);">${score}/10</span></div>`;
@@ -4378,6 +4415,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     return `<svg width="17" height="17" viewBox="-3 -3 26 26" fill="none"><path d="${bulbPath}"${fillAttr} stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>${baseLines}${rays}</svg>`;
   }
 
+  // HTML-escapes user-entered text before it goes into an innerHTML template
+  // (meal names, chat text, favorite ingredients, etc.) — this app has no
+  // virtual DOM/JSX to do this automatically, so every interpolated string
+  // that could contain user input needs one of these. escapeAttr is just an
+  // alias kept separate for readability at attribute-value call sites.
   function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
