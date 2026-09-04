@@ -4116,7 +4116,10 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
       if (m.hips !== undefined) parts.push(`Hips ${m.hips}`);
       return `
         <div class="measrow">
-          <span><b>${fmtDateWithYear(d)}</b>&nbsp; ${parts.join(' &middot; ')}</span>
+          <span>
+            <div style="font-weight:700;">${fmtDateWithYear(d)}</div>
+            <div style="color:var(--ink-soft); margin-top:2px;">${parts.join(' &middot; ')}</div>
+          </span>
           <span class="measrow-actions">
             <span class="medit" data-editmeas="${d}" title="Edit" aria-label="Edit measurement"><svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l3 3L6.5 16.5H3.5v-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M11 6l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             <span class="mdel" data-delmeas="${d}" title="Delete" aria-label="Delete measurement"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
