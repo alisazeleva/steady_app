@@ -4018,7 +4018,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     const yMin = minV - pad, yMax = maxV + pad;
     const firstDate = new Date(pts[0].date), lastDate = new Date(pts[pts.length - 1].date);
     const totalMs = Math.max(1, lastDate - firstDate);
-    const W = 600, H = 90, marginLeft = 40, marginRight = 10, marginBottom = 18, marginTop = 6;
+    const W = 380, H = 108, marginLeft = 26, marginRight = 10, marginBottom = 18, marginTop = 6;
     const plotW = W - marginLeft - marginRight, plotH = H - marginBottom - marginTop;
     const xPos = (d) => marginLeft + (new Date(d) - firstDate) / totalMs * plotW;
     const yPos = (v) => marginTop + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
@@ -4050,7 +4050,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     return `
       <div class="chartblock">
         <div class="chead"><span>${label}</span></div>
-        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; aspect-ratio:${W}/${H}; display:block;">
           ${yAxis}${line}${dots}${xAxis}
         </svg>
       </div>
@@ -4190,8 +4190,9 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     const targets = data.map(d => d.targets[targetKey]);
     const avgTarget = Math.round(targets.reduce((a,b) => a+b, 0) / targets.length);
     const maxVal = Math.max(...targets.map(t => t*1.25), ...data.map(d => d.totals[valueKey]), 1);
-    const W = 680, H = 108, marginLeft = 40, marginBottom = 18, marginTop = 4;
-    const plotW = W - marginLeft;
+    const topLabelLen = String(Math.round(maxVal)).length;
+    const W = 380, H = 130, marginLeft = 11 + topLabelLen * 5, marginRight = 10, marginBottom = 18, marginTop = 4;
+    const plotW = W - marginLeft - marginRight;
     const plotH = H - marginBottom - marginTop;
     const gap = 2.5;
     const barW = Math.max(1, (plotW / data.length) - gap);
@@ -4216,10 +4217,10 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     [0, 0.5, 1].forEach(f => {
       const val = Math.round(maxVal * f);
       const y = marginTop + (plotH - f * plotH);
-      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W - marginRight}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
       yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${val}</text>`;
     });
-    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
+    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W - marginRight}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
     data.forEach((d, i) => {
       if (i % 7 === 0 || i === data.length - 1) {
         const x = marginLeft + i * (barW + gap) + barW / 2;
@@ -4229,7 +4230,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     return `
       <div class="chartblock">
         <div class="chead"><span>${label}</span><span style="opacity:0.6;">&mdash;</span><span>avg target ${avgTarget}${unit}</span></div>
-        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:${H}px; display:block;" preserveAspectRatio="none">
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; aspect-ratio:${W}/${H}; display:block;">
           ${yAxis}
           <polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
           ${bars}
