@@ -390,10 +390,10 @@
   }
   #steady-root .quickaction-btn:hover { background: var(--paper); }
   #steady-root .quickaction-btn:disabled { opacity: 0.4; cursor: default; }
-  #steady-root .chartblock { margin-bottom: 22px; }
+  #steady-root .chartblock { margin-bottom: 34px; }
   #steady-root .chartblock:last-child { margin-bottom: 0; }
   #steady-root .chartblock .chead {
-    display: flex; justify-content: center; gap: 6px; font-size: 11.5px; color: var(--ink-soft);
+    text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-soft);
     margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
   }
 
@@ -3841,10 +3841,10 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
           </div>
           <button class="btn small" id="exportConfirmBtn">Download CSV</button>
         </div>
-        <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity. Bars that clear it went over that day.</p>
-        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:11px; color:var(--ink-soft);">
-          <div><span style="display:inline-block; width:10px; height:10px; background:var(--moss); border-radius:2px; margin-right:4px;"></span>On target</div>
+        <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity.</p>
+        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:34px; font-size:11px; color:var(--ink-soft);">
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--under); border-radius:2px; margin-right:4px;"></span>15%+ under</div>
+          <div><span style="display:inline-block; width:10px; height:10px; background:var(--moss); border-radius:2px; margin-right:4px;"></span>On target</div>
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--over); border-radius:2px; margin-right:4px;"></span>15%+ over</div>
         </div>
         ${chartBlock('Calories', data, 'calories', 'calories', 'var(--moss)', 'kcal')}
@@ -4018,7 +4018,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     const yMin = minV - pad, yMax = maxV + pad;
     const firstDate = new Date(pts[0].date), lastDate = new Date(pts[pts.length - 1].date);
     const totalMs = Math.max(1, lastDate - firstDate);
-    const W = 380, H = 108, marginLeft = 26, marginRight = 10, marginBottom = 18, marginTop = 6;
+    const W = 380, H = 108, marginLeft = 30, marginRight = 10, marginBottom = 18, marginTop = 10;
     const plotW = W - marginLeft - marginRight, plotH = H - marginBottom - marginTop;
     const xPos = (d) => marginLeft + (new Date(d) - firstDate) / totalMs * plotW;
     const yPos = (v) => marginTop + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
@@ -4028,11 +4028,11 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
       const val = yMin + f * (yMax - yMin);
       const y = marginTop + plotH - f * plotH;
       yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
-      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${Math.round(val)}</text>`;
+      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${Math.round(val)}</text>`;
     });
     let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
-    xAxis += `<text x="${marginLeft+2}" y="${H-3}" text-anchor="start" font-size="9" fill="var(--ink-soft)">${fmtShortDate(pts[0].date)}</text>`;
-    xAxis += `<text x="${W-2}" y="${H-3}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${fmtShortDate(pts[pts.length-1].date)}</text>`;
+    xAxis += `<text x="${marginLeft+2}" y="${H-3}" text-anchor="start" font-size="11" fill="var(--ink-soft)">${fmtShortDate(pts[0].date)}</text>`;
+    xAxis += `<text x="${W-2}" y="${H-3}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${fmtShortDate(pts[pts.length-1].date)}</text>`;
 
     let line = '';
     if (pts.length > 1) {
@@ -4194,7 +4194,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     const avgTarget = Math.round(targets.reduce((a,b) => a+b, 0) / targets.length);
     const maxVal = Math.max(...targets.map(t => t*1.25), ...data.map(d => d.totals[valueKey]), 1);
     const topLabelLen = String(Math.round(maxVal)).length;
-    const W = 380, H = 130, marginLeft = 11 + topLabelLen * 5, marginRight = 10, marginBottom = 18, marginTop = 4;
+    const W = 380, H = 130, marginLeft = 12 + topLabelLen * 6, marginRight = 10, marginBottom = 18, marginTop = 10;
     const plotW = W - marginLeft - marginRight;
     const plotH = H - marginBottom - marginTop;
     const gap = 2.5;
@@ -4221,18 +4221,21 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
       const val = Math.round(maxVal * f);
       const y = marginTop + (plotH - f * plotH);
       yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W - marginRight}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
-      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--ink-soft)">${val}</text>`;
+      yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${val}</text>`;
     });
     let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W - marginRight}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
     data.forEach((d, i) => {
       if (i % 7 === 0 || i === data.length - 1) {
         const x = marginLeft + i * (barW + gap) + barW / 2;
-        xAxis += `<text x="${x.toFixed(1)}" y="${H - 3}" text-anchor="middle" font-size="9" fill="var(--ink-soft)">${fmtShortDate(d.date)}</text>`;
+        xAxis += `<text x="${x.toFixed(1)}" y="${H - 3}" text-anchor="middle" font-size="11" fill="var(--ink-soft)">${fmtShortDate(d.date)}</text>`;
       }
     });
     return `
       <div class="chartblock">
-        <div class="chead"><span>${label}</span><span style="opacity:0.6;">&mdash;</span><span>avg target ${avgTarget}${unit}</span></div>
+        <div class="chead">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft);">${label}</div>
+          <div style="font-size:11px; font-weight:400; color:var(--ink-soft); text-transform:none; margin-top:2px;">avg target ${avgTarget}${unit}</div>
+        </div>
         <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; aspect-ratio:${W}/${H}; display:block;">
           ${yAxis}
           <polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"></polyline>
