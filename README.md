@@ -12,12 +12,14 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 
 ## What it does
 
-- **AI meal logging** — describe a meal in plain text or snap a photo; Claude estimates calories and macros, shown for review before anything is saved
-- **Dynamic targets** — calorie/macro goals computed from the Mifflin-St Jeor formula, adjusted for your stated goal (recomposition, fat loss, muscle gain, maintenance), training frequency, and *today's* logged activity — multiple activities, each with a duration, summed into a real calorie adjustment
-- **AI nutritionist chat** — a real back-and-forth conversation for today (re-grounded in your live data on every message) and a separate weekly chat scoped to your trailing 7 days; past days get a static, regeneratable summary instead
-- **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker with its own three separate charts (bust, waist, hips), each with its own axis scale
-- **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with one-tap re-logging and CSV export
-- **Data control** — CSV export for daily totals, recipes, and body measurements; a "keep last N days" retention tool; full-history deletion; and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
+- **AI meal logging** — describe a meal in plain text, or add a photo (Take Photo or Choose from Library), and get AI-estimated calories and macros, shown for review before anything is saved
+- **Dynamic targets** — calorie/macro goals computed from the Mifflin-St Jeor formula, adjusted for your stated goal (recomposition, fat loss, muscle gain, maintenance), training frequency, and *today's* logged activity — built-in presets for Walk, Hike, Cardio, Strength, and Yoga, plus custom activities with an AI-estimated calorie rate
+- **A 1–10 goal-alignment score** on every meal tip, daily summary, and weekly summary — rating how well that meal, day, or week supports your goal (never an average of its parts; a day/week is judged as a whole pattern), not a moral judgment of the food
+- **AI nutritionist (Aino)** — a real back-and-forth conversation for today, re-grounded in your live data on every message, with the option to attach a photo for advice (never saved or logged — that's a separate path), and tap a chat icon on any meal tip to ask a follow-up question about that specific meal. Past days and the trailing 7 days each get a static, regeneratable summary instead of an ongoing conversation. Today's chat can be reset at any time, and is automatically cleared once the day it belongs to has passed.
+- **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker (waist/bust/hips) with its own mini trend chart
+- **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with quick-tap re-logging and CSV export
+- **Data control** — a date-range CSV export for your daily totals, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
+- **In-app documentation** — a "User guidelines" section (alongside Data & privacy, reachable from every screen) covering how the app works, the score, best practices, and troubleshooting
 
 ---
 
@@ -29,7 +31,8 @@ Plain HTML/CSS/JavaScript — one self-contained file, no build step, no framewo
 - **AI**: direct browser calls to `https://api.anthropic.com/v1/messages`, model `claude-sonnet-4-6` — no API key needed, billed against the user's own Claude usage
 - **Rendering**: hand-written `innerHTML` templating, no virtual DOM, no React
 - **Charts**: hand-drawn inline SVG, no charting library
-- **Fonts**: Fraunces (display serif), Inter (body), JetBrains Mono (numbers) via Google Fonts
+- **Icons**: hand-drawn SVG throughout (not icon fonts or emoji), chosen deliberately after several icon-reliability bugs surfaced from relying on Unicode glyphs and browser-default rendering across platforms
+- **Fonts**: Fraunces (display serif, with a Georgia fallback in case the Google Fonts request fails to load), Inter (body), JetBrains Mono (numbers) via Google Fonts `@import`
 
 See [`steady-technical-documentation.md`](./steady-technical-documentation.md) for the full architecture, storage schema, and calculation reference.
 
@@ -42,16 +45,20 @@ This app is built specifically as a **Claude artifact**, not a standalone static
 1. `window.storage` for persistence — this API doesn't exist in a regular browser, so opening the HTML file directly (e.g. via `file://` or a generic static host) will load the UI but **nothing will save**.
 2. Direct, unauthenticated calls to Claude's API — these work inside a published artifact because the platform handles auth; outside of it, the AI features (meal estimation, coach chat) won't function without wiring up your own API key and backend.
 
-**To actually use it**: open it as a Claude artifact and **publish it** (required for storage to activate) — see [Anthropic's artifact docs](https://support.claude.com) for how publishing and persistent storage work. Once published, it's usable from web or desktop; mobile behavior (especially inside the native Claude app vs. a mobile browser) hasn't been fully verified.
+**To actually use it**: open it as a Claude artifact and **publish it** (required for storage to activate) — see [Anthropic's artifact docs](https://support.claude.com) for how publishing and persistent storage work. Once published, it's usable from web or desktop.
 
-**To adapt it elsewhere**: the calculation logic, UI, and rendering are all plain, portable JavaScript — only the `load*`/`save*` storage functions and the `fetch` calls in `callEstimate`/`callCoachText`/`callCoachChat` are platform-specific and would need to be swapped for your own backend and API key handling.
+**Mobile note**: the app works inside the Claude mobile app's built-in view for most features, but two known gaps exist there specifically (not in a regular mobile browser): photo file inputs may not open the camera/gallery picker reliably, and custom web fonts loaded from Google Fonts may fail to load, falling back to a generic serif for headers. Both are limitations of that specific embedded webview, not the app's code — opening the artifact's link in the phone's regular browser avoids both.
+
+**To adapt it elsewhere**: the calculation logic, UI, and rendering are all plain, portable JavaScript — only the `load*`/`save*` storage functions and the `fetch` calls (`callEstimate`, `callCoachText`, `callCoachChat`) are platform-specific and would need to be swapped for your own backend and API key handling.
 
 ---
 
 ## Privacy & data
 
 - All storage is **personal, per-user** (`shared: false` on every call) — nobody else who opens this artifact can see your data, and you can't see theirs.
-- Meal photos are **never persisted** — they're resized client-side, sent once for AI estimation, and discarded; only the resulting numeric estimate is saved.
+- Meal photos are **never persisted** — they're resized client-side, sent once for AI estimation, and discarded; only the resulting numeric estimate and a short AI-written description are saved.
+- Photos attached in the daily chat are held **only in memory** for that one message and discarded immediately after sending — never saved to storage, and not even kept for the rest of the conversation.
+- Chat conversations are inherently ephemeral: today's chat is the only one that's ever interactive, and once a day passes, its chat history is automatically deleted from storage (it was already never shown again in the UI even before that).
 - Full data export (CSV) and full deletion are both built in — see the Profile page's "Manage your data" section.
 
 ---
@@ -63,6 +70,7 @@ This app is built specifically as a **Claude artifact**, not a standalone static
 - "Today" is your browser's local clock — no timezone handling
 - AI estimates are unverified LLM output — editable, not fact-checked
 - No offline queueing — a failed save must be retried manually
+- Photo file inputs and custom web fonts may behave differently inside the Claude mobile app's built-in view than in a regular mobile browser (see Mobile note above)
 
 Full list and technical detail in [`steady-technical-documentation.md`](./steady-technical-documentation.md).
 
@@ -70,7 +78,7 @@ Full list and technical detail in [`steady-technical-documentation.md`](./steady
 
 ## About this project
 
-This was built as a demonstration of AI-assisted development for a full writeup of the process: how requirements and design decisions were driven by product/QA judgment, real production bugs that were caught and fixed, and what that says about applying the same approach to other software work.
+This was built as a demonstration of AI-assisted development — see [`ai-assisted-coding-case-study.md`](./ai-assisted-coding-case-study.md) for a full writeup of the process: how requirements and design decisions were driven by product/QA judgment, real production bugs that were caught and fixed, and what that says about applying the same approach to other software work.
 
 **Built by Alisa Zeleva** with [Claude](https://claude.com).
 
