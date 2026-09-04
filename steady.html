@@ -3080,9 +3080,10 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
         <div class="meal">
           <div>
             <div class="mname">${escapeHtml(f.name)}</div>
-            <div class="mmacros">${Math.round(f.calories)} kcal &middot; P ${Math.round(f.protein_g)}g &middot; C ${Math.round(f.carbs_g)}g &middot; F ${Math.round(f.fat_g)}g</div>
+            <div class="mmacros">${Math.round(f.calories)} kcal</div>
+            <div class="mmacros" style="margin-top:2px;">P ${Math.round(f.protein_g)}g &middot; C ${Math.round(f.carbs_g)}g &middot; F ${Math.round(f.fat_g)}g</div>
             ${f.ingredients ? `
-              <div class="mmacros" data-toggleing="${f.id}" style="margin-top:4px; cursor:pointer; user-select:none;">${state.favIngredientsExpanded[f.id] ? '&#9650;' : '&#9660;'} Ingredients</div>
+              <div class="mmacros" data-toggleing="${f.id}" style="margin-top:4px; cursor:pointer; user-select:none;">${state.favIngredientsExpanded[f.id] ? '&#9662;' : '&#9656;'} Ingredients</div>
               ${state.favIngredientsExpanded[f.id] ? `<div class="mmacros" style="margin-top:4px; white-space:pre-wrap;">${escapeHtml(f.ingredients)}</div>` : ''}
             ` : '<div class="mmacros" style="margin-top:4px; font-style:italic;">No ingredients added yet.</div>'}
           </div>
