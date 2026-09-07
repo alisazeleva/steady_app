@@ -103,11 +103,14 @@
     display: flex; align-items: center; justify-content: space-between;
     margin: 18px 0 20px;
   }
+  #steady-root .datebar .datecol { position: relative; text-align: center; }
   #steady-root .datebar .date {
     font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 500;
   }
   #steady-root .date-today-label {
-    font-family: 'Fraunces', Georgia, serif; font-size: 11px; font-weight: 700; color: var(--moss); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-family: 'Fraunces', Georgia, serif; font-size: 11px; font-weight: 700;
+    color: var(--moss); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;
   }
   #steady-root .datebar .sub { font-size: 12px; color: var(--ink-soft); }
   #steady-root .datepick {
@@ -791,7 +794,11 @@
   }
   // Weekday/month/day label for a "YYYY-MM-DD" string, with a "Today" chip
   // prepended when it's the current date. Display-only, so toLocaleDateString
-  // is safe here (unlike the time-string helpers below, which aren't).
+  // is safe here (unlike the time-string helpers below, which aren't). The
+  // chip is positioned absolutely (see .date-today-label CSS) so it floats
+  // above the date text without adding to .date's flow height — otherwise
+  // .datebar's align-items:center would shift the date text and chevrons
+  // up/down depending on whether "Today" is showing.
   function fmtDateLabel(dstr){
     const [y,m,d] = dstr.split('-').map(Number);
     const dt = new Date(y, m-1, d);
@@ -1741,7 +1748,7 @@
       </div>
       <div class="datebar">
         <button class="navbtn" id="prevDay" aria-label="Previous day"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <div style="text-align:center;">
+        <div class="datecol">
           <div class="date">${fmtDateLabel(state.currentDate)}</div>
         </div>
         <button class="navbtn" id="nextDay" aria-label="Next day" ${state.currentDate === todayStr() ? 'disabled' : ''}><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
