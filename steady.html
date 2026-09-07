@@ -192,19 +192,11 @@
   }
   #steady-root .field { margin-bottom: 14px; min-width: 0; }
   #steady-root .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  #steady-root .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; margin-bottom: 14px; }
   #steady-root .formsection {
     font-family: 'Fraunces', Georgia, serif; font-size: 14px; font-weight: 600; color: var(--moss); text-transform: uppercase;
     letter-spacing: 0.05em; margin-bottom: 16px;
   }
   #steady-root .formdivider { border-top: 1px solid var(--paper-line); margin: 18px 0; }
-  #steady-root .row3 .field { margin-bottom: 0; }
-  #steady-root .row3 .field label {
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
-  }
-  #steady-root .row3 select, #steady-root .row3 input {
-    height: 40px; width: 100%;
-  }
 
   #steady-root .btn {
     font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13.5px; cursor: pointer;
@@ -215,13 +207,6 @@
   #steady-root .btn:disabled { opacity: 0.5; cursor: default; }
   #steady-root .btn.small { padding: 6px 10px; font-size: 12px; }
   #steady-root .btn-cancel { background: transparent; color: var(--moss); border-color: var(--moss); }
-  #steady-root .btn-ai {
-    background: #FDF8E9; border: 1.5px solid var(--moss); color: var(--moss); font-size: 12px; font-weight: 600;
-    padding: 6px 10px; border-radius: 6px; cursor: pointer;
-  }
-  #steady-root .btn-ai:hover { background: #F7EFD8; }
-  #steady-root .sectiontitle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  #steady-root .btn-ai:disabled { opacity: 0.5; cursor: default; }
 
   #steady-root .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
   #steady-root .tabbtn {
@@ -267,8 +252,6 @@
   }
   #steady-root .icon-btn:hover { opacity: 0.7; }
   #steady-root .icon-btn:disabled { opacity: 0.5; cursor: default; }
-  #steady-root .favlist { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  #steady-root .favlist:empty { display: none; }
   #steady-root .favdropdown {
     max-height: 240px; overflow-y: auto; margin-top: 6px;
   }
@@ -284,10 +267,6 @@
   }
   #steady-root .favchip .favname { font-weight: 600; }
   #steady-root .favchip .favkcal { color: var(--ink-soft); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
-  #steady-root .favportion {
-    width: 44px; padding: 4px 5px; font-size: 12px; border: 1px solid var(--paper-line);
-    border-radius: 3px; background: var(--card); text-align: center;
-  }
   #steady-root .editmeal { background: var(--paper); border: 1px solid var(--paper-line); border-radius: 4px; padding: 12px; margin: 8px 0; }
   #steady-root .editmeal input, #steady-root .editmeal textarea, #steady-root .editmeal select { background: var(--card); }
   #steady-root .tipcard {
@@ -416,7 +395,6 @@
   #steady-root .setup-note {
     font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 16px;
   }
-  #steady-root .toggle-link { color: var(--moss-deep); cursor: pointer; text-decoration: underline; font-size: 12.5px; font-weight: 600; }
   #steady-root .resetchat-row {
     text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--paper-line);
   }
@@ -705,7 +683,6 @@
     view: 'log', // 'log' | 'profile' | 'trends'
     pending: null, // pending AI estimate awaiting confirmation
     loading: false,
-    error: null,
     addMode: 'text', // 'text' | 'photo'
     photoData: null, // {base64, mediaType, previewUrl}
     dailyNote: null,
@@ -1318,7 +1295,6 @@
     { name: 'Extra Greek yogurt', calories: 100, protein_g: 17, carbs_g: 6, fat_g: 0 },
     { name: 'Cottage cheese scoop', calories: 90, protein_g: 14, carbs_g: 4, fat_g: 2 },
   ];
-  function pickRandom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 
   const DEMO_ACTIVITY_CYCLE = [
     [],
