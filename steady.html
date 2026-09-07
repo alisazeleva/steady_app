@@ -116,14 +116,14 @@
   }
   #steady-root .datebar-tools { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-top: 18px; }
   #steady-root .navbtn {
-    background: none; border: 1px solid var(--ink); color: var(--ink);
-    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 15px;
+    background: none; border: none; color: var(--ink);
+    width: 32px; height: 32px; cursor: pointer; padding: 0;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: background 0.15s, color 0.15s;
+    transition: opacity 0.15s;
   }
-  #steady-root .navbtn:hover { background: var(--ink); color: var(--paper); }
+  #steady-root .navbtn:hover { opacity: 0.6; }
   #steady-root .navbtn:disabled { opacity: 0.35; cursor: default; }
-  #steady-root .navbtn:disabled:hover { background: none; color: var(--ink); }
+  #steady-root .navbtn:disabled:hover { opacity: 0.35; }
   #steady-root .navbtn:focus-visible, #steady-root button:focus-visible, #steady-root input:focus-visible, #steady-root textarea:focus-visible, #steady-root select:focus-visible {
     outline: 2px solid var(--moss); outline-offset: 2px;
   }
@@ -1740,11 +1740,11 @@
         <input type="date" id="datePicker" class="datepick" value="${state.currentDate}" max="${todayStr()}">
       </div>
       <div class="datebar">
-        <button class="navbtn" id="prevDay" aria-label="Previous day">&#8249;</button>
+        <button class="navbtn" id="prevDay" aria-label="Previous day"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <div style="text-align:center;">
           <div class="date">${fmtDateLabel(state.currentDate)}</div>
         </div>
-        <button class="navbtn" id="nextDay" aria-label="Next day" ${state.currentDate === todayStr() ? 'disabled' : ''}>&#8250;</button>
+        <button class="navbtn" id="nextDay" aria-label="Next day" ${state.currentDate === todayStr() ? 'disabled' : ''}><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
 
       <div class="card facts">
