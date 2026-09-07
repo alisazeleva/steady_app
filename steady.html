@@ -3848,10 +3848,26 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--moss); border-radius:2px; margin-right:4px;"></span>On target</div>
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--over); border-radius:2px; margin-right:4px;"></span>15%+ over</div>
         </div>
-        ${chartBlock('Calories', data, 'calories', 'calories', 'var(--moss)', 'kcal')}
-        ${chartBlock('Protein', data, 'protein', 'proteinG', 'var(--protein)', 'g')}
-        ${chartBlock('Carbs', data, 'carbs', 'carbsG', 'var(--carbs)', 'g')}
-        ${chartBlock('Fat', data, 'fat', 'fatG', 'var(--fat)', 'g')}
+        ${(() => {
+          // All four charts must share one marginLeft, or their bars start at
+          // different x-positions and the stacked charts don't line up â€”
+          // sized to whichever metric needs the widest top label (usually Calories).
+          const maxValFor = (valueKey, targetKey) => Math.max(...data.map(d => d.targets[targetKey] * 1.25), ...data.map(d => d.totals[valueKey]), 1);
+          const digitsFor = (v) => String(Math.round(v)).length;
+          const sharedDigits = Math.max(
+            digitsFor(maxValFor('calories', 'calories')),
+            digitsFor(maxValFor('protein', 'proteinG')),
+            digitsFor(maxValFor('carbs', 'carbsG')),
+            digitsFor(maxValFor('fat', 'fatG'))
+          );
+          const sharedMarginLeft = 12 + sharedDigits * 6;
+          return `
+            ${chartBlock('Calories', data, 'calories', 'calories', 'var(--moss)', 'kcal', sharedMarginLeft)}
+            ${chartBlock('Protein', data, 'protein', 'proteinG', 'var(--protein)', 'g', sharedMarginLeft)}
+            ${chartBlock('Carbs', data, 'carbs', 'carbsG', 'var(--carbs)', 'g', sharedMarginLeft)}
+            ${chartBlock('Fat', data, 'fat', 'fatG', 'var(--fat)', 'g', sharedMarginLeft)}
+          `;
+        })()}
       </div>
 
       <div class="card">
@@ -4011,6 +4027,14 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     return series;
   }
 
+  // W is calibrated to this app's actual chart card width (~380px), not an
+  // arbitrary larger canvas â€” since the <svg> uses the default
+  // preserveAspectRatio plus height:auto/aspect-ratio (see below), a W that
+  // doesn't match the real rendered width would scale the whole chart
+  // (bars, gridlines, text) unevenly. marginLeft=30 covers this chart's
+  // 2-3 digit values (waist/bust/hips); marginRight leaves the line/dots
+  // clear of the edge; marginTop leaves room for the top label's full
+  // glyph height so it isn't clipped by the viewBox edge.
   function measurementChartBlock(label, pts, color, unit){
     if (!pts.length) return null;
     const values = pts.map(p => p.value);
@@ -4028,10 +4052,10 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     [0, 0.5, 1].forEach(f => {
       const val = yMin + f * (yMax - yMin);
       const y = marginTop + plotH - f * plotH;
-      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
+      yAxis += `<line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${W - marginRight}" y2="${y.toFixed(1)}" stroke="var(--paper-line)" stroke-width="1" opacity="0.5"></line>`;
       yAxis += `<text x="${marginLeft - 6}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${Math.round(val)}</text>`;
     });
-    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
+    let xAxis = `<line x1="${marginLeft}" y1="${marginTop+plotH}" x2="${W - marginRight}" y2="${marginTop+plotH}" stroke="var(--ink-soft)" stroke-width="1"></line>`;
     xAxis += `<text x="${marginLeft+2}" y="${H-3}" text-anchor="start" font-size="11" fill="var(--ink-soft)">${fmtShortDate(pts[0].date)}</text>`;
     xAxis += `<text x="${W-2}" y="${H-3}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${fmtShortDate(pts[pts.length-1].date)}</text>`;
 
@@ -4190,12 +4214,20 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores â
     renderMeasurementsCard();
   }
 
-  function chartBlock(label, data, valueKey, targetKey, color, unit){
+  // Same W-matches-real-width principle as measurementChartBlock above.
+  // marginLeft is normally passed in as sharedMarginLeft (see renderTrends),
+  // computed once across all four metrics so their plot areas line up â€”
+  // Calories, Protein, Carbs, and Fat are stacked directly on top of each
+  // other, so each chart picking its own margin based on its own top label's
+  // digit count (as this used to do) made their bars start at different
+  // x-positions. The self-computed fallback below only kicks in if this is
+  // ever called without sharedMarginLeft.
+  function chartBlock(label, data, valueKey, targetKey, color, unit, sharedMarginLeft){
     const targets = data.map(d => d.targets[targetKey]);
     const avgTarget = Math.round(targets.reduce((a,b) => a+b, 0) / targets.length);
     const maxVal = Math.max(...targets.map(t => t*1.25), ...data.map(d => d.totals[valueKey]), 1);
     const topLabelLen = String(Math.round(maxVal)).length;
-    const W = 380, H = 130, marginLeft = 12 + topLabelLen * 6, marginRight = 10, marginBottom = 18, marginTop = 10;
+    const W = 380, H = 130, marginLeft = sharedMarginLeft || (12 + topLabelLen * 6), marginRight = 10, marginBottom = 18, marginTop = 10;
     const plotW = W - marginLeft - marginRight;
     const plotH = H - marginBottom - marginTop;
     const gap = 2.5;
