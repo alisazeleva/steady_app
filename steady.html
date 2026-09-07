@@ -1218,7 +1218,7 @@
   function openAinoProfileModal(){
     const overlay = document.getElementById('ainoProfileModal');
     if (!overlay) return;
-    const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
+    const greetName = (state.profile && state.profile.nickname) ? ` ${escapeHtml(state.profile.nickname)}` : '';
     overlay.innerHTML = `
       <div class="modal-box" style="text-align:center;">
         <div style="display:flex; justify-content:flex-end; margin-bottom:-10px;">
@@ -3418,7 +3418,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const citedMeal = state.chatCitation ? state.meals.find(m => m.id === state.chatCitation.mealId) : null;
     if (state.chatCitation && !citedMeal) state.chatCitation = null; // meal was deleted since citing — nothing left to attach to
     const msgs = state.chatMessages;
-    const greetName = (state.profile && state.profile.nickname) ? `, ${escapeHtml(state.profile.nickname)}` : '';
+    const greetName = (state.profile && state.profile.nickname) ? ` ${escapeHtml(state.profile.nickname)}` : '';
     const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
     const cameraSvg = '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="3" y="6" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="11" r="2.8" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 6l1-1.5h3l1 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const bubbles = msgs.map(m => {
