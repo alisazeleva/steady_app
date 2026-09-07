@@ -2876,8 +2876,18 @@
   // when it contains a comma, quote, or newline. Only needed by exporters
   // that include free-text fields (recipes, not the numeric daily-totals
   // export near the bottom of the file, which skips this entirely).
+  //
+  // Also guards against CSV/formula injection: a free-text field (recipe
+  // name or ingredients) that starts with =, +, -, or @ would be read as a
+  // live formula by Excel/Sheets when the exported file is opened, not as
+  // plain text. Prefixing a leading ' forces spreadsheet apps to treat it
+  // as text — invisible in the cell, harmless for values that don't start
+  // with one of those characters.
   function csvEscape(val){
-    const str = String(val ?? '');
+    let str = String(val ?? '');
+    if (/^[=+\-@]/.test(str)) {
+      str = "'" + str;
+    }
     if (/[",\n\r]/.test(str)) {
       return '"' + str.replace(/"/g, '""') + '"';
     }
