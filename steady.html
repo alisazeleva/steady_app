@@ -1274,7 +1274,7 @@
     { name: 'Lentil & vegetable curry', calories: 540, protein_g: 22, carbs_g: 76, fat_g: 14 },
   ];
   const DEMO_SNACKS = [
-    { name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4 },
+    { name: 'Protein shake & banana', calories: 468, protein_g: 38, carbs_g: 50, fat_g: 17 },
     { name: 'Apple & almond butter', calories: 200, protein_g: 5, carbs_g: 24, fat_g: 10 },
     { name: 'Cottage cheese & pineapple', calories: 180, protein_g: 18, carbs_g: 20, fat_g: 3 },
   ];
@@ -1289,7 +1289,7 @@
     { name: 'Chips & guacamole', calories: 300, protein_g: 5, carbs_g: 32, fat_g: 18 },
   ];
   const DEMO_PROTEIN_BOOSTS = [
-    { name: 'Extra protein shake', calories: 150, protein_g: 30, carbs_g: 5, fat_g: 2 },
+    { name: 'Extra protein shake', calories: 120, protein_g: 24, carbs_g: 3, fat_g: 1 },
     { name: 'Second chicken breast', calories: 180, protein_g: 35, carbs_g: 0, fat_g: 4 },
     { name: 'Tin of tuna', calories: 120, protein_g: 26, carbs_g: 0, fat_g: 1 },
     { name: 'Extra Greek yogurt', calories: 100, protein_g: 17, carbs_g: 6, fat_g: 0 },
@@ -1380,13 +1380,13 @@
     const todayMeals = [
       { id: 'demo_1', name: 'Greek yogurt, berries & granola', calories: 320, protein_g: 22, carbs_g: 38, fat_g: 9, time: '8:15 AM', source: 'text' },
       { id: 'demo_2', name: 'Grilled chicken salad, olive oil', calories: 480, protein_g: 42, carbs_g: 20, fat_g: 24, time: '1:00 PM', source: 'text' },
-      { id: 'demo_3', name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4, time: '4:30 PM', source: 'favorite', favorited: true, favoriteRef: 'demo_fav_1' },
+      { id: 'demo_3', name: 'Protein shake & banana', calories: 468, protein_g: 38, carbs_g: 50, fat_g: 17, time: '4:30 PM', source: 'favorite', favorited: true, favoriteRef: 'demo_fav_1', ingredients: '400ml milk, 1 banana, 1 scoop whey protein', amountValue: 550, amountUnit: 'ml' },
     ];
     state.meals = todayMeals;
     try { await saveMeals(state.currentDate, state.meals); } catch(e) {}
 
     state.favorites = [
-      { id: 'demo_fav_1', name: 'Protein shake & banana', calories: 260, protein_g: 30, carbs_g: 28, fat_g: 4 },
+      { id: 'demo_fav_1', name: 'Protein shake & banana', calories: 85, protein_g: 7, carbs_g: 9, fat_g: 3, ingredients: '400ml milk, 1 banana, 1 scoop whey protein', typicalPortionG: 550, portionUnit: 'ml' },
       { id: 'demo_fav_2', name: 'Overnight oats & peanut butter', calories: 410, protein_g: 18, carbs_g: 52, fat_g: 14 },
     ];
     try { await saveFavoritesStorage(state.favorites); } catch(e) {}
@@ -2430,6 +2430,7 @@
     try {
       const result = await callEstimate([{ type: 'text', text: 'Meal description: ' + text }]);
       state.pending = result;
+      setPendingPer100(result.amount, result.calories, result.protein_g, result.carbs_g, result.fat_g);
     } catch(e) {
       showAddErr('Could not estimate that meal — please try again, or describe it a bit differently.');
     } finally {
@@ -2450,6 +2451,7 @@
       ];
       const result = await callEstimate(blocks);
       state.pending = result;
+      setPendingPer100(result.amount, result.calories, result.protein_g, result.carbs_g, result.fat_g);
     } catch(e) {
       showAddErr('Could not estimate that photo — please try again.');
     } finally {
@@ -2459,6 +2461,46 @@
     }
   }
 
+  // Computes and stores per-100(unit) macro rates on state.pending, derived
+  // from whichever amount+macros the AI most recently provided (initial
+  // estimate, or a fresh re-estimate via reEstimatePendingMacros). Used by
+  // rescalePendingFromAmount() below so that changing the portion size
+  // updates nutrients via simple local multiplication — kept anchored to
+  // this one AI-provided rate — instead of a fresh AI call every time,
+  // which was producing inconsistent numbers between amount edits since
+  // each call re-derived everything independently rather than scaling
+  // from a shared baseline.
+  // Shared by the pending-estimate screen and the edit-logged-meal screen
+  // (and the favorites-adjustment path, which reuses the pending screen) —
+  // returns a per-100(unit) rate object from a known-consistent amount +
+  // macro set, or null if there's no amount to anchor to.
+  function computePer100(amount, calories, protein_g, carbs_g, fat_g){
+    if (!amount) return null;
+    return {
+      calories: calories / amount * 100,
+      protein_g: protein_g / amount * 100,
+      carbs_g: carbs_g / amount * 100,
+      fat_g: fat_g / amount * 100,
+    };
+  }
+  function setPendingPer100(amount, calories, protein_g, carbs_g, fat_g){
+    if (!state.pending) return;
+    const rate = computePer100(amount, calories, protein_g, carbs_g, fat_g);
+    if (rate) state.pending.per100 = rate;
+  }
+  // Rescales the displayed nutrient fields from the stored per-100(unit)
+  // rate to whatever amount is currently in the Amount field. No-op if we
+  // don't have a rate yet (e.g. the AI couldn't infer an amount at all).
+  function rescalePendingFromAmount(){
+    if (!state.pending || !state.pending.per100) return;
+    const amount = Number(document.getElementById('p-amount').value);
+    if (!amount || amount <= 0) return;
+    const r = state.pending.per100;
+    document.getElementById('p-cal').value = Math.round(r.calories * amount / 100);
+    document.getElementById('p-pro').value = Math.round(r.protein_g * amount / 100);
+    document.getElementById('p-carb').value = Math.round(r.carbs_g * amount / 100);
+    document.getElementById('p-fat').value = Math.round(r.fat_g * amount / 100);
+  }
   function renderPending(){
     const holder = document.getElementById('pendingHolder');
     if (!state.pending) { holder.innerHTML = ''; return; }
@@ -2468,7 +2510,7 @@
         <div class="formsection">Estimate &mdash; review before adding (confidence: ${p.confidence || 'medium'})</div>
         <div class="field"><label>Name</label><input type="text" id="p-name" value="${escapeAttr(p.name || 'Meal')}"></div>
         <div class="field">
-          <label>Ingredients &amp; notes</label>
+          <label>Ingredients</label>
           <textarea id="p-ingredients" placeholder="e.g. grilled salmon, avocado, mixed greens, olive oil dressing">${escapeHtml(p.ingredients || '')}</textarea>
         </div>
         <div class="field">
@@ -2508,7 +2550,7 @@
     const enableAiBtn = () => { if (aiBtn) aiBtn.disabled = false; };
     document.getElementById('p-name').addEventListener('input', enableAiBtn);
     document.getElementById('p-ingredients').addEventListener('input', enableAiBtn);
-    document.getElementById('p-amount').addEventListener('input', enableAiBtn);
+    document.getElementById('p-amount').addEventListener('input', rescalePendingFromAmount);
     document.getElementById('p-amountunit').addEventListener('change', enableAiBtn);
     if (aiBtn) aiBtn.addEventListener('click', reEstimatePendingMacros);
   }
@@ -2531,6 +2573,7 @@
       document.getElementById('p-pro').value = Math.round(result.protein_g);
       document.getElementById('p-carb').value = Math.round(result.carbs_g);
       document.getElementById('p-fat').value = Math.round(result.fat_g);
+      if (amount) setPendingPer100(amount, result.calories, result.protein_g, result.carbs_g, result.fat_g);
       showToast('Nutrients updated — review before adding.', false);
     } catch(e) {
       showToast('Could not re-estimate: ' + (e.message || 'please try again.'), true);
@@ -2585,7 +2628,7 @@
           <div class="editmeal">
             <div class="field"><label>Name</label><input type="text" id="e-name-${m.id}" value="${escapeAttr(m.name)}"></div>
             <div class="field">
-              <label>Ingredients &amp; notes</label>
+              <label>Ingredients</label>
               <textarea id="e-ingredients-${m.id}" placeholder="e.g. grilled salmon, avocado, mixed greens, olive oil dressing">${escapeHtml(m.ingredients || '')}</textarea>
             </div>
             <div class="field"><label>Time</label><input type="time" id="e-time-${m.id}" value="${timeStringTo24h(m.time)}"></div>
@@ -2686,10 +2729,15 @@
       img.addEventListener('click', openAinoProfileModal);
     });
     holder.querySelectorAll('[data-edit]').forEach(btn => {
-      btn.addEventListener('click', () => { state.editingMealId = btn.dataset.edit; render(); });
+      btn.addEventListener('click', () => {
+        state.editingMealId = btn.dataset.edit;
+        const m = state.meals.find(x => x.id === state.editingMealId);
+        state.editingPer100 = m ? computePer100(m.amountValue, m.calories, m.protein_g, m.carbs_g, m.fat_g) : null;
+        render();
+      });
     });
     holder.querySelectorAll('[data-canceledit]').forEach(btn => {
-      btn.addEventListener('click', () => { state.editingMealId = null; render(); });
+      btn.addEventListener('click', () => { state.editingMealId = null; state.editingPer100 = null; render(); });
     });
     holder.querySelectorAll('[data-save]').forEach(btn => {
       btn.addEventListener('click', () => saveEditedMeal(btn.dataset.save));
@@ -2707,10 +2755,26 @@
       const enableAiBtn = () => { if (aiBtn) aiBtn.disabled = false; };
       if (nameEl) nameEl.addEventListener('input', enableAiBtn);
       if (ingredientsEl) ingredientsEl.addEventListener('input', enableAiBtn);
-      if (amountEl) amountEl.addEventListener('input', enableAiBtn);
+      if (amountEl) amountEl.addEventListener('input', () => rescaleEditingFromAmount(id));
       if (amountUnitEl) amountUnitEl.addEventListener('change', enableAiBtn);
       if (aiBtn) aiBtn.addEventListener('click', () => reEstimateMealMacros(id));
     }
+  }
+
+  // Rescales the edit-meal nutrient fields from state.editingPer100 to
+  // whatever amount is currently in the Amount field — same local-math
+  // approach as rescalePendingFromAmount(), so editing an already-logged
+  // meal's portion size doesn't require a fresh (and not necessarily
+  // consistent) AI call either.
+  function rescaleEditingFromAmount(id){
+    if (!state.editingPer100) return;
+    const amount = Number(document.getElementById('e-amount-' + id).value);
+    if (!amount || amount <= 0) return;
+    const r = state.editingPer100;
+    document.getElementById('e-cal-' + id).value = Math.round(r.calories * amount / 100);
+    document.getElementById('e-pro-' + id).value = Math.round(r.protein_g * amount / 100);
+    document.getElementById('e-carb-' + id).value = Math.round(r.carbs_g * amount / 100);
+    document.getElementById('e-fat-' + id).value = Math.round(r.fat_g * amount / 100);
   }
 
   async function reEstimateMealMacros(id){
@@ -2731,6 +2795,7 @@
       document.getElementById('e-pro-' + id).value = Math.round(result.protein_g);
       document.getElementById('e-carb-' + id).value = Math.round(result.carbs_g);
       document.getElementById('e-fat-' + id).value = Math.round(result.fat_g);
+      if (amount) state.editingPer100 = computePer100(amount, result.calories, result.protein_g, result.carbs_g, result.fat_g);
       showToast('Nutrients updated — review before saving.', false);
     } catch(e) {
       showToast('Could not re-estimate: ' + (e.message || 'please try again.'), true);
@@ -2763,6 +2828,7 @@
       showToast('Could not save that edit — it may not persist.', true);
     }
     state.editingMealId = null;
+    state.editingPer100 = null;
     render();
   }
 
@@ -2874,7 +2940,7 @@
   // csvEscape() on every field, unlike the numeric-only daily-totals export.
   function exportRecipesCSV(){
     if (!state.favorites.length) { showToast('No favorites to export yet.', true); return; }
-    const rows = [['name','calories_per_100g','protein_g_per_100g','carbs_g_per_100g','fat_g_per_100g','total_yield_g','typical_portion_g','ingredients_and_notes']];
+    const rows = [['name','calories_per_100g','protein_g_per_100g','carbs_g_per_100g','fat_g_per_100g','total_yield_g','typical_portion_g','ingredients']];
     state.favorites.forEach(f => rows.push([
       f.name,
       Math.round(f.calories || 0),
@@ -2919,7 +2985,7 @@
         <div class="formsection">Recipe</div>
         <div class="field"><label>Name</label><input type="text" id="${idPrefix}-name" value="${escapeAttr(f.name || '')}"></div>
         <div class="field">
-          <label>Ingredients &amp; notes</label>
+          <label>Ingredients</label>
           <textarea id="${idPrefix}-ingredients" placeholder="e.g. 400ml flour, 3 eggs, 100g margarine, 1kg apples">${escapeHtml(f.ingredients || '')}</textarea>
         </div>
 
@@ -3265,6 +3331,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       state.pending = result;
       state.pending.amount = weight;
       state.pending.unit = fav.portionUnit || 'g';
+      setPendingPer100(weight, result.calories, result.protein_g, result.carbs_g, result.fat_g);
       state.view = 'log';
       renderAddForm();
       renderPending();
@@ -3620,7 +3687,8 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
   }
 
   async function callCoachChat(conversationHistory, contextText, hiddenInstruction, photo){
-    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day. If asked your name, you are Aino. Context on their day so far: " + contextText + " Use this context to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more detail), conversational, plain text only — no markdown formatting (no **bold**, no # headers, no numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability, break longer replies into short paragraphs (2-4 sentences each) separated by a blank line, rather than one dense block — and when listing several distinct items (like macros, or a few suggestions), put each on its own line starting with a dash, still no markdown symbols beyond that dash. Short replies can stay a single line. You may occasionally — not in most messages — use one of these emojis where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply; most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app. If asked something unrelated to that (general knowledge, trivia, math, or any other off-topic request), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nAll-or-nothing thinking: if the person expresses that one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back on that framing using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not a single off day, but repeated language like this being a recurring struggle), gently and non-judgmentally suggest that talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Never infer this from logged data alone, only from what they actually say.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or asks for advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is a safety-relevant amount, not just a nutrition one, and suggest water/food/rest or contacting someone if needed. If they describe this as a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, you also state today's running score as your first sentence, and should keep doing so every time it's used. If asked what the score means, explain it plainly and factually as this real feature — do not apologize for including it, call it unofficial, or offer to stop using it.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output directly (the score, a tip, a summary) as instructed above — only redirect for app-mechanics questions unrelated to what you just said.\n\nPhotos in chat: the person may occasionally attach a photo here — of food they're considering, a menu, or a plate they're deciding what to do with. You can give estimates, opinions, or advice about it when asked (rough calories/macros, what to remove, healthier swaps, etc.) — this is a normal, expected use of the chat. But this chat has no ability to save or log anything: if they want the meal actually logged, tell them to use the app's own meal-logging photo upload for that, since only that path saves anything.";
+    const photoNote = photo ? "\n\nPhotos in chat: the person may occasionally attach a photo here — of food they're considering, a menu, or a plate they're deciding what to do with. You can give estimates, opinions, or advice about it when asked (rough calories/macros, what to remove, healthier swaps, etc.) — this is a normal, expected use of the chat. But this chat has no ability to save or log anything: if they want the meal actually logged, tell them to use the app's own meal-logging photo upload for that, since only that path saves anything." : "";
+    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day — if asked your name, you're Aino. Context on their day so far: " + contextText + " Use this to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more), conversational, plain text only — no markdown (no bold, headers, or numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability: short paragraphs (2-4 sentences, blank line between) instead of one dense block; list distinct items (like macros or suggestions) one per line with a dash. Short replies can stay a single line. Occasionally — not in most messages — one of these emoji where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply, and most replies should have none. Stay focused on nutrition, meals, and health/fitness goals within this app; if asked something unrelated (general knowledge, trivia, math, or anything else off-topic), politely decline and redirect, e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nTone under pressure: stay warm and steady no matter how the person speaks to you — don't mirror rudeness, profanity, or hostility back, even if it's directed at you or the app. Keep the same calm, supportive tone you'd use otherwise.\n\nAll-or-nothing thinking: if the person says one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not one off day, but repeated language suggesting a recurring struggle), gently and non-judgmentally suggest talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Only infer this from what they actually say, never from logged data alone.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is safety-relevant, not just nutrition, and suggest water/food/rest or contacting someone if needed. If it's a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, state today's running score as your first sentence, every time. If asked what the score means, explain it plainly and factually as this real feature — never apologize for it, call it unofficial, or offer to stop using it.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output (the score, a tip, a summary) directly, as above — only redirect for app-mechanics questions unrelated to what you just said." + photoNote;
     const messages = conversationHistory.map((m, i) => {
       const isLastUserMsg = i === conversationHistory.length - 1 && m.role === 'user';
       const content = (isLastUserMsg && hiddenInstruction) ? `${m.text}\n\n[Instruction for this reply only, not from the user: ${hiddenInstruction}]` : m.text;
@@ -3761,6 +3829,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     state.pending = null;
     state.tipLoadingId = null;
     state.editingMealId = null;
+    state.editingPer100 = null;
     state.activityMenuOpen = false;
     state.editingActivityType = null;
     const demoEntry = state.demoMode && newDate !== todayStr() ? getDemoOffsetData(newDate) : null;
