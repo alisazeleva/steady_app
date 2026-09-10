@@ -318,8 +318,13 @@
   }
   #steady-root .chatbubble.coach {
     background: #FDF8E9; color: var(--ink); border: 1px solid #F0E8CC;
-    border-bottom-left-radius: 3px; max-width: 78%;
+    border-bottom-left-radius: 3px; max-width: 78%; position: relative; padding-right: 30px;
   }
+  #steady-root .pin-msg-btn {
+    position: absolute; top: 7px; right: 7px; cursor: pointer; display: inline-flex; opacity: 0.55;
+  }
+  #steady-root .pin-msg-btn:hover { opacity: 1; }
+  #steady-root .pin-msg-btn.pinned { opacity: 1; }
   #steady-root .chatinput-wrap { display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; }
   #steady-root .chatinput-box { position: relative; flex: 1; min-width: 0; }
   #steady-root .citation-chip {
@@ -620,7 +625,7 @@
               <li>Demo mode writes real data to your storage the same as normal use &mdash; editing or getting a tip on a demo day saves it for real.</li>
               <li>Using <span style="font-family:'Fraunces', Georgia, serif; font-weight:700;">steady</span> on more than one device close together: the most recent save wins silently, with no conflict warning.</li>
               <li>&ldquo;Today&rdquo; follows your browser's local clock, so logging right around midnight or while traveling can land a meal on a date you didn't expect.</li>
-              <li>Chat conversations don't persist past the day they happened &mdash; if Aino says something worth keeping, copy it somewhere else before the day ends.</li>
+              <li>Chat conversations don't persist past the day they happened &mdash; tap the pin icon on any of Aino's replies to keep it in Pinned messages (under Faves), or copy it elsewhere, before the day ends.</li>
             </ul>
           </div>
         </details>
@@ -697,6 +702,7 @@
     editingActivityType: null,
     editingMealId: null,
     favorites: [],
+    pinnedMessages: [],
     weekSummary: null,
     weekSummaryMeta: null,
     weekSummaryScore: null,
@@ -708,6 +714,7 @@
     addingFavorite: false,
     favSearch: '',
     favPageSearch: '',
+    pinnedSearch: '',
     measurements: {},
     measurementsModalOpen: false,
     setupConsentAcknowledged: false,
@@ -909,6 +916,37 @@
   }
   async function saveFavoritesStorage(favs){
     await storageSet('favorites', JSON.stringify(favs), false);
+  }
+  // Pinned messages — Aino's chat replies the person explicitly chose to
+  // keep past the day they were said (live chat is otherwise deleted at
+  // day's end). Same one-key, loaded-once-at-init pattern as favorites.
+  async function loadPinnedMessages(){
+    try {
+      const res = await storageGet('pinnedMessages', false);
+      state.pinnedMessages = res ? JSON.parse(res.value) : [];
+    } catch(e) { state.pinnedMessages = []; }
+  }
+  async function savePinnedMessagesStorage(pinned){
+    await storageSet('pinnedMessages', JSON.stringify(pinned), false);
+  }
+  // Toggles a coach message's pinned state by id. Called both from the live
+  // chat (pinning) and the Faves page (unpinning) — same function either way,
+  // since it's a pure toggle on state.pinnedMessages keyed by message id.
+  // Outline (unpinned) vs filled (pinned) pin icon, shared by the chat
+  // bubble's pin toggle and the Faves "Pinned messages" unpin action.
+  function pinIconSvg(pinned){
+    return pinned
+      ? '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M6 3h8l-1 6 2 3H5l2-3-1-6z"/><path d="M10 12v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M6 3h8l-1 6 2 3H5l2-3-1-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 12v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  }
+  async function togglePinMessage(id, text){
+    const existing = state.pinnedMessages.findIndex(p => p.id === id);
+    if (existing >= 0) {
+      state.pinnedMessages.splice(existing, 1);
+    } else {
+      state.pinnedMessages.push({ id, text, date: state.currentDate });
+    }
+    await savePinnedMessagesStorage(state.pinnedMessages);
   }
   // User-defined activities beyond the built-in presets (Walk/Hike/Cardio/
   // Strength/Yoga), each with an AI-estimated kcal/min rate.
@@ -1508,6 +1546,7 @@
     await deleteDataByPrefix('weekchat:', null);
     await deleteDataByPrefix('chat:', null);
     try { await storageDelete('favorites', false); } catch(e) {}
+    try { await storageDelete('pinnedMessages', false); } catch(e) {}
     try { await storageDelete('profile', false); } catch(e) {}
     try { await storageDelete('measurements', false); } catch(e) {}
     try { await storageDelete('customActivities', false); } catch(e) {}
@@ -1523,6 +1562,7 @@
     state.currentDate = todayStr();
     state.meals = [];
     state.favorites = [];
+    state.pinnedMessages = [];
     state.measurements = {};
     state.dailyNote = null;
     state.dailyNoteScore = null;
@@ -2901,11 +2941,21 @@
         <div id="favEditHolder"></div>
         <div id="favListHolder"></div>
       </div>
+      <div class="card">
+        <h2 style="margin:0 0 6px;">Pinned messages</h2>
+        <p class="setup-note">Replies from Aino you chose to keep &mdash; chat is otherwise cleared at the end of each day.</p>
+        <input type="text" id="pinnedSearch" placeholder="Search pinned messages…" value="${escapeAttr(state.pinnedSearch || '')}" style="width:100%; padding:6px 10px; margin-bottom:14px; box-sizing:border-box;">
+        <div id="pinnedListHolder"></div>
+      </div>
     `;
     document.getElementById('exportFavCsvBtn').addEventListener('click', exportRecipesCSV);
     document.getElementById('favPageSearch').addEventListener('input', (e) => {
       state.favPageSearch = e.target.value;
       renderFavList();
+    });
+    document.getElementById('pinnedSearch').addEventListener('input', (e) => {
+      state.pinnedSearch = e.target.value;
+      renderPinnedList();
     });
     document.getElementById('addFavBtn').addEventListener('click', () => {
       state.addingFavorite = true;
@@ -2914,6 +2964,26 @@
     });
     renderFavEditArea();
     renderFavList();
+    renderPinnedList();
+  }
+
+  function renderPinnedList(){
+    const holder = document.getElementById('pinnedListHolder');
+    if (!holder) return;
+    const q = (state.pinnedSearch || '').trim().toLowerCase();
+    const filtered = q ? state.pinnedMessages.filter(p => p.text.toLowerCase().includes(q)) : state.pinnedMessages;
+    if (!filtered.length) {
+      holder.innerHTML = `<p class="empty">${state.pinnedMessages.length ? 'No pinned messages match your search.' : 'No pinned messages yet &mdash; tap the pin icon on any reply from Aino to keep it here.'}</p>`;
+      return;
+    }
+    holder.innerHTML = filtered.slice().reverse().map(p => `<div style="margin-bottom:14px;"><div class="chatbubble coach" style="max-width:none;">${escapeHtml(p.text)}<span class="pin-msg-btn pinned" data-unpinmsg="${p.id}" style="color:var(--moss);" role="button" aria-label="Unpin message">${pinIconSvg(true)}</span></div><div style="font-size:11px; color:var(--ink-soft); margin-top:6px; padding-left:2px;">${fmtDateWithYear(p.date)}</div></div>`).join('');
+    holder.querySelectorAll('[data-unpinmsg]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!(await confirmDialog("Unpin this message? Since chat isn't kept past the day it happened, you won't be able to get it back."))) return;
+        await togglePinMessage(btn.dataset.unpinmsg, '');
+        renderPinnedList();
+      });
+    });
   }
 
   // RFC 4180 CSV field escaping — quotes a field and doubles internal quotes
@@ -3474,9 +3544,11 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     { label: 'Meal quality', message: "How would you rate the overall quality of what I've eaten today — not just the macros, but things like how processed or nutrient-dense it was? Point out anything worth flagging and suggest better alternatives if there's junk food or low-quality choices in there." },
   ];
 
-  function renderCoachChat(){
+  function renderCoachChat(preserveScroll){
     const holder = document.getElementById('dailyNoteHolder');
     if (!holder) return;
+    const prevList = holder.querySelector('.chatlist');
+    const prevScrollTop = prevList ? prevList.scrollTop : 0;
     const citedMeal = state.chatCitation ? state.meals.find(m => m.id === state.chatCitation.mealId) : null;
     if (state.chatCitation && !citedMeal) state.chatCitation = null; // meal was deleted since citing — nothing left to attach to
     const msgs = state.chatMessages;
@@ -3484,7 +3556,11 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const greetingBubble = `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">Hi${greetName}! I&rsquo;m Aino, your AI-nutritionist. What would you like to chat about today?</div></div>`;
     const cameraSvg = '<svg width="12" height="12" viewBox="0 0 20 20" fill="none"><rect x="3" y="6" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="11" r="2.8" stroke="currentColor" stroke-width="1.6"/><path d="M7.5 6l1-1.5h3l1 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const bubbles = msgs.map(m => {
-      if (m.role === 'coach') return `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}</div></div>`;
+      if (m.role === 'coach') {
+        const isPinned = m.id && state.pinnedMessages.some(p => p.id === m.id);
+        const pinBtn = m.id ? `<span class="pin-msg-btn${isPinned ? ' pinned' : ''}" data-pinmsg="${m.id}" style="color:${isPinned ? 'var(--moss)' : '#8a9b86'};" role="button" aria-label="${isPinned ? 'Unpin message' : 'Pin message'}">${pinIconSvg(isPinned)}</span>` : '';
+        return `<div class="chatrow-coach"><img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino"><div class="chatbubble coach">${escapeHtml(m.text)}${pinBtn}</div></div>`;
+      }
       const photoMarker = m.hasPhoto ? `<div class="photo-sent-marker">${cameraSvg}Photo attached</div>` : '';
       if (m.citedMealName || m.hasPhoto) {
         return `<div style="display:flex; flex-direction:column; align-items:flex-end; align-self:flex-end; gap:2px;">${m.citedMealName ? `<div class="citation-tag">Re: <b>${escapeHtml(m.citedMealName)}</b> tip</div>` : ''}${photoMarker}<div class="chatbubble user">${escapeHtml(m.text)}</div></div>`;
@@ -3584,8 +3660,17 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     const resetChatBtn = document.getElementById('resetChatBtn');
     if (resetChatBtn) resetChatBtn.addEventListener('click', resetChat);
     holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
+    holder.querySelectorAll('.pin-msg-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.pinmsg;
+        const msg = state.chatMessages.find(x => x.id === id);
+        if (!msg) return;
+        await togglePinMessage(id, msg.text);
+        renderCoachChat(true);
+      });
+    });
     const list = holder.querySelector('.chatlist');
-    if (list) list.scrollTop = list.scrollHeight;
+    if (list) list.scrollTop = preserveScroll ? prevScrollTop : list.scrollHeight;
     if (state.chatPhotoMenuOpen) {
       const closeMenuOnOutsideClick = (e) => {
         const menu = document.getElementById('chatPhotoMenu');
@@ -3737,7 +3822,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     try {
       const context = buildTodayContext();
       const reply = await callCoachChat(localMessages, context, hiddenInstruction || '', photo || null);
-      localMessages.push({ role: 'coach', text: reply, time: nowTimeString() });
+      localMessages.push({ role: 'coach', text: reply, time: nowTimeString(), id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) });
       await saveChatMessages(targetDate, localMessages);
     } catch(e) {
       showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
@@ -4624,6 +4709,7 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     await loadDailyNote(state.currentDate);
     await loadChatMessages(state.currentDate);
     await loadFavorites();
+    await loadPinnedMessages();
     state.customActivities = await loadCustomActivities();
     state.customContextTags = await loadCustomContextTags();
     state.measurements = await loadMeasurements();
