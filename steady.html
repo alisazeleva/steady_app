@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- steady — a daily macro ledger for body recomposition -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -20,6 +22,8 @@
     color: var(--ink);
     background: var(--paper);
     min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     padding: 28px 18px 60px;
     box-sizing: border-box;
   }
@@ -325,8 +329,9 @@
   }
   #steady-root .pin-msg-btn:hover { opacity: 1; }
   #steady-root .pin-msg-btn.pinned { opacity: 1; }
-  #steady-root .chatinput-wrap { display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; }
-  #steady-root .chatinput-box { position: relative; flex: 1; min-width: 0; }
+  #steady-root .search-hl { background: rgba(98,130,100,0.3); border-radius: 2px; }
+  #steady-root .chatinput-wrap { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  #steady-root .chatinput-box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
   #steady-root .citation-chip {
     display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--paper-line);
     border-radius: 14px; padding: 5px 8px 5px 10px; margin: 6px 0; font-size: 11.5px; color: var(--ink-soft);
@@ -335,20 +340,21 @@
   #steady-root .citation-chip-x { color: var(--ink-soft); font-weight: 700; margin-left: 2px; cursor: pointer; padding: 0 2px; }
   #steady-root .citation-chip-x:hover { color: var(--ink); }
   #steady-root .chatinput-wrap textarea {
-    width: 100%; min-height: 64px; padding: 9px 40px 9px 10px; font-family: 'Inter', sans-serif;
+    width: 100%; flex: 1; min-width: 0; padding: 9px 40px 9px 10px; font-family: 'Inter', sans-serif;
     font-size: 13px; border: 1px solid var(--paper-line); border-radius: 6px; background: var(--paper);
     color: var(--ink); resize: none; box-sizing: border-box;
   }
   #steady-root .chatsend-icon {
-    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; margin-bottom: 8px;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
     background: var(--moss); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   #steady-root .chatsend-icon:disabled { opacity: 0.5; cursor: default; }
   #steady-root .chatsend-icon:hover { opacity: 0.7; }
   #steady-root .chat-paperclip {
-    position: absolute; bottom: 15px; right: 10px; width: 18px; height: 18px; background: none; border: none;
+    position: absolute; top: 50%; transform: translateY(-50%); right: 10px; width: 18px; height: 18px; background: none; border: none;
     color: var(--moss); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 2;
   }
+  #steady-root .chat-paperclip:hover { opacity: 0.7; }
   #steady-root .photo-menu {
     position: absolute; bottom: 34px; right: 0; background: var(--card); border: 1px solid var(--paper-line);
     border-radius: 8px; overflow: hidden; width: 170px; box-shadow: var(--shadow); z-index: 3;
@@ -426,7 +432,7 @@
   }
   #steady-root .modal-box {
     background: var(--card); border-radius: 6px; padding: 22px; max-width: 480px; width: 100%;
-    max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(29,36,17,0.25);
+    max-height: 92vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(29,36,17,0.25);
   }
   #steady-root .favdropdown, #steady-root .chatlist, #steady-root .modal-overlay, #steady-root .modal-box,
   #steady-root textarea {
@@ -596,6 +602,7 @@
             </ul>
             <p>Past days and the trailing week get a single regeneratable summary rather than an ongoing conversation.</p>
             <p>AI features draw on your own Claude usage, not a separate cost. Normal day-to-day use &mdash; a few meals, occasional tips or short chats &mdash; is a small draw on your plan's allowance. Long back-and-forth conversations with Aino in one sitting use meaningfully more, since the whole conversation resends each time you send a message.</p>
+            <p>While Aino is replying, the send button becomes a Stop icon &mdash; tapping it lets you send a new message right away instead of waiting. It doesn't cancel the reply being generated behind the scenes, though, so it won't reduce your usage for that message; it just stops the app from showing you the result once it arrives.</p>
             <p>Aino has no internet or web search access &mdash; she answers from her own training knowledge, not by looking anything up. For well-known foods and products she's usually reliable, but she can't check a specific product's current label, ingredients, or availability, so it's worth verifying anything allergy- or safety-critical yourself rather than relying on her alone.</p>
             <p>You can attach a photo in today's chat &mdash; of food you're deciding on, a menu, or anything you want Aino's take on. This is advisory only: nothing sent this way gets saved or logged, and the photo itself is never kept, not even for the rest of the conversation. If you want the meal actually logged, use the dedicated photo upload in the meal-logging form instead. Attaching a photo also uses noticeably more of your usage than a text-only message, similar to the long-conversation note above.</p>
           </div>
@@ -717,6 +724,8 @@
     favSearch: '',
     favPageSearch: '',
     pinnedSearch: '',
+    favPage: 0,
+    pinnedPage: 0,
     measurements: {},
     measurementsModalOpen: false,
     setupConsentAcknowledged: false,
@@ -727,6 +736,7 @@
     chatPhotoMenuOpen: false,
     chatPendingPhoto: null, // { base64, mediaType, previewUrl } held in memory only until sent, then discarded
     favIngredientsExpanded: {},
+    pinnedExpanded: {},
     customActivities: [],
     dayContext: [],
     customContextTags: [],
@@ -791,7 +801,9 @@
     const [y,m,d] = dstr.split('-').map(Number);
     const dt = new Date(y, m-1, d);
     const isToday = dstr === todayStr();
-    const label = dt.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+    const weekday = dt.toLocaleDateString(undefined, { weekday: 'long' });
+    const month = dt.toLocaleDateString(undefined, { month: 'long' });
+    const label = `${weekday}, ${d} ${month}`;
     return isToday ? '<div class="date-today-label">Today</div>' + label : label;
   }
   // Adds (or, with a negative count, subtracts) days to a "YYYY-MM-DD"
@@ -2953,10 +2965,12 @@
     document.getElementById('exportFavCsvBtn').addEventListener('click', exportRecipesCSV);
     document.getElementById('favPageSearch').addEventListener('input', (e) => {
       state.favPageSearch = e.target.value;
+      state.favPage = 0;
       renderFavList();
     });
     document.getElementById('pinnedSearch').addEventListener('input', (e) => {
       state.pinnedSearch = e.target.value;
+      state.pinnedPage = 0;
       renderPinnedList();
     });
     document.getElementById('addFavBtn').addEventListener('click', () => {
@@ -2978,11 +2992,35 @@
       holder.innerHTML = `<p class="empty">${state.pinnedMessages.length ? 'No pinned messages match your search.' : 'No pinned messages yet &mdash; tap the pin icon on any reply from Aino to keep it here.'}</p>`;
       return;
     }
-    holder.innerHTML = filtered.slice().reverse().map(p => `<div style="margin-bottom:14px;"><div class="chatbubble coach" style="max-width:none;">${escapeHtml(p.text)}<span class="pin-msg-btn pinned" data-unpinmsg="${p.id}" style="color:var(--moss);" role="button" aria-label="Unpin message">${pinIconSvg(true)}</span></div><div style="font-size:11px; color:var(--ink-soft); margin-top:6px; padding-left:2px;">${fmtDateWithYear(p.date)}</div></div>`).join('');
+    // ~160 chars is a rough estimate of 3 lines' worth of text at this bubble
+    // width/font-size — a character-count heuristic rather than measuring
+    // actual rendered height, which would need a post-render DOM pass.
+    const LONG_THRESHOLD = 160;
+    const reversed = filtered.slice().reverse();
+    const PINNED_PAGE_SIZE = 3;
+    const totalPages = Math.ceil(reversed.length / PINNED_PAGE_SIZE);
+    if (state.pinnedPage >= totalPages) state.pinnedPage = totalPages - 1;
+    if (state.pinnedPage < 0) state.pinnedPage = 0;
+    const pageItems = reversed.slice(state.pinnedPage * PINNED_PAGE_SIZE, (state.pinnedPage + 1) * PINNED_PAGE_SIZE);
+    holder.innerHTML = pageItems.map(p => {
+      const isLong = p.text.length > LONG_THRESHOLD;
+      const isExpanded = !!state.pinnedExpanded[p.id];
+      const clampStyle = (isLong && !isExpanded) ? 'display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;' : '';
+      const toggle = isLong ? `<div class="pin-expand-toggle" data-toggleexpand="${p.id}" style="color:var(--moss); font-weight:600; cursor:pointer; margin-top:6px;">${isExpanded ? 'Show less' : 'Show more'}</div>` : '';
+      return `<div style="margin-bottom:14px;"><div style="font-size:11px; color:var(--ink-soft); margin-bottom:6px; padding-left:2px;">${fmtDateWithYear(p.date)}</div><div class="chatbubble coach" style="max-width:none;"><span style="${clampStyle}">${highlightHtml(p.text, q)}</span>${toggle}<span class="pin-msg-btn pinned" data-unpinmsg="${p.id}" style="color:var(--moss);" role="button" aria-label="Unpin message">${pinIconSvg(true)}</span></div></div>`;
+    }).join('') + paginationHtml('pinned', state.pinnedPage, totalPages);
+    wirePagination(holder, 'pinned', totalPages, renderPinnedList);
     holder.querySelectorAll('[data-unpinmsg]').forEach(btn => {
       btn.addEventListener('click', async () => {
         if (!(await confirmDialog("Unpin this message? Since chat isn't kept past the day it happened, you won't be able to get it back."))) return;
         await togglePinMessage(btn.dataset.unpinmsg, '');
+        renderPinnedList();
+      });
+    });
+    holder.querySelectorAll('[data-toggleexpand]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.toggleexpand;
+        state.pinnedExpanded[id] = !state.pinnedExpanded[id];
         renderPinnedList();
       });
     });
@@ -3193,6 +3231,31 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     }
   }
 
+  // Shared pagination controls for Favorite recipes and Pinned messages.
+  // Returns '' when everything fits on one page, so short lists show no
+  // controls at all. listKey distinguishes which list a click came from
+  // ('fav' -> state.favPage, 'pinned' -> state.pinnedPage).
+  function paginationHtml(listKey, page, totalPages){
+    if (totalPages <= 1) return '';
+    const prevDisabled = page <= 0;
+    const nextDisabled = page >= totalPages - 1;
+    return `<div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid var(--paper-line);">
+      <span data-pagenav="${listKey}" data-pagedir="-1" style="cursor:${prevDisabled ? 'default' : 'pointer'}; opacity:${prevDisabled ? '0.35' : '1'}; padding:4px; display:inline-flex;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span style="font-size:12px; color:var(--ink-soft);">Page ${page+1} of ${totalPages}</span>
+      <span data-pagenav="${listKey}" data-pagedir="1" style="cursor:${nextDisabled ? 'default' : 'pointer'}; opacity:${nextDisabled ? '0.35' : '1'}; padding:4px; display:inline-flex;"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M8 4l6 6-6 6" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>`;
+  }
+  function wirePagination(holder, listKey, totalPages, rerender){
+    holder.querySelectorAll(`[data-pagenav="${listKey}"]`).forEach(el => {
+      el.addEventListener('click', () => {
+        const stateKey = listKey === 'fav' ? 'favPage' : 'pinnedPage';
+        const newPage = state[stateKey] + Number(el.dataset.pagedir);
+        if (newPage < 0 || newPage >= totalPages) return;
+        state[stateKey] = newPage;
+        rerender();
+      });
+    });
+  }
   function renderFavList(){
     const holder = document.getElementById('favListHolder');
     if (!holder) return;
@@ -3208,16 +3271,21 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       holder.innerHTML = '<div class="empty">No favorites match that search.</div>';
       return;
     }
-    holder.innerHTML = filtered.map(f => `
+    const FAV_PAGE_SIZE = 5;
+    const totalPages = Math.ceil(filtered.length / FAV_PAGE_SIZE);
+    if (state.favPage >= totalPages) state.favPage = totalPages - 1;
+    if (state.favPage < 0) state.favPage = 0;
+    const pageItems = filtered.slice(state.favPage * FAV_PAGE_SIZE, (state.favPage + 1) * FAV_PAGE_SIZE);
+    holder.innerHTML = pageItems.map(f => `
       <div class="mealentry">
         <div class="meal">
           <div>
-            <div class="mname">${escapeHtml(f.name)}</div>
+            <div class="mname">${highlightHtml(f.name, q)}</div>
             <div class="mmacros">${Math.round(f.calories)} kcal</div>
             <div class="mmacros" style="margin-top:2px;">P ${Math.round(f.protein_g)}g &middot; C ${Math.round(f.carbs_g)}g &middot; F ${Math.round(f.fat_g)}g</div>
             ${f.ingredients ? `
               <div class="mmacros" data-toggleing="${f.id}" style="margin-top:4px; cursor:pointer; user-select:none;">${state.favIngredientsExpanded[f.id] ? '&#9662;' : '&#9656;'} Ingredients</div>
-              ${state.favIngredientsExpanded[f.id] ? `<div class="mmacros" style="margin-top:4px; white-space:pre-wrap;">${escapeHtml(f.ingredients)}</div>` : ''}
+              ${state.favIngredientsExpanded[f.id] ? `<div class="mmacros" style="margin-top:4px; white-space:pre-wrap;">${highlightHtml(f.ingredients, q)}</div>` : ''}
             ` : '<div class="mmacros" style="margin-top:4px; font-style:italic;">No ingredients added yet.</div>'}
           </div>
           <div class="mealrow-actions" style="margin-top:0;">
@@ -3226,7 +3294,8 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
           </div>
         </div>
       </div>
-    `).join('');
+    `).join('') + paginationHtml('fav', state.favPage, totalPages);
+    wirePagination(holder, 'fav', totalPages, renderFavList);
     holder.querySelectorAll('[data-toggleing]').forEach(el => {
       el.addEventListener('click', () => {
         const id = el.dataset.toggleing;
@@ -3974,7 +4043,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
   // avoiding a second redundant fetch.
   // ==========================================================================
   async function renderTrends(){
-    app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your last 4 weeks…</div></div>';
+    app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your trends data…</div></div>';
     const days = [];
     for (let i = 27; i >= 0; i--) { days.push(shiftDate(todayStr(), -i)); }
     const data = await mapWithConcurrency(days, 6, async (d) => {
@@ -4640,6 +4709,19 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
   function escapeAttr(str){ return escapeHtml(str); }
+  function escapeRegex(str){ return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  // Wraps every case-insensitive occurrence of query in text with a
+  // highlight span, HTML-escaping both matched and unmatched segments
+  // individually — splitting the raw text first (rather than searching
+  // already-escaped output) so matching stays correct regardless of
+  // special characters in either the text or the query.
+  function highlightHtml(text, query){
+    const safe = String(text ?? '');
+    const q = (query || '').trim();
+    if (!q) return escapeHtml(safe);
+    const parts = safe.split(new RegExp('(' + escapeRegex(q) + ')', 'gi'));
+    return parts.map((part, i) => i % 2 === 1 ? `<span class="search-hl">${escapeHtml(part)}</span>` : escapeHtml(part)).join('');
+  }
 
   // ==========================================================================
   // UI FEEDBACK — toasts, chart tooltips, and friendly API error messages
