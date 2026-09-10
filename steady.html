@@ -344,6 +344,7 @@
     background: var(--moss); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   #steady-root .chatsend-icon:disabled { opacity: 0.5; cursor: default; }
+  #steady-root .chatsend-icon:hover { opacity: 0.7; }
   #steady-root .chat-paperclip {
     position: absolute; bottom: 15px; right: 10px; width: 18px; height: 18px; background: none; border: none;
     color: var(--moss); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 2;
@@ -710,6 +711,7 @@
     storageOk: true,
     chatMessages: [],
     chatLoading: false,
+    chatRequestId: 0,
     editingFavoriteId: null,
     addingFavorite: false,
     favSearch: '',
@@ -3606,8 +3608,10 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
           <input type="file" accept="image/*" capture="environment" id="chatPhotoInputCamera" style="display:none;">
           <input type="file" accept="image/*" id="chatPhotoInputLibrary" style="display:none;">
         </div>
-        <button class="chatsend-icon" id="chatSendBtn" aria-label="Send" ${state.chatLoading ? 'disabled' : ''}>
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 15V5M10 5L5 10M10 5l5 5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button class="chatsend-icon" id="chatSendBtn" aria-label="${state.chatLoading ? 'Stop generating' : 'Send'}">
+          ${state.chatLoading
+            ? '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="4" y="4" width="12" height="12" rx="1.5" fill="#FFFFFF"/></svg>'
+            : '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 15V5M10 5L5 10M10 5l5 5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
         </button>
       </div>
       <div class="quickactions">${quickActionsHtml}</div>
@@ -3646,7 +3650,13 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
       state.chatPhotoMenuOpen = false;
       sendChatMessage(text || '(see attached photo)', hiddenInstruction, citedMealName, photo);
     };
-    document.getElementById('chatSendBtn').addEventListener('click', triggerChatSend);
+    document.getElementById('chatSendBtn').addEventListener('click', () => {
+      if (state.chatLoading) {
+        stopChatGeneration();
+      } else {
+        triggerChatSend();
+      }
+    });
     document.getElementById('chatInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -3818,20 +3828,36 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     state.chatMessages.push({ role: 'user', text, time: nowTimeString(), citedMealName: citedMealName || null, hasPhoto: !!photo });
     const localMessages = state.chatMessages;
     state.chatLoading = true;
+    const myRequestId = ++state.chatRequestId;
     renderCoachChat();
     try {
       const context = buildTodayContext();
       const reply = await callCoachChat(localMessages, context, hiddenInstruction || '', photo || null);
+      if (myRequestId !== state.chatRequestId) return; // stopped while waiting — the underlying request can't actually be cancelled here, so just discard the reply silently
       localMessages.push({ role: 'coach', text: reply, time: nowTimeString(), id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2,7) });
       await saveChatMessages(targetDate, localMessages);
     } catch(e) {
-      showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
+      if (myRequestId === state.chatRequestId) {
+        showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
+      }
     } finally {
-      if (state.currentDate === targetDate) {
+      if (myRequestId === state.chatRequestId && state.currentDate === targetDate) {
         state.chatLoading = false;
         renderCoachChat();
       }
     }
+  }
+  // "Stop" can't actually cancel the underlying network request in this
+  // environment (fetch is relayed through the parent frame via postMessage,
+  // which can't carry an AbortSignal — see the sendChatMessage/callCoachChat
+  // history for why AbortController was tried and reverted). Instead, this
+  // bumps chatRequestId so sendChatMessage's in-flight promise recognizes
+  // itself as stale once it resolves and discards the reply, while the UI
+  // resets immediately here rather than waiting for that to happen.
+  function stopChatGeneration(){
+    state.chatRequestId++;
+    state.chatLoading = false;
+    renderCoachChat();
   }
 
   async function getDailySummary(totals, t){
