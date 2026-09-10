@@ -1444,6 +1444,9 @@
     state.favorites = [
       { id: 'demo_fav_1', name: 'Protein shake & banana', calories: 85, protein_g: 7, carbs_g: 9, fat_g: 3, ingredients: '400ml milk, 1 banana, 1 scoop whey protein', typicalPortionG: 550, portionUnit: 'ml' },
       { id: 'demo_fav_2', name: 'Overnight oats & peanut butter', calories: 410, protein_g: 18, carbs_g: 52, fat_g: 14 },
+      { id: 'demo_fav_3', name: 'Chicken & rice bowl', calories: 129, protein_g: 13, carbs_g: 12, fat_g: 3, ingredients: '150g chicken breast, 150g rice, 100g broccoli, drizzle of olive oil', typicalPortionG: 405 },
+      { id: 'demo_fav_4', name: 'Greek yogurt & berries', calories: 72, protein_g: 7, carbs_g: 8, fat_g: 2, ingredients: '200g Greek yogurt, 80g mixed berries, 1 tsp honey', typicalPortionG: 287 },
+      { id: 'demo_fav_5', name: 'Turkey & avocado wrap', calories: 144, protein_g: 8, carbs_g: 14, fat_g: 6, ingredients: '1 whole wheat tortilla, 80g turkey breast, 1/2 avocado, lettuce, tomato', typicalPortionG: 245 },
     ];
     try { await saveFavoritesStorage(state.favorites); } catch(e) {}
 
@@ -2989,7 +2992,7 @@
     const holder = document.getElementById('pinnedListHolder');
     if (!holder) return;
     const q = (state.pinnedSearch || '').trim().toLowerCase();
-    const filtered = q ? state.pinnedMessages.filter(p => p.text.toLowerCase().includes(q)) : state.pinnedMessages;
+    const filtered = q ? state.pinnedMessages.filter(p => p.text.toLowerCase().includes(q) || fmtDateWithYear(p.date).toLowerCase().includes(q)) : state.pinnedMessages;
     if (!filtered.length) {
       holder.innerHTML = `<p class="empty">${state.pinnedMessages.length ? 'No pinned messages match your search.' : 'No pinned messages yet &mdash; tap the pin icon on any reply from Aino to keep it here.'}</p>`;
       return;
@@ -3009,7 +3012,7 @@
       const isExpanded = !!state.pinnedExpanded[p.id];
       const clampStyle = (isLong && !isExpanded) ? 'display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;' : '';
       const toggle = isLong ? `<div class="pin-expand-toggle" data-toggleexpand="${p.id}" style="color:var(--moss); font-weight:600; cursor:pointer; margin-top:6px;">${isExpanded ? 'Show less' : 'Show more'}</div>` : '';
-      return `<div style="margin-bottom:14px;"><div style="font-size:11px; color:var(--ink-soft); margin-bottom:6px; padding-left:2px;">${fmtDateWithYear(p.date)}</div><div class="chatbubble coach" style="max-width:none;"><span style="${clampStyle}">${highlightHtml(p.text, q)}</span>${toggle}<span class="pin-msg-btn pinned" data-unpinmsg="${p.id}" style="color:var(--moss);" role="button" aria-label="Unpin message">${pinIconSvg(true)}</span></div></div>`;
+      return `<div style="margin-bottom:14px;"><div style="font-size:11px; color:var(--ink-soft); margin-bottom:6px; padding-left:2px;">${highlightHtml(fmtDateWithYear(p.date), q)}</div><div class="chatbubble coach" style="max-width:none;"><span style="${clampStyle}">${highlightHtml(p.text, q)}</span>${toggle}<span class="pin-msg-btn pinned" data-unpinmsg="${p.id}" style="color:var(--moss);" role="button" aria-label="Unpin message">${pinIconSvg(true)}</span></div></div>`;
     }).join('') + paginationHtml('pinned', state.pinnedPage, totalPages);
     wirePagination(holder, 'pinned', totalPages, renderPinnedList);
     holder.querySelectorAll('[data-unpinmsg]').forEach(btn => {
