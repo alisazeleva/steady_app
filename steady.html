@@ -3170,13 +3170,6 @@
       document.getElementById('newfav-save').addEventListener('click', saveNewFavorite);
       document.getElementById('newfav-cancel').addEventListener('click', () => { state.addingFavorite = false; renderFavEditArea(); });
       wireFavEstimateButtons('newfav');
-    } else if (state.editingFavoriteId) {
-      const f = state.favorites.find(x => x.id === state.editingFavoriteId);
-      if (!f) { holder.innerHTML = ''; return; }
-      holder.innerHTML = favEditFormHtml(f, 'editfav');
-      document.getElementById('editfav-save').addEventListener('click', () => saveEditedFavorite(f.id));
-      document.getElementById('editfav-cancel').addEventListener('click', () => { state.editingFavoriteId = null; renderFavEditArea(); });
-      wireFavEstimateButtons('editfav');
     } else {
       holder.innerHTML = '';
     }
@@ -3281,7 +3274,9 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
     if (state.favPage >= totalPages) state.favPage = totalPages - 1;
     if (state.favPage < 0) state.favPage = 0;
     const pageItems = filtered.slice(state.favPage * FAV_PAGE_SIZE, (state.favPage + 1) * FAV_PAGE_SIZE);
-    holder.innerHTML = pageItems.map(f => `
+    holder.innerHTML = pageItems.map(f => {
+      if (f.id === state.editingFavoriteId) return favEditFormHtml(f, 'editfav');
+      return `
       <div class="mealentry">
         <div class="meal">
           <div>
@@ -3299,8 +3294,14 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
           </div>
         </div>
       </div>
-    `).join('') + paginationHtml('fav', state.favPage, totalPages);
+    `;
+    }).join('') + paginationHtml('fav', state.favPage, totalPages);
     wirePagination(holder, 'fav', totalPages, renderFavList);
+    if (state.editingFavoriteId && pageItems.some(f => f.id === state.editingFavoriteId)) {
+      document.getElementById('editfav-save').addEventListener('click', () => saveEditedFavorite(state.editingFavoriteId));
+      document.getElementById('editfav-cancel').addEventListener('click', () => { state.editingFavoriteId = null; renderFavList(); });
+      wireFavEstimateButtons('editfav');
+    }
     holder.querySelectorAll('[data-toggleing]').forEach(el => {
       el.addEventListener('click', () => {
         const id = el.dataset.toggleing;
@@ -3312,7 +3313,12 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       btn.addEventListener('click', () => {
         state.editingFavoriteId = btn.dataset.editfav;
         state.addingFavorite = false;
-        renderFavEditArea();
+        // jump to whichever page this recipe is actually on, so the inline
+        // edit form is guaranteed visible without the user having to
+        // manually navigate there first
+        const idx = filtered.findIndex(x => x.id === state.editingFavoriteId);
+        if (idx >= 0) state.favPage = Math.floor(idx / FAV_PAGE_SIZE);
+        renderFavList();
       });
     });
     holder.querySelectorAll('[data-delfav]').forEach(btn => {
