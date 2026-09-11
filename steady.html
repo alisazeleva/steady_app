@@ -4034,10 +4034,11 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     if (demoEntry) {
       await loadMeals(newDate); // a tip or edit may have already been saved for this date — that takes priority over a fresh demo set
       if (!state.meals.length) state.meals = demoEntry.meals;
-      state.activities = demoEntry.activities;
+      state.activities = await loadActivities(newDate);
+      if (!state.activities.length) state.activities = demoEntry.activities;
       await loadDailyNote(newDate); // demo meals are fake, but a real summary may genuinely be saved for this date
       state.chatMessages = [];
-      state.dayContext = [];
+      state.dayContext = await loadDayContext(newDate); // demo doesn't simulate context tags, so always load whatever was actually saved
     } else {
       await loadMeals(newDate);
       await loadDailyNote(newDate);
@@ -4269,7 +4270,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     renderWeekSummaryCard(days);
     try {
       const context = buildWeekSummaryContext(days);
-      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Only cover what's genuinely present in the data — don't pad the reply to cover every possible topic. Consider, where relevant: how the week tracked against targets overall; genuine trends or patterns you notice (only call something a trend if it holds across most of the days, not from one or two data points — this includes any alcohol/caffeine pattern, mentioned plainly and neutrally if it stands out, not as a required topic); overall food quality (processed vs whole, diversity vs repetition, any clear gaps); and satiety-related observations (e.g. meals that would likely leave someone hungry sooner due to missing protein or fiber). Never frame any food as good/bad/forbidden — describe effects and trade-offs.
+      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Structure it in two beats: first, a brief opening on how the week tracked against targets overall; second — the main focus of the reflection — every genuine multi-day pattern actually present in the data, not single-day quirks, and only counted as a pattern if it holds across most of the days. Examples of the kind of thing to look for: a macro consistently running over or under target, recurring food-quality issues (e.g. highly processed food or added sugar/junk food showing up most days), protein that doesn't match the week's training volume (use the activity totals — meaningful training with consistently short protein is worth naming directly), recurring low-protein/low-fiber meals that would likely leave someone hungry sooner, or an alcohol/caffeine pattern — these are illustrative, not a fixed list, so name anything else genuinely recurring too. List every pattern you genuinely find, not just one — but don't invent one where there isn't a real multi-day pattern; if nothing beyond the targets is worth flagging, the opening beat can stand alone. Never frame any food as good/bad/forbidden — describe effects and trade-offs.
 
 ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores — weigh consistency against targets, genuine multi-day trends, variety across the week, and any recurring gaps together. The 150-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
