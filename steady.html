@@ -870,12 +870,12 @@
       if (!res || !res.value) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; return; }
       const parsed = JSON.parse(res.value);
       state.weekSummary = parsed.text;
-      state.weekSummaryMeta = { mealCount: parsed.mealCount, calories: parsed.calories };
+      state.weekSummaryMeta = { mealCount: parsed.mealCount, calories: parsed.calories, activityContextSignature: parsed.activityContextSignature };
       state.weekSummaryScore = parsed.score ?? null;
     } catch(e) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; }
   }
   async function saveWeekSummary(text, meta, score){
-    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, score: score ?? null }), false);
+    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, activityContextSignature: meta.activityContextSignature, score: score ?? null }), false);
   }
   async function loadChatMessages(dateStr){
     try {
@@ -1055,9 +1055,12 @@
     }
     return id;
   }
+  function contextSummaryFor(contextArr){
+    if (!contextArr || !contextArr.length) return '';
+    return contextArr.map(contextLabelFor).join(', ');
+  }
   function todayContextSummary(){
-    if (!state.dayContext || !state.dayContext.length) return '';
-    return state.dayContext.map(contextLabelFor).join(', ');
+    return contextSummaryFor(state.dayContext);
   }
   function activityRatePerMin(type){
     if (typeof type === 'string' && type.startsWith('custom:')) {
@@ -4060,29 +4063,32 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     const days = [];
     for (let i = 27; i >= 0; i--) { days.push(shiftDate(todayStr(), -i)); }
     const data = await mapWithConcurrency(days, 6, async (d) => {
-      let meals, dayActivities;
+      let meals, dayActivities, dayContext;
       if (d === state.currentDate) {
         // whichever day is currently loaded in memory is always the freshest source, demo or not
         meals = state.meals;
         dayActivities = state.activities;
+        dayContext = state.dayContext;
       } else if (state.demoMode && getDemoOffsetData(d)) {
         const entry = getDemoOffsetData(d);
         meals = entry.meals;
         dayActivities = entry.activities;
+        dayContext = []; // demo data doesn't simulate context tags
       } else {
-        [meals, dayActivities] = await Promise.all([
+        [meals, dayActivities, dayContext] = await Promise.all([
           (async () => {
             try {
               const res = await storageGet('meals:' + d, false);
               return res ? JSON.parse(res.value) : [];
             } catch(e) { return []; }
           })(),
-          loadActivities(d)
+          loadActivities(d),
+          loadDayContext(d)
         ]);
       }
       const totals = totalsFromMeals(meals);
       const dayTargets = computeTargets(state.profile, dayActivities);
-      return { date: d, totals, targets: dayTargets, activities: dayActivities, meals };
+      return { date: d, totals, targets: dayTargets, activities: dayActivities, context: dayContext, meals };
     });
     if (state.view !== 'trends') return; // user navigated away while loading
     await loadWeekSummary();
@@ -4158,6 +4164,35 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     updateAinoBubble();
   }
 
+  // Sums logged minutes per activity type across a set of days, and counts
+  // how many of those days each context tag appeared — pre-computed totals
+  // for the week summary, so Aino states an accurate weekly total (e.g.
+  // "360m of walking") instead of mentally aggregating it herself from 7
+  // separate day-lines, which is a more error-prone way to get a sum right.
+  function weekActivityTotalsSummary(last7){
+    const totals = {};
+    last7.forEach(d => {
+      (d.activities || []).forEach(a => {
+        const label = activityLabelFor(a.type);
+        totals[label] = (totals[label] || 0) + (a.minutes || 0);
+      });
+    });
+    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return '';
+    return entries.map(([label, mins]) => `${mins}m ${label}`).join(', ');
+  }
+  function weekContextTotalsSummary(last7){
+    const totals = {};
+    last7.forEach(d => {
+      (d.context || []).forEach(c => {
+        const label = contextLabelFor(c);
+        totals[label] = (totals[label] || 0) + 1;
+      });
+    });
+    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return '';
+    return entries.map(([label, count]) => `${label} (${count} day${count > 1 ? 's' : ''})`).join(', ');
+  }
   function buildWeekSummaryContext(days){
     const last7 = days.slice(-7);
     const loggedDays = last7.filter(d => d.meals && d.meals.length);
@@ -4167,10 +4202,16 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
         const ingr = m.ingredients ? ` (${m.ingredients})` : '';
         return `${m.name}${ingr} at ${m.time}, ${Math.round(m.calories)} kcal`;
       }).join('; ');
-      return `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)}). Meals: ${mealLines}`;
+      const ctx = contextSummaryFor(d.context);
+      return `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)}${ctx ? '; context: ' + ctx : ''}). Meals: ${mealLines}`;
     }).join('\n');
     const loggingNote = loggedDays.length < 7 ? `Note: only ${loggedDays.length} of the last 7 days have any logged meals — the other ${7 - loggedDays.length} day(s) simply weren't logged, don't treat them as zero-intake days or factor them into averages as if they were.` : '';
-    return `${nameContext()}${dietContext()}${bmiContext()}Here is the last 7 days, in order:\n${dayLines}\n${loggingNote}\nPerson's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
+    const activityTotals = weekActivityTotalsSummary(last7);
+    const contextTotals = weekContextTotalsSummary(last7);
+    const totalsLine = (activityTotals || contextTotals)
+      ? `\nThis week's totals: ${activityTotals ? 'activity — ' + activityTotals + '. ' : ''}${contextTotals ? 'context — ' + contextTotals + '.' : ''}`
+      : '';
+    return `${nameContext()}${dietContext()}${bmiContext()}Here is the last 7 days, in order:\n${dayLines}\n${loggingNote}${totalsLine}\nPerson's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
   }
 
   function renderWeekSummaryCard(days){
@@ -4184,10 +4225,12 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
       const last7 = days.slice(-7);
       const freshMealCount = last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0);
       const freshCalories = last7.reduce((sum, d) => sum + d.totals.calories, 0);
-      const stale = state.weekSummaryMeta && (state.weekSummaryMeta.mealCount !== freshMealCount || Math.round(state.weekSummaryMeta.calories) !== Math.round(freshCalories));
+      const freshSignature = last7.map(d => activitiesLabel(d.activities) + '::' + contextSummaryFor(d.context)).join('|');
+      const signatureChanged = state.weekSummaryMeta && state.weekSummaryMeta.activityContextSignature !== undefined && state.weekSummaryMeta.activityContextSignature !== freshSignature;
+      const stale = state.weekSummaryMeta && (state.weekSummaryMeta.mealCount !== freshMealCount || Math.round(state.weekSummaryMeta.calories) !== Math.round(freshCalories) || signatureChanged);
       holder.innerHTML = `
         <div class="tipcard">
-          ${stale ? '<p class="stalenote">Meals or activity have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
+          ${stale ? '<p class="stalenote">Meals, activity, or context have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
           <div class="tipcard-header">
             <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
             <div>
@@ -4231,7 +4274,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
 ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores — weigh consistency against targets, genuine multi-day trends, variety across the week, and any recurring gaps together. The 150-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
       const { score, text } = parseScoreFromResponse(result);
-      const meta = { mealCount: last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0), calories: last7.reduce((sum, d) => sum + d.totals.calories, 0) };
+      const meta = { mealCount: last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0), calories: last7.reduce((sum, d) => sum + d.totals.calories, 0), activityContextSignature: last7.map(d => activitiesLabel(d.activities) + '::' + contextSummaryFor(d.context)).join('|') };
       await saveWeekSummary(text, meta, score);
       if (state.view === targetView) {
         state.weekSummary = text;
