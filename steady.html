@@ -4072,9 +4072,19 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
         dayContext = state.dayContext;
       } else if (state.demoMode && getDemoOffsetData(d)) {
         const entry = getDemoOffsetData(d);
-        meals = entry.meals;
-        dayActivities = entry.activities;
-        dayContext = []; // demo data doesn't simulate context tags
+        const [realMeals, realActivities, realContext] = await Promise.all([
+          (async () => {
+            try {
+              const res = await storageGet('meals:' + d, false);
+              return res ? JSON.parse(res.value) : [];
+            } catch(e) { return []; }
+          })(),
+          loadActivities(d),
+          loadDayContext(d)
+        ]);
+        meals = realMeals.length ? realMeals : entry.meals;
+        dayActivities = realActivities.length ? realActivities : entry.activities;
+        dayContext = realContext; // demo doesn't simulate context tags, so always use whatever was actually saved
       } else {
         [meals, dayActivities, dayContext] = await Promise.all([
           (async () => {
@@ -4270,7 +4280,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     renderWeekSummaryCard(days);
     try {
       const context = buildWeekSummaryContext(days);
-      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Structure it in two beats: first, a brief opening on how the week tracked against targets overall; second — the main focus of the reflection — every genuine multi-day pattern actually present in the data, not single-day quirks, and only counted as a pattern if it holds across most of the days. Examples of the kind of thing to look for: a macro consistently running over or under target, recurring food-quality issues (e.g. highly processed food or added sugar/junk food showing up most days), protein that doesn't match the week's training volume (use the activity totals — meaningful training with consistently short protein is worth naming directly), recurring low-protein/low-fiber meals that would likely leave someone hungry sooner, or an alcohol/caffeine pattern — these are illustrative, not a fixed list, so name anything else genuinely recurring too. List every pattern you genuinely find, not just one — but don't invent one where there isn't a real multi-day pattern; if nothing beyond the targets is worth flagging, the opening beat can stand alone. Never frame any food as good/bad/forbidden — describe effects and trade-offs.
+      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Structure it in two beats: first, a brief opening on how the week tracked against targets overall; second — the main focus of the reflection — every genuine multi-day pattern actually present in the data (not single-day quirks, only counted as a pattern if it holds across most of the days): a macro consistently running over or under target; the same or similar food/snack showing up repeatedly, or processed/junk food appearing often; protein that doesn't match the week's training volume (use the activity totals); or anything else genuinely recurring. List every pattern you find, not just one — but don't invent one that isn't really there; if nothing beyond the targets is worth flagging, the opening can stand alone. Never frame any food as good/bad/forbidden — describe effects and trade-offs.
 
 ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores — weigh consistency against targets, genuine multi-day trends, variety across the week, and any recurring gaps together. The 150-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
@@ -4593,7 +4603,20 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
         for (let i = 1; i <= 27; i++) {
           const dateStr = shiftDate(todayStr(), -i);
           const entry = getDemoOffsetData(dateStr);
-          if (entry) items.push({ dateStr, totals: totalsFromMeals(entry.meals), target: computeTargets(state.profile, entry.activities) });
+          if (entry) {
+            const [realMeals, realActivities] = await Promise.all([
+              (async () => {
+                try {
+                  const res = await storageGet('meals:' + dateStr, false);
+                  return res ? JSON.parse(res.value) : [];
+                } catch(e) { return []; }
+              })(),
+              loadActivities(dateStr)
+            ]);
+            const meals = realMeals.length ? realMeals : entry.meals;
+            const activities = realActivities.length ? realActivities : entry.activities;
+            items.push({ dateStr, totals: totalsFromMeals(meals), target: computeTargets(state.profile, activities) });
+          }
         }
         const todayD = todayStr();
         if (!items.find(it => it.dateStr === todayD)) {
