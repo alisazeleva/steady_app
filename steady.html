@@ -330,7 +330,7 @@
   #steady-root .pin-msg-btn:hover { opacity: 1; }
   #steady-root .pin-msg-btn.pinned { opacity: 1; }
   #steady-root .search-hl { background: rgba(98,130,100,0.3); border-radius: 2px; }
-  #steady-root .chatinput-wrap { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  #steady-root .chatinput-wrap { display: flex; align-items: flex-end; gap: 8px; margin-top: 4px; }
   #steady-root .chatinput-box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
   #steady-root .citation-chip {
     display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--paper-line);
@@ -345,13 +345,13 @@
     color: var(--ink); resize: none; box-sizing: border-box;
   }
   #steady-root .chatsend-icon {
-    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; margin-bottom: 4px;
     background: var(--moss); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
   #steady-root .chatsend-icon:disabled { opacity: 0.5; cursor: default; }
   #steady-root .chatsend-icon:hover { opacity: 0.7; }
   #steady-root .chat-paperclip {
-    position: absolute; top: 50%; transform: translateY(-50%); right: 10px; width: 18px; height: 18px; background: none; border: none;
+    position: absolute; bottom: 11px; right: 10px; width: 18px; height: 18px; background: none; border: none;
     color: var(--moss); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 2;
   }
   #steady-root .chat-paperclip:hover { opacity: 0.7; }
@@ -2748,7 +2748,7 @@
         <div class="mealtip">
           ${(m.coachNote && state.tipVisibleIds[m.id]) ? `
             <div class="tipcard">
-              ${isMealTipStale(m, m.tipSnapshot, state.meals) ? '<p class="stalenote">Meals earlier today have changed since this tip &mdash; tap refresh for an updated one.</p>' : ''}
+              ${isMealTipStale(m, m.tipSnapshot, state.meals) ? '<p class="stalenote">Today\'s meals, activity, or context have changed since this tip &mdash; tap refresh for an updated one.</p>' : ''}
               <div class="tipcard-header">
                 <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
                 <div>
@@ -3545,7 +3545,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       const ingredientsStr = meal.ingredients ? ` Ingredients: ${meal.ingredients}.` : '';
 
       const prompt = `${nameContext()}${dietContext()}${bmiContext()}Meal: ${meal.name} —${amountStr}${ingredientsStr} ${Math.round(meal.calories)} kcal, protein ${Math.round(meal.protein_g)}g, carbs ${Math.round(meal.carbs_g)}g, fat ${Math.round(meal.fat_g)}g.${earlierBlock}
-Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week.
+Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (today's activity: ${activitiesLabel(state.activities)}). ${todayContextSummary() ? 'Context for today, worth factoring into your tip: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week.
 
 In under 90 words of plain text (no markdown, no emojis), give feedback on this meal:
 - Consider it in the context of what's already been eaten today, not just in isolation — call out useful patterns (e.g. a repeated food type, or good protein spacing) only when genuinely relevant, not as filler.
@@ -3953,7 +3953,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     try {
       const sortedMeals = [...state.meals].sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
       const mealsSummary = sortedMeals.map(m => `${m.name} at ${m.time}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
-      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat. Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
+      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (that day's activity: ${activitiesLabel(state.activities)}). Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
 
 ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal scores — weigh total intake vs. target, protein distribution across the day, macro balance, and overall food quality together. The 130-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
@@ -4607,6 +4607,13 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
   // Snapshots a meal's own macros plus totals for earlier-that-day meals at
   // tip-generation time. Comparison is totals-only (not ingredient-level) —
   // a deliberate tradeoff so a typo fix doesn't flag every earlier tip stale.
+  // Snapshots a meal's own macros plus totals for earlier-that-day meals,
+  // today's logged activity, and today's context tags, all at tip-
+  // generation time. Meal/earlier comparison is totals-only (not
+  // ingredient-level) — a deliberate tradeoff so a typo fix doesn't flag
+  // every earlier tip stale. Activity and context are compared via their
+  // formatted summary strings (the same ones the prompt itself uses), not
+  // raw data, so they match what Aino was actually told.
   function buildMealTipSnapshot(meal, allMealsForDay){
     const mealTime24 = timeStringTo24h(meal.time) || '';
     const earlier = allMealsForDay.filter(m => m.id !== meal.id && (timeStringTo24h(m.time) || '9999') < mealTime24);
@@ -4623,7 +4630,9 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
         time: meal.time, ingredients: meal.ingredients || ''
       },
       earlierCount: earlier.length,
-      earlierTotals
+      earlierTotals,
+      activitiesLabel: activitiesLabel(state.activities),
+      contextSummary: todayContextSummary()
     };
   }
 
@@ -4635,6 +4644,8 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
       s.carbs_g !== meal.carbs_g || s.fat_g !== meal.fat_g ||
       s.time !== meal.time || (s.ingredients || '') !== (meal.ingredients || '')
     ) return true;
+    if ((snapshot.activitiesLabel || '') !== activitiesLabel(state.activities)) return true;
+    if ((snapshot.contextSummary || '') !== todayContextSummary()) return true;
     const fresh = buildMealTipSnapshot(meal, allMealsForDay);
     if (snapshot.earlierCount !== fresh.earlierCount) return true;
     const et = snapshot.earlierTotals, ft = fresh.earlierTotals;
