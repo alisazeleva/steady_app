@@ -721,6 +721,7 @@
     chatMessages: [],
     chatLoading: false,
     chatRequestId: 0,
+    dateSwitchToken: 0,
     editingFavoriteId: null,
     addingFavorite: false,
     favSearch: '',
@@ -4023,6 +4024,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
   }
 
   async function switchDate(newDate){
+    const myToken = ++state.dateSwitchToken;
     state.currentDate = newDate;
     state.pending = null;
     state.tipLoadingId = null;
@@ -4033,18 +4035,27 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     const demoEntry = state.demoMode && newDate !== todayStr() ? getDemoOffsetData(newDate) : null;
     if (demoEntry) {
       await loadMeals(newDate); // a tip or edit may have already been saved for this date — that takes priority over a fresh demo set
+      if (myToken !== state.dateSwitchToken) return; // a newer switchDate call has started since — abandon this one rather than land stale data
       if (!state.meals.length) state.meals = demoEntry.meals;
       state.activities = await loadActivities(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       if (!state.activities.length) state.activities = demoEntry.activities;
       await loadDailyNote(newDate); // demo meals are fake, but a real summary may genuinely be saved for this date
+      if (myToken !== state.dateSwitchToken) return;
       state.chatMessages = [];
       state.dayContext = await loadDayContext(newDate); // demo doesn't simulate context tags, so always load whatever was actually saved
+      if (myToken !== state.dateSwitchToken) return;
     } else {
       await loadMeals(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       await loadDailyNote(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       await loadChatMessages(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       state.activities = await loadActivities(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       state.dayContext = await loadDayContext(newDate);
+      if (myToken !== state.dateSwitchToken) return;
       if (state.demoMode && newDate === todayStr() && state.demoToday) {
         if (!state.meals.length) state.meals = state.demoToday.meals;
         if (!state.activities.length) state.activities = state.demoToday.activities;
