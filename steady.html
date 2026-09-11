@@ -851,7 +851,7 @@
         try {
           const parsed = JSON.parse(raw);
           state.dailyNote = parsed.text;
-          state.dailyNoteMeta = { mealCount: parsed.mealCount, calories: parsed.calories, targetCalories: parsed.targetCalories };
+          state.dailyNoteMeta = { mealCount: parsed.mealCount, calories: parsed.calories, targetCalories: parsed.targetCalories, activitiesLabel: parsed.activitiesLabel, contextSummary: parsed.contextSummary };
           state.dailyNoteScore = parsed.score ?? null;
         } catch(e) { state.dailyNote = raw; state.dailyNoteMeta = null; state.dailyNoteScore = null; }
       } else {
@@ -862,7 +862,7 @@
     } catch(e) { state.dailyNote = null; state.dailyNoteMeta = null; state.dailyNoteScore = null; }
   }
   async function saveDailyNote(dateStr, text, meta, score){
-    await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories, score: score ?? null }), false);
+    await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories, activitiesLabel: meta.activitiesLabel, contextSummary: meta.contextSummary, score: score ?? null }), false);
   }
   async function loadWeekSummary(){
     try {
@@ -3590,10 +3590,12 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     }
     if (state.dailyNote) {
       const targetChanged = state.dailyNoteMeta && state.dailyNoteMeta.targetCalories !== undefined && Math.round(state.dailyNoteMeta.targetCalories) !== Math.round(t.calories);
-      const stale = state.dailyNoteMeta && (state.dailyNoteMeta.mealCount !== state.meals.length || Math.round(state.dailyNoteMeta.calories) !== Math.round(totals.calories) || targetChanged);
+      const activityChanged = state.dailyNoteMeta && state.dailyNoteMeta.activitiesLabel !== undefined && state.dailyNoteMeta.activitiesLabel !== activitiesLabel(state.activities);
+      const contextChanged = state.dailyNoteMeta && state.dailyNoteMeta.contextSummary !== undefined && state.dailyNoteMeta.contextSummary !== todayContextSummary();
+      const stale = state.dailyNoteMeta && (state.dailyNoteMeta.mealCount !== state.meals.length || Math.round(state.dailyNoteMeta.calories) !== Math.round(totals.calories) || targetChanged || activityChanged || contextChanged);
       holder.innerHTML = `
         <div class="tipcard">
-          ${stale ? '<p class="stalenote">Meals or activity have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
+          ${stale ? '<p class="stalenote">Meals, activity, or context have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
           <div class="tipcard-header">
             <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
             <div>
@@ -3958,7 +3960,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
 ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal scores — weigh total intake vs. target, protein distribution across the day, macro balance, and overall food quality together. The 130-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
       const { score, text } = parseScoreFromResponse(result);
-      const meta = { mealCount: state.meals.length, calories: totals.calories, targetCalories: t.calories };
+      const meta = { mealCount: state.meals.length, calories: totals.calories, targetCalories: t.calories, activitiesLabel: activitiesLabel(state.activities), contextSummary: todayContextSummary() };
       await saveDailyNote(targetDate, text, meta, score);
       if (state.currentDate === targetDate) {
         state.dailyNote = text;
