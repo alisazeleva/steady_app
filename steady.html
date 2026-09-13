@@ -597,7 +597,7 @@
             <p>Aino shows up in three places:</p>
             <ul>
               <li>A short tip on a meal &mdash; tap its chat icon to ask a follow-up, right in today's chat</li>
-              <li>A one-time reflection for a completed day or the trailing 7 days</li>
+              <li>A one-time reflection for a completed day</li>
               <li>A live back-and-forth chat for today only &mdash; once the date changes, that conversation is deleted, not just hidden, and you'll see a day summary instead. Clear it early anytime with Reset chat.</li>
             </ul>
             <p>A few other things worth knowing:</p>
@@ -713,10 +713,6 @@
     editingMealId: null,
     favorites: [],
     pinnedMessages: [],
-    weekSummary: null,
-    weekSummaryMeta: null,
-    weekSummaryScore: null,
-    weekSummaryLoading: false,
     storageOk: true,
     chatMessages: [],
     chatLoading: false,
@@ -842,6 +838,160 @@
   }
   async function saveMeals(dateStr, meals){
     await storageSet('meals:' + dateStr, JSON.stringify(meals), false);
+    updateDailyTotalsCache(dateStr, meals, undefined).catch(()=>{});
+  }
+  // Recomputes and saves the cached totals/targets entry for one date into
+  // the single dailyTotals record, so Trends can read one record instead of
+  // fetching every day individually. Called from inside saveMeals/
+  // saveActivities — the only two places meals or activities are ever
+  // persisted — so the cache can't drift out of sync with what's actually
+  // saved by some call site forgetting to update it. Not awaited by callers
+  // (fire-and-forget): this is a best-effort accelerator, never required for
+  // correctness, since renderTrends falls back to a fresh per-day fetch for
+  // any date this hasn't caught up with yet. Whichever of meals/activities
+  // isn't passed in gets fetched fresh for that date, so this is correct
+  // regardless of which one triggered the update. targetCalories etc. are
+  // frozen at write-time — a later profile change won't retroactively alter
+  // an already-cached day's target, by design.
+  async function updateDailyTotalsCache(dateStr, meals, activities){
+    if (meals === undefined) {
+      try {
+        const res = await storageGet('meals:' + dateStr, false);
+        meals = res ? JSON.parse(res.value) : [];
+      } catch(e) { meals = []; }
+    }
+    if (activities === undefined) {
+      activities = await loadActivities(dateStr);
+    }
+    const totals = totalsFromMeals(meals);
+    const targets = computeTargets(state.profile, activities);
+    let cache = {};
+    try {
+      const res = await storageGet('dailyTotals', false);
+      cache = res ? JSON.parse(res.value) : {};
+    } catch(e) { cache = {}; }
+    cache[dateStr] = {
+      calories: totals.calories, protein: totals.protein, carbs: totals.carbs, fat: totals.fat,
+      targetCalories: targets.calories, targetProteinG: targets.proteinG, targetCarbsG: targets.carbsG, targetFatG: targets.fatG
+    };
+    await storageSet('dailyTotals', JSON.stringify(cache), false);
+  }
+  let dailyTotalsWarmupInFlight = null;
+  // Ensures dailyTotals has an entry for every date in `days`, computing
+  // whatever's missing and returning the full set of {date, totals, targets}
+  // results — shared by renderTrends, exportCSV, and a quiet warm-up
+  // triggered at app init, so all three benefit from (and contribute to)
+  // the same cache instead of each maintaining their own fetch logic.
+  //
+  // If a caching pass is already running (e.g. the init warm-up hasn't
+  // finished when the user opens Trends), this waits for that one first
+  // rather than starting a second, overlapping pass — two concurrent passes
+  // would otherwise race to read-modify-write the same dailyTotals record.
+  async function ensureDailyTotalsCached(days){
+    if (dailyTotalsWarmupInFlight) {
+      try { await dailyTotalsWarmupInFlight; } catch(e) {}
+    }
+    const runPromise = runDailyTotalsCachePass(days);
+    dailyTotalsWarmupInFlight = runPromise;
+    try {
+      return await runPromise;
+    } finally {
+      if (dailyTotalsWarmupInFlight === runPromise) dailyTotalsWarmupInFlight = null;
+    }
+  }
+  async function runDailyTotalsCachePass(days){
+    let dailyTotalsCache = {};
+    try {
+      const res = await storageGet('dailyTotals', false);
+      dailyTotalsCache = res ? JSON.parse(res.value) : {};
+    } catch(e) { dailyTotalsCache = {}; }
+
+    // Split into what can resolve instantly (today, demo, already-cached —
+    // no real storage calls needed) versus what genuinely needs resolving.
+    const results = {};
+    const needsFallback = [];
+    days.forEach(d => {
+      if (d === state.currentDate) {
+        // whichever day is currently loaded in memory is always the freshest source,
+        // demo or not — never read the cache for this one, since a just-made edit
+        // may not have finished writing back to it yet
+        results[d] = { date: d, totals: totalsFromMeals(state.meals), targets: computeTargets(state.profile, state.activities) };
+      } else if (state.demoMode && getDemoOffsetData(d)) {
+        const entry = getDemoOffsetData(d);
+        results[d] = { date: d, totals: totalsFromMeals(entry.meals), targets: computeTargets(state.profile, entry.activities) };
+      } else if (dailyTotalsCache[d]) {
+        const c = dailyTotalsCache[d];
+        results[d] = {
+          date: d,
+          totals: { calories: c.calories, protein: c.protein, carbs: c.carbs, fat: c.fat },
+          targets: { calories: c.targetCalories, proteinG: c.targetProteinG, carbsG: c.targetCarbsG, fatG: c.targetFatG }
+        };
+      } else {
+        needsFallback.push(d);
+      }
+    });
+
+    const toBackfill = {};
+    if (needsFallback.length) {
+      // One storageList call up front tells us which of the uncached days
+      // actually have anything logged at all — a day with no meals: entry
+      // costs zero further calls (no point trying to fetch something that
+      // isn't there), instead of a wasted "not found" round trip per day.
+      const existingMealDates = new Set();
+      try {
+        const listRes = await storageList('meals:', false);
+        const keys = (listRes && listRes.keys) ? listRes.keys : [];
+        keys.forEach(k => existingMealDates.add(k.slice('meals:'.length)));
+      } catch(e) {}
+
+      // Backfilled days use a flat, non-activity-adjusted target rather than
+      // also fetching that day's activity — halves the per-day cost for a
+      // first-time backfill. If the day is later actually edited,
+      // saveActivities recomputes its real, activity-adjusted target then,
+      // same as any other cache update.
+      //
+      // Fetches are batched with a short pause between batches rather than
+      // firing all at once — a burst of many simultaneous calls is a more
+      // aggressive pattern than the same total spread over a couple of
+      // seconds. Only matters on a cold or partially-cold cache; once a day
+      // is cached, it never takes this path again.
+      const FALLBACK_BATCH_SIZE = 6;
+      const FALLBACK_PAUSE_MS = 250;
+      for (let i = 0; i < needsFallback.length; i += FALLBACK_BATCH_SIZE) {
+        const batch = needsFallback.slice(i, i + FALLBACK_BATCH_SIZE);
+        await Promise.all(batch.map(async (d) => {
+          let meals = [];
+          if (existingMealDates.has(d)) {
+            try {
+              const res = await storageGet('meals:' + d, false);
+              meals = res ? JSON.parse(res.value) : [];
+            } catch(e) { meals = []; }
+          }
+          const totals = totalsFromMeals(meals);
+          const dayTargets = computeTargets(state.profile, []);
+          results[d] = { date: d, totals, targets: dayTargets };
+          toBackfill[d] = {
+            calories: totals.calories, protein: totals.protein, carbs: totals.carbs, fat: totals.fat,
+            targetCalories: dayTargets.calories, targetProteinG: dayTargets.proteinG, targetCarbsG: dayTargets.carbsG, targetFatG: dayTargets.fatG
+          };
+        }));
+        if (i + FALLBACK_BATCH_SIZE < needsFallback.length) {
+          await new Promise(r => setTimeout(r, FALLBACK_PAUSE_MS));
+        }
+      }
+    }
+
+    if (Object.keys(toBackfill).length) {
+      let fresh = {};
+      try {
+        const res = await storageGet('dailyTotals', false);
+        fresh = res ? JSON.parse(res.value) : {};
+      } catch(e) { fresh = {}; }
+      try {
+        await storageSet('dailyTotals', JSON.stringify({ ...fresh, ...toBackfill }), false);
+      } catch(e) {}
+    }
+    return days.map(d => results[d]);
   }
   async function loadDailyNote(dateStr){
     try {
@@ -864,19 +1014,6 @@
   }
   async function saveDailyNote(dateStr, text, meta, score){
     await storageSet('note:' + dateStr, JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, targetCalories: meta.targetCalories, activitiesLabel: meta.activitiesLabel, contextSummary: meta.contextSummary, score: score ?? null }), false);
-  }
-  async function loadWeekSummary(){
-    try {
-      const res = await storageGet('weeksummary', false);
-      if (!res || !res.value) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; return; }
-      const parsed = JSON.parse(res.value);
-      state.weekSummary = parsed.text;
-      state.weekSummaryMeta = { mealCount: parsed.mealCount, calories: parsed.calories, activityContextSignature: parsed.activityContextSignature };
-      state.weekSummaryScore = parsed.score ?? null;
-    } catch(e) { state.weekSummary = null; state.weekSummaryMeta = null; state.weekSummaryScore = null; }
-  }
-  async function saveWeekSummary(text, meta, score){
-    await storageSet('weeksummary', JSON.stringify({ text, mealCount: meta.mealCount, calories: meta.calories, activityContextSignature: meta.activityContextSignature, score: score ?? null }), false);
   }
   async function loadChatMessages(dateStr){
     try {
@@ -913,6 +1050,7 @@
   // is the only place that still needs to understand the legacy formats.
   async function saveActivities(dateStr, activities){
     await storageSet('activity:' + dateStr, JSON.stringify(activities), false);
+    updateDailyTotalsCache(dateStr, undefined, activities).catch(()=>{});
   }
 
   function totalsFromMeals(meals){
@@ -1383,6 +1521,21 @@
     }
     const activities = DEMO_ACTIVITY_CYCLE[diffDays % DEMO_ACTIVITY_CYCLE.length];
 
+    // A realistic sprinkling of context tags across the 27-day window — a
+    // multi-day travel stretch (useful for testing the weekly context
+    // aggregation) plus a few scattered single-day notes, with most days
+    // having none at all, matching how sparsely people actually tag days.
+    let context = [];
+    if (diffDays >= 5 && diffDays <= 8) {
+      context = ['traveling'];
+    } else if (diffDays === 2 || diffDays === 16) {
+      context = ['stressed'];
+    } else if (diffDays === 3 || diffDays === 25) {
+      context = ['tired'];
+    } else if (diffDays === 11 || diffDays === 19) {
+      context = ['busy'];
+    }
+
     // Deliberately push a specific metric over target on a rotating basis, calculated against
     // that day's *real* target (which varies with activity) rather than a fixed guess — this
     // guarantees clear, varied "over target" examples across all four metrics, not just fat
@@ -1428,7 +1581,7 @@
         meals.forEach(m => { m[macroKey] = Math.round((m[macroKey] || 0) * scale); });
       }
     }
-    return { meals, activities };
+    return { meals, activities, context };
   }
 
   async function loadDemoData(){
@@ -1473,6 +1626,7 @@
 
     state.dayContext = ['tired', 'custom:demo_ctx_1'];
     try { await saveDayContext(state.currentDate, state.dayContext); } catch(e) {}
+    state.demoToday.context = state.dayContext;
 
     const demoMeasurementPoints = [
       { daysAgo: 25, waist: 80,   bust: 93,   hips: 100 },
@@ -1553,6 +1707,13 @@
     await deleteDataByPrefix('context:', cutoff);
     await deleteDataByPrefix('weekchat:', cutoff);
     await deleteDataByPrefix('chat:', cutoff);
+    try {
+      const res = await storageGet('dailyTotals', false);
+      const cache = res ? JSON.parse(res.value) : {};
+      const pruned = {};
+      Object.keys(cache).forEach(d => { if (d >= cutoff) pruned[d] = cache[d]; });
+      await storageSet('dailyTotals', JSON.stringify(pruned), false);
+    } catch(e) {}
     showToast(`Deleted entries older than ${n} day(s).`, false);
     await loadMeals(state.currentDate);
     await loadDailyNote(state.currentDate);
@@ -1577,6 +1738,7 @@
     try { await storageDelete('daily-index', false); } catch(e) {}
     try { await storageDelete('daily-index-built', false); } catch(e) {}
     try { await storageDelete('weeksummary', false); } catch(e) {}
+    try { await storageDelete('dailyTotals', false); } catch(e) {}
     try { await storageDelete('__healthcheck', false); } catch(e) {}
     state.profile = null;
     state.setupConsentAcknowledged = false;
@@ -1589,9 +1751,6 @@
     state.measurements = {};
     state.dailyNote = null;
     state.dailyNoteScore = null;
-    state.weekSummary = null;
-    state.weekSummaryMeta = null;
-    state.weekSummaryScore = null;
     state.chatMessages = [];
     state.activities = [];
     state.dayContext = [];
@@ -4043,8 +4202,9 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
       await loadDailyNote(newDate); // demo meals are fake, but a real summary may genuinely be saved for this date
       if (myToken !== state.dateSwitchToken) return;
       state.chatMessages = [];
-      state.dayContext = await loadDayContext(newDate); // demo doesn't simulate context tags, so always load whatever was actually saved
+      state.dayContext = await loadDayContext(newDate);
       if (myToken !== state.dateSwitchToken) return;
+      if (!state.dayContext.length) state.dayContext = demoEntry.context;
     } else {
       await loadMeals(newDate);
       if (myToken !== state.dateSwitchToken) return;
@@ -4059,61 +4219,21 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
       if (state.demoMode && newDate === todayStr() && state.demoToday) {
         if (!state.meals.length) state.meals = state.demoToday.meals;
         if (!state.activities.length) state.activities = state.demoToday.activities;
+        if (!state.dayContext.length) state.dayContext = state.demoToday.context || [];
       }
     }
     render();
   }
 
   // ==========================================================================
-  // TRENDS PAGE — 4-week hand-drawn SVG charts, the static 7-day AI summary,
-  // and body measurements. renderTrends' day-fetch also retains each day's
-  // raw meals array so the last 7 days have full detail for the summary,
-  // avoiding a second redundant fetch.
+  // TRENDS PAGE — 4-week hand-drawn SVG charts and body measurements.
   // ==========================================================================
   async function renderTrends(){
     app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading your trends data…</div></div>';
     const days = [];
     for (let i = 27; i >= 0; i--) { days.push(shiftDate(todayStr(), -i)); }
-    const data = await mapWithConcurrency(days, 6, async (d) => {
-      let meals, dayActivities, dayContext;
-      if (d === state.currentDate) {
-        // whichever day is currently loaded in memory is always the freshest source, demo or not
-        meals = state.meals;
-        dayActivities = state.activities;
-        dayContext = state.dayContext;
-      } else if (state.demoMode && getDemoOffsetData(d)) {
-        const entry = getDemoOffsetData(d);
-        const [realMeals, realActivities, realContext] = await Promise.all([
-          (async () => {
-            try {
-              const res = await storageGet('meals:' + d, false);
-              return res ? JSON.parse(res.value) : [];
-            } catch(e) { return []; }
-          })(),
-          loadActivities(d),
-          loadDayContext(d)
-        ]);
-        meals = realMeals.length ? realMeals : entry.meals;
-        dayActivities = realActivities.length ? realActivities : entry.activities;
-        dayContext = realContext; // demo doesn't simulate context tags, so always use whatever was actually saved
-      } else {
-        [meals, dayActivities, dayContext] = await Promise.all([
-          (async () => {
-            try {
-              const res = await storageGet('meals:' + d, false);
-              return res ? JSON.parse(res.value) : [];
-            } catch(e) { return []; }
-          })(),
-          loadActivities(d),
-          loadDayContext(d)
-        ]);
-      }
-      const totals = totalsFromMeals(meals);
-      const dayTargets = computeTargets(state.profile, dayActivities);
-      return { date: d, totals, targets: dayTargets, activities: dayActivities, context: dayContext, meals };
-    });
+    const data = await ensureDailyTotalsCached(days);
     if (state.view !== 'trends') return; // user navigated away while loading
-    await loadWeekSummary();
     app.innerHTML = `
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -4162,11 +4282,6 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
         </div>
         <div id="measurementsHolder"></div>
       </div>
-
-      <div class="card">
-        <h2>Last 7 days summary</h2>
-        <div id="weekChatHolder"></div>
-      </div>
     `;
     wireChartTooltips();
     document.getElementById('exportCsvBtn').addEventListener('click', () => {
@@ -4182,135 +4297,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     });
     renderMeasurementsCard();
     document.getElementById('exportMeasBtn').addEventListener('click', exportMeasurementsCSV);
-    renderWeekSummaryCard(data);
     updateAinoBubble();
-  }
-
-  // Sums logged minutes per activity type across a set of days, and counts
-  // how many of those days each context tag appeared — pre-computed totals
-  // for the week summary, so Aino states an accurate weekly total (e.g.
-  // "360m of walking") instead of mentally aggregating it herself from 7
-  // separate day-lines, which is a more error-prone way to get a sum right.
-  function weekActivityTotalsSummary(last7){
-    const totals = {};
-    last7.forEach(d => {
-      (d.activities || []).forEach(a => {
-        const label = activityLabelFor(a.type);
-        totals[label] = (totals[label] || 0) + (a.minutes || 0);
-      });
-    });
-    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    if (!entries.length) return '';
-    return entries.map(([label, mins]) => `${mins}m ${label}`).join(', ');
-  }
-  function weekContextTotalsSummary(last7){
-    const totals = {};
-    last7.forEach(d => {
-      (d.context || []).forEach(c => {
-        const label = contextLabelFor(c);
-        totals[label] = (totals[label] || 0) + 1;
-      });
-    });
-    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    if (!entries.length) return '';
-    return entries.map(([label, count]) => `${label} (${count} day${count > 1 ? 's' : ''})`).join(', ');
-  }
-  function buildWeekSummaryContext(days){
-    const last7 = days.slice(-7);
-    const loggedDays = last7.filter(d => d.meals && d.meals.length);
-    const dayLines = last7.map(d => {
-      if (!d.meals || !d.meals.length) return `${d.date}: no meals logged`;
-      const mealLines = d.meals.map(m => {
-        const ingr = m.ingredients ? ` (${m.ingredients})` : '';
-        return `${m.name}${ingr} at ${m.time}, ${Math.round(m.calories)} kcal`;
-      }).join('; ');
-      const ctx = contextSummaryFor(d.context);
-      return `${d.date}: ${Math.round(d.totals.calories)}/${d.targets.calories} kcal, ${Math.round(d.totals.protein)}/${d.targets.proteinG}g protein, ${Math.round(d.totals.carbs)}/${d.targets.carbsG}g carbs, ${Math.round(d.totals.fat)}/${d.targets.fatG}g fat (${activitiesLabel(d.activities)}${ctx ? '; context: ' + ctx : ''}). Meals: ${mealLines}`;
-    }).join('\n');
-    const loggingNote = loggedDays.length < 7 ? `Note: only ${loggedDays.length} of the last 7 days have any logged meals — the other ${7 - loggedDays.length} day(s) simply weren't logged, don't treat them as zero-intake days or factor them into averages as if they were.` : '';
-    const activityTotals = weekActivityTotalsSummary(last7);
-    const contextTotals = weekContextTotalsSummary(last7);
-    const totalsLine = (activityTotals || contextTotals)
-      ? `\nThis week's totals: ${activityTotals ? 'activity — ' + activityTotals + '. ' : ''}${contextTotals ? 'context — ' + contextTotals + '.' : ''}`
-      : '';
-    return `${nameContext()}${dietContext()}${bmiContext()}Here is the last 7 days, in order:\n${dayLines}\n${loggingNote}${totalsLine}\nPerson's goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, training ${state.profile.trainingsPerWeek ?? 0}x/week, aiming for gradual, steady progress.`;
-  }
-
-  function renderWeekSummaryCard(days){
-    const holder = document.getElementById('weekChatHolder');
-    if (!holder) return;
-    if (state.weekSummaryLoading) {
-      holder.innerHTML = '<div class="empty"><span class="spinner"></span>Thinking it over…</div>';
-      return;
-    }
-    if (state.weekSummary) {
-      const last7 = days.slice(-7);
-      const freshMealCount = last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0);
-      const freshCalories = last7.reduce((sum, d) => sum + d.totals.calories, 0);
-      const freshSignature = last7.map(d => activitiesLabel(d.activities) + '::' + contextSummaryFor(d.context)).join('|');
-      const signatureChanged = state.weekSummaryMeta && state.weekSummaryMeta.activityContextSignature !== undefined && state.weekSummaryMeta.activityContextSignature !== freshSignature;
-      const stale = state.weekSummaryMeta && (state.weekSummaryMeta.mealCount !== freshMealCount || Math.round(state.weekSummaryMeta.calories) !== Math.round(freshCalories) || signatureChanged);
-      holder.innerHTML = `
-        <div class="tipcard">
-          ${stale ? '<p class="stalenote">Meals, activity, or context have changed since this summary &mdash; tap refresh for an updated one.</p>' : ''}
-          <div class="tipcard-header">
-            <img class="chat-avatar" src="${AINO_AVATAR}" alt="Aino">
-            <div>
-              <div class="tipcard-name">Aino</div>
-              <div class="tipcard-role">Your AI-nutritionist</div>
-            </div>
-          </div>
-          ${scoreBadgeHtml(state.weekSummaryScore)}
-          <p class="tipnote">${escapeHtml(state.weekSummary)}</p>
-          <div style="display:flex; justify-content:flex-end;">
-            <div class="tip-refresh" id="refreshWeekSummary" title="Refresh summary" aria-label="Refresh summary">
-              <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-          </div>
-        </div>
-      `;
-      document.getElementById('refreshWeekSummary').addEventListener('click', () => getWeekSummary(days));
-      holder.querySelectorAll('.chat-avatar').forEach(img => img.addEventListener('click', openAinoProfileModal));
-    } else {
-      holder.innerHTML = `<p class="setup-note" style="margin-bottom:12px;">Get a short read on the last 7 days.</p><button class="btn small" id="getWeekSummary">Get summary</button>`;
-      document.getElementById('getWeekSummary').addEventListener('click', () => getWeekSummary(days));
-    }
-  }
-
-  async function getWeekSummary(days){
-    const targetView = state.view;
-    const last7 = days.slice(-7);
-    const loggedDays = last7.filter(d => d.meals && d.meals.length);
-    if (!loggedDays.length) {
-      state.weekSummary = "Nothing was logged in the last 7 days.";
-      state.weekSummaryScore = null;
-      renderWeekSummaryCard(days);
-      return;
-    }
-    state.weekSummaryLoading = true;
-    renderWeekSummaryCard(days);
-    try {
-      const context = buildWeekSummaryContext(days);
-      const prompt = `${context}\nWrite a short AI-nutritionist reflection on this 7-day window, plain conversational text, no markdown, no headers, under 150 words total. Structure it in two beats: first, a brief opening on how the week tracked against targets overall; second — the main focus of the reflection — every genuine multi-day pattern actually present in the data (not single-day quirks, only counted as a pattern if it holds across most of the days): a macro consistently running over or under target; the same or similar food/snack showing up repeatedly, or processed/junk food appearing often; protein that doesn't match the week's training volume (use the activity totals); or anything else genuinely recurring. List every pattern you find, not just one — but don't invent one that isn't really there; if nothing beyond the targets is worth flagging, the opening can stand alone. Never frame any food as good/bad/forbidden — describe effects and trade-offs.
-
-${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores — weigh consistency against targets, genuine multi-day trends, variety across the week, and any recurring gaps together. The 150-word limit above applies only to your response text, not the SCORE line.`;
-      const result = await callCoachText(prompt);
-      const { score, text } = parseScoreFromResponse(result);
-      const meta = { mealCount: last7.reduce((sum, d) => sum + (d.meals ? d.meals.length : 0), 0), calories: last7.reduce((sum, d) => sum + d.totals.calories, 0), activityContextSignature: last7.map(d => activitiesLabel(d.activities) + '::' + contextSummaryFor(d.context)).join('|') };
-      await saveWeekSummary(text, meta, score);
-      if (state.view === targetView) {
-        state.weekSummary = text;
-        state.weekSummaryMeta = meta;
-        state.weekSummaryScore = score;
-      }
-    } catch(e) {
-      showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
-    } finally {
-      if (state.view === targetView) {
-        state.weekSummaryLoading = false;
-        renderWeekSummaryCard(days);
-      }
-    }
   }
 
   // Compact "Mon D" label (e.g. "Sep 3") for chart axes and week-summary
@@ -4608,54 +4595,37 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
   // ==========================================================================
   async function exportCSV(fromDate, toDate){
     try {
-      let items = [];
-      if (state.demoMode) {
-        items = [];
-        for (let i = 1; i <= 27; i++) {
-          const dateStr = shiftDate(todayStr(), -i);
-          const entry = getDemoOffsetData(dateStr);
-          if (entry) {
-            const [realMeals, realActivities] = await Promise.all([
-              (async () => {
-                try {
-                  const res = await storageGet('meals:' + dateStr, false);
-                  return res ? JSON.parse(res.value) : [];
-                } catch(e) { return []; }
-              })(),
-              loadActivities(dateStr)
-            ]);
-            const meals = realMeals.length ? realMeals : entry.meals;
-            const activities = realActivities.length ? realActivities : entry.activities;
-            items.push({ dateStr, totals: totalsFromMeals(meals), target: computeTargets(state.profile, activities) });
-          }
-        }
-        const todayD = todayStr();
-        if (!items.find(it => it.dateStr === todayD)) {
-          if (state.currentDate === todayD) {
-            items.push({ dateStr: todayD, totals: totalsFromMeals(state.meals), target: computeTargets(state.profile, state.activities) });
-          } else {
-            try {
-              const res = await storageGet('meals:' + todayD, false);
-              const meals = res ? JSON.parse(res.value) : [];
-              const activities = await loadActivities(todayD);
-              items.push({ dateStr: todayD, totals: totalsFromMeals(meals), target: computeTargets(state.profile, activities) });
-            } catch(e) {}
-          }
-        }
+      let days;
+      if (fromDate && toDate) {
+        // explicit range requested — build every date in it directly
+        days = [];
+        let d = fromDate;
+        while (d <= toDate) { days.push(d); d = shiftDate(d, 1); }
       } else {
-        const listRes = await storageList('meals:', false);
-        const keys = (listRes && listRes.keys) ? listRes.keys : [];
-        items = await mapWithConcurrency(keys, 6, async (k) => {
-          const dateStr = k.slice('meals:'.length);
-          let meals = [];
-          try {
-            const res = await storageGet(k, false);
-            meals = res ? JSON.parse(res.value) : [];
-          } catch(e) { meals = []; }
-          const activities = await loadActivities(dateStr);
-          return { dateStr, totals: totalsFromMeals(meals), target: computeTargets(state.profile, activities) };
-        });
+        // no explicit range — include every date we know anything about:
+        // already cached, or has a real meals: entry. Not capped at 28 days;
+        // dailyTotals naturally accumulates more than that over time.
+        let dailyTotalsCache = {};
+        try {
+          const res = await storageGet('dailyTotals', false);
+          dailyTotalsCache = res ? JSON.parse(res.value) : {};
+        } catch(e) {}
+        const dateSet = new Set(Object.keys(dailyTotalsCache));
+        try {
+          const listRes = await storageList('meals:', false);
+          const keys = (listRes && listRes.keys) ? listRes.keys : [];
+          keys.forEach(k => dateSet.add(k.slice('meals:'.length)));
+        } catch(e) {}
+        if (state.demoMode) {
+          for (let i = 0; i <= 27; i++) { dateSet.add(shiftDate(todayStr(), -i)); } // demo days aren't real storage entries, so they wouldn't otherwise appear here
+        }
+        dateSet.add(todayStr());
+        days = Array.from(dateSet);
       }
+      const results = await ensureDailyTotalsCached(days);
+      let items = results
+        .filter(r => r && (r.totals.calories || r.totals.protein || r.totals.carbs || r.totals.fat)) // skip genuinely empty days, matching prior behavior of only including days with something logged
+        .map(r => ({ dateStr: r.date, totals: r.totals, target: r.targets }));
       if (fromDate) items = items.filter(it => it.dateStr >= fromDate);
       if (toDate) items = items.filter(it => it.dateStr <= toDate);
       items.sort((a,b) => a.dateStr.localeCompare(b.dateStr));
@@ -4925,9 +4895,19 @@ ${SCORE_INSTRUCTION} Score the week as a whole, not an average of daily scores �
     state.measurements = await loadMeasurements();
     state.activities = await loadActivities(state.currentDate);
     state.dayContext = await loadDayContext(state.currentDate);
-    if (state.demoMode) { state.demoToday = { meals: state.meals, activities: state.activities }; }
+    if (state.demoMode) { state.demoToday = { meals: state.meals, activities: state.activities, context: state.dayContext }; }
     initAinoBubbleClick();
     render();
+    // Quietly warm the dailyTotals cache in the background, so by the time
+    // the user actually opens Trends, some or all of the last 4 weeks may
+    // already be cached. Doesn't block startup or the initial render; any
+    // failure here is non-fatal since renderTrends falls back to fetching
+    // whatever wasn't caught by this anyway.
+    (async () => {
+      const warmupDays = [];
+      for (let i = 27; i >= 0; i--) { warmupDays.push(shiftDate(todayStr(), -i)); }
+      try { await ensureDailyTotalsCached(warmupDays); } catch(e) {}
+    })();
   })();
 })();
 </script>
