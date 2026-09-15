@@ -4356,7 +4356,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     const yMin = minV - pad, yMax = maxV + pad;
     const firstDate = new Date(pts[0].date), lastDate = new Date(pts[pts.length - 1].date);
     const totalMs = Math.max(1, lastDate - firstDate);
-    const W = 380, H = 108, marginLeft = 30, marginRight = 10, marginBottom = 18, marginTop = 10;
+    const W = Math.max(300, Math.min(window.innerWidth, 640) - 40), H = 108, marginLeft = 30, marginRight = 10, marginBottom = 18, marginTop = 10;
     const plotW = W - marginLeft - marginRight, plotH = H - marginBottom - marginTop;
     const xPos = (d) => marginLeft + (new Date(d) - firstDate) / totalMs * plotW;
     const yPos = (v) => marginTop + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
@@ -4540,7 +4540,16 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     const avgTarget = Math.round(targets.reduce((a,b) => a+b, 0) / targets.length);
     const maxVal = Math.max(...targets.map(t => t*1.25), ...data.map(d => d.totals[valueKey]), 1);
     const topLabelLen = String(Math.round(maxVal)).length;
-    const W = 380, H = 130, marginLeft = sharedMarginLeft || (12 + topLabelLen * 6), marginRight = 10, marginBottom = 18, marginTop = 10;
+    // The SVG scales responsively (width:100%) to fill whatever width the
+    // card actually renders at, but its font-size values are in viewBox
+    // units, not real pixels — so if the viewBox is much narrower than the
+    // card's actual rendered width, the whole SVG (labels included) scales
+    // up and the text ends up visibly larger than intended. The app caps
+    // its content at 640px and cards have 20px padding each side, so match
+    // W to that expected render width (falling back to the viewport itself
+    // on narrower screens) rather than a single fixed value that only
+    // happens to match mobile.
+    const W = Math.max(300, Math.min(window.innerWidth, 640) - 40), H = 130, marginLeft = sharedMarginLeft || (12 + topLabelLen * 6), marginRight = 10, marginBottom = 18, marginTop = 10;
     const plotW = W - marginLeft - marginRight;
     const plotH = H - marginBottom - marginTop;
     const gap = 2.5;
