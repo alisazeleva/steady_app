@@ -709,7 +709,7 @@
     dailyNote: null,
     dailyNoteMeta: null,
     dailyNoteScore: null,
-    dailyNoteLoading: false,
+    dailyNoteLoadingDate: null,
     tipLoadingId: null,
     activities: [],
     activityMenuOpen: false,
@@ -3735,7 +3735,9 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     } catch(e) {
       showToast('Could not get a tip: ' + (e.message || 'please try again.'), true);
     } finally {
-      state.tipLoadingId = null;
+      if (state.tipLoadingId === id) {
+        state.tipLoadingId = null;
+      }
       render();
     }
   }
@@ -3751,7 +3753,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
   function renderDailyNote(totals, t){
     const holder = document.getElementById('dailyNoteHolder');
     if (!holder) return;
-    if (state.dailyNoteLoading) {
+    if (state.dailyNoteLoadingDate === state.currentDate) {
       holder.innerHTML = '<div class="empty"><span class="spinner"></span>Thinking it over…</div>';
       return;
     }
@@ -3773,7 +3775,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
           ${scoreBadgeHtml(state.dailyNoteScore)}
           <p class="tipnote">${escapeHtml(state.dailyNote)}</p>
           <div style="display:flex; justify-content:flex-end;">
-            <div class="tip-refresh" id="refreshDailyNote" title="Refresh summary" aria-label="Refresh summary" ${state.dailyNoteLoading ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
+            <div class="tip-refresh" id="refreshDailyNote" title="Refresh summary" aria-label="Refresh summary" ${state.dailyNoteLoadingDate === state.currentDate ? 'style="pointer-events:none; opacity:0.4;"' : ''}>
               <svg width="26" height="26" viewBox="-7.5 -7.5 35 35" fill="none"><circle cx="10" cy="10" r="17.5" fill="#628264"/><path d="M4 10a6 6 0 0 1 10.2-4.2M16 10a6 6 0 0 1-10.2 4.2" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/><path d="M14.5 3.5v3h-3M5.5 16.5v-3h3" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
           </div>
@@ -4090,8 +4092,10 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
         showToast('Could not get a reply: ' + (e.message || 'please try again.'), true);
       }
     } finally {
-      if (myRequestId === state.chatRequestId && state.currentDate === targetDate) {
+      if (myRequestId === state.chatRequestId) {
         state.chatLoading = false;
+      }
+      if (myRequestId === state.chatRequestId && state.currentDate === targetDate) {
         renderCoachChat();
       }
     }
@@ -4117,7 +4121,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
       renderDailyNote(totals, t);
       return;
     }
-    state.dailyNoteLoading = true;
+    state.dailyNoteLoadingDate = targetDate;
     renderDailyNote(totals, t);
     try {
       const sortedMeals = [...state.meals].sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
@@ -4137,8 +4141,10 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
     } catch(e) {
       showToast('Could not get a summary: ' + (e.message || 'please try again.'), true);
     } finally {
+      if (state.dailyNoteLoadingDate === targetDate) {
+        state.dailyNoteLoadingDate = null;
+      }
       if (state.currentDate === targetDate) {
-        state.dailyNoteLoading = false;
         renderDailyNote(totals, t);
       }
     }
