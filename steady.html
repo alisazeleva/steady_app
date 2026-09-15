@@ -622,12 +622,12 @@
               <li>Your training frequency</li>
               <li>Whatever activity you've logged today &mdash; a workout adds calories back for that day only</li>
             </ul>
-            <p>Nothing is cached, so changing your goal or activity updates your targets instantly.</p>
+            <p>Nothing is cached for the day you're actively viewing, so changing your goal or activity updates that day's targets instantly. Trends is the one exception: once a past day's target has been calculated, it's kept as-is for that day going forward, so a later change to your goal or profile won't retroactively redraw old target lines in the charts.</p>
           </div>
         </details>
         <details class="docsub">
           <summary>The 1&ndash;10 score</summary>
-          <div class="docsub-body">Meal tips and both summaries include a 1&ndash;10 score for how well that meal, day, or week supports your goal &mdash; not a moral judgment of the food. A day's score isn't an average of its meals, and a week's score isn't an average of its days: Aino weighs the whole pattern rather than letting one weak spot drag down an otherwise solid stretch.</div>
+          <div class="docsub-body">Meal tips and the day summary include a 1&ndash;10 score for how well that meal or day supports your goal &mdash; not a moral judgment of the food. A day's score isn't an average of its meals: Aino weighs the whole pattern rather than letting one weak spot drag down an otherwise solid stretch.</div>
         </details>
         <details class="docsub">
           <summary>Best practices</summary>
@@ -858,14 +858,25 @@
   // frozen at write-time — a later profile change won't retroactively alter
   // an already-cached day's target, by design.
   async function updateDailyTotalsCache(dateStr, meals, activities){
+    // When only one of meals/activities was actually edited (the other is
+    // passed in as undefined and needs resolving), a demo day with no real
+    // entry for that other piece must fall back to the demo formula's own
+    // value for it — not an empty array. Without this, editing just the
+    // activity on an un-edited demo day silently zeroed out its cached
+    // meals (and vice versa), since the demo formula's meals/activities are
+    // never actually persisted unless that specific piece was itself edited.
+    const demoFallback = state.demoMode ? getDemoOffsetData(dateStr) : null;
     if (meals === undefined) {
       try {
         const res = await storageGet('meals:' + dateStr, false);
         meals = res ? JSON.parse(res.value) : [];
-      } catch(e) { meals = []; }
+      } catch(e) { meals = demoFallback ? demoFallback.meals : []; }
     }
     if (activities === undefined) {
-      activities = await loadActivities(dateStr);
+      try {
+        const res = await storageGet('activity:' + dateStr, false);
+        activities = res ? await loadActivities(dateStr) : (demoFallback ? demoFallback.activities : []);
+      } catch(e) { activities = demoFallback ? demoFallback.activities : []; }
     }
     const totals = totalsFromMeals(meals);
     const targets = computeTargets(state.profile, activities);
@@ -910,8 +921,9 @@
       dailyTotalsCache = res ? JSON.parse(res.value) : {};
     } catch(e) { dailyTotalsCache = {}; }
 
-    // Split into what can resolve instantly (today, demo, already-cached —
-    // no real storage calls needed) versus what genuinely needs resolving.
+    // Split into what can resolve instantly (today, cached, or a demo day
+    // with no real data — no real storage calls needed) versus what
+    // genuinely needs resolving.
     const results = {};
     const needsFallback = [];
     days.forEach(d => {
@@ -920,16 +932,21 @@
         // demo or not — never read the cache for this one, since a just-made edit
         // may not have finished writing back to it yet
         results[d] = { date: d, totals: totalsFromMeals(state.meals), targets: computeTargets(state.profile, state.activities) };
-      } else if (state.demoMode && getDemoOffsetData(d)) {
-        const entry = getDemoOffsetData(d);
-        results[d] = { date: d, totals: totalsFromMeals(entry.meals), targets: computeTargets(state.profile, entry.activities) };
       } else if (dailyTotalsCache[d]) {
+        // Real cached data always wins over the demo formula — an edited demo
+        // day should behave exactly like an edited real day: the edit stays
+        // visible everywhere (Trends included), not just while that specific
+        // day happens to be the one currently open.
         const c = dailyTotalsCache[d];
         results[d] = {
           date: d,
           totals: { calories: c.calories, protein: c.protein, carbs: c.carbs, fat: c.fat },
           targets: { calories: c.targetCalories, proteinG: c.targetProteinG, carbsG: c.targetCarbsG, fatG: c.targetFatG }
         };
+      } else if (state.demoMode && getDemoOffsetData(d)) {
+        // No real data cached for this date — fall back to the demo formula.
+        const entry = getDemoOffsetData(d);
+        results[d] = { date: d, totals: totalsFromMeals(entry.meals), targets: computeTargets(state.profile, entry.activities) };
       } else {
         needsFallback.push(d);
       }
@@ -1590,6 +1607,19 @@
 
   async function loadDemoData(){
     app.innerHTML = '<div class="card"><div class="empty"><span class="spinner"></span>Loading demo data…</div></div>';
+    // Explicitly clear any prior day-specific data before seeding — loadDemoData
+    // must be safe to call on its own, not just after a full wipe. Without this,
+    // a previously-edited past demo day (which saves as ordinary real data,
+    // indistinguishable from genuine user entries) would still be sitting in
+    // storage and would keep showing instead of fresh demo content, since demo
+    // days only ever get computed fresh for dates with no real entry.
+    await deleteDataByPrefix('meals:', null);
+    await deleteDataByPrefix('note:', null);
+    await deleteDataByPrefix('activity:', null);
+    await deleteDataByPrefix('context:', null);
+    await deleteDataByPrefix('weekchat:', null);
+    await deleteDataByPrefix('chat:', null);
+    try { await storageDelete('dailyTotals', false); } catch(e) {}
     const demoProfile = { unit: 'metric', sex: 'female', age: 29, weight: 65, height: 168, activity: 'light', trainingsPerWeek: 4, goal: 'recomp', isDemo: true };
     state.profile = demoProfile;
     try { await saveProfile(demoProfile); } catch(e) {}
@@ -4036,7 +4066,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
 
   async function callCoachChat(conversationHistory, contextText, hiddenInstruction, photo){
     const photoNote = photo ? "\n\nPhotos in chat: the person may occasionally attach a photo here — of food they're considering, a menu, or a plate they're deciding what to do with. You can give estimates, opinions, or advice about it when asked (rough calories/macros, what to remove, healthier swaps, etc.) — this is a normal, expected use of the chat. But this chat has no ability to save or log anything: if they want the meal actually logged, tell them to use the app's own meal-logging photo upload for that, since only that path saves anything." : "";
-    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day — if asked your name, you're Aino. Context on their day so far: " + contextText + " Use this to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more), conversational, plain text only — no markdown (no bold, headers, or numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability: short paragraphs (2-4 sentences, blank line between) instead of one dense block; list distinct items (like macros or suggestions) one per line with a dash. Short replies can stay a single line. Occasionally — not in most messages — one of these emoji where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply, and most replies should have none. Stay focused on food, nutrition, diet, and health/fitness — this includes general food and nutrition knowledge (ingredients, allergens, dietary-pattern definitions, nutrition facts about specific foods or products), not just questions about the person's own logged data. Only decline and redirect for things genuinely unrelated to food or nutrition (general knowledge, trivia, math, or anything else off-topic), e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nTone under pressure: stay warm and steady no matter how the person speaks to you — don't mirror rudeness, profanity, or hostility back, even if it's directed at you or the app. Keep the same calm, supportive tone you'd use otherwise.\n\nAll-or-nothing thinking: if the person says one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not one off day, but repeated language suggesting a recurring struggle), gently and non-judgmentally suggest talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Only infer this from what they actually say, never from logged data alone.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is safety-relevant, not just nutrition, and suggest water/food/rest or contacting someone if needed. If it's a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on daily/weekly summaries, rating how well that meal/day/week supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, state today's running score as your first sentence, every time. If asked what the score means, explain it plainly and factually as this real feature — never apologize for it, call it unofficial, or offer to stop using it.\n\nFood allergens and ingredient questions: answer these directly rather than redirecting — including questions about specific packaged products (e.g. \"does Snickers contain peanuts?\") — since this can be safety-relevant, not just a preference question. For well-known products you're confident about, answer plainly; for anything you're not certain of, say so and suggest checking the actual label, since recipes and manufacturing facilities can change and you don't have live product data.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output (the score, a tip, a summary) directly, as above — only redirect for app-mechanics questions unrelated to what you just said." + photoNote;
+    const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, chatting with the person about their day — if asked your name, you're Aino. Context on their day so far: " + contextText + " Use this to answer specifically and concretely. Be warm but concise (usually under 120 words unless they ask for more), conversational, plain text only — no markdown (no bold, headers, or numbered lists) — and never suggest extreme restriction, rapid weight loss, or skipping meals. For readability: short paragraphs (2-4 sentences, blank line between) instead of one dense block; list distinct items (like macros or suggestions) one per line with a dash. Short replies can stay a single line. Occasionally — not in most messages — one of these emoji where it feels warm and natural: 💛🧡💚🙂😊, never more than one per reply, and most replies should have none. Stay focused on food, nutrition, diet, and health/fitness — this includes general food and nutrition knowledge (ingredients, allergens, dietary-pattern definitions, nutrition facts about specific foods or products), not just questions about the person's own logged data. Only decline and redirect for things genuinely unrelated to food or nutrition (general knowledge, trivia, math, or anything else off-topic), e.g.: \"I'm your AI-nutritionist, so I'm really only set up to help with your meals, nutrition, and goals here in steady — happy to dig into any of that with you!\"\n\nTone under pressure: stay warm and steady no matter how the person speaks to you — don't mirror rudeness, profanity, or hostility back, even if it's directed at you or the app. Keep the same calm, supportive tone you'd use otherwise.\n\nAll-or-nothing thinking: if the person says one off-target meal or day means they've \"ruined\" things, \"blown it\", or should give up for the day/week, gently push back using their actual numbers as grounding (e.g. one meal over target rarely erases real progress) — without being preachy or repeating this every message.\n\nLoss-of-control language: if the person's own words, across this conversation, describe a sustained pattern of feeling unable to control eating (not one off day, but repeated language suggesting a recurring struggle), gently and non-judgmentally suggest talking to a doctor, dietitian, or therapist could help — once, briefly, without diagnosing or making it the focus of the reply. Only infer this from what they actually say, never from logged data alone.\n\nAlcohol/caffeine: when the person's question is specifically about their alcohol or caffeine consumption, today's plan, or advice involving it, factor in today's logged amounts. A single ordinary occurrence gets a light, non-alarmed mention if relevant. If today's logged total (or what they describe) reaches a large single-occasion amount — roughly 8+ standard US drinks / ~112g+ pure alcohol for a woman, 10+ / ~140g+ for a man (one standard drink ≈ 14g alcohol ≈ 12oz beer / 5oz wine / 1.5oz spirits), or roughly 400mg+ caffeine — say plainly this is safety-relevant, not just nutrition, and suggest water/food/rest or contacting someone if needed. If it's a recurring pattern (not just today), be more direct about the risk and gently suggest professional support.\n\nScore feature: this app shows a 1-10 score on meal tips and on the daily summary, rating how well that meal/day supports the person's stated goal (10 excellent, 8-9 very good, 6-7 good, 4-5 average, 2-3 weak, 1 poorly aligned) — not a moral judgment of the food. This is a standing, deliberate feature of the app, not something you improvised. When the daily summary quick-action is used, state today's running score as your first sentence, every time. If asked what the score means, explain it plainly and factually as this real feature — never apologize for it, call it unofficial, or offer to stop using it.\n\nFood allergens and ingredient questions: answer these directly rather than redirecting — including questions about specific packaged products (e.g. \"does Snickers contain peanuts?\") — since this can be safety-relevant, not just a preference question. For well-known products you're confident about, answer plainly; for anything you're not certain of, say so and suggest checking the actual label, since recipes and manufacturing facilities can change and you don't have live product data.\n\nApp mechanics questions: the app has a \"User guidelines\" section (near the bottom of the app, above Data & privacy) covering how targets are calculated, what demo mode does, best practices, and troubleshooting. If asked a broader question about how the app itself works — not about something you just said or produced, like the score or a tip — point them there by name instead of explaining the mechanics yourself, e.g. \"You'll find more on that under 'User guidelines' near the bottom of the app.\" Keep explaining your own output (the score, a tip, a summary) directly, as above — only redirect for app-mechanics questions unrelated to what you just said." + photoNote;
     const messages = conversationHistory.map((m, i) => {
       const isLastUserMsg = i === conversationHistory.length - 1 && m.role === 'user';
       const content = (isLastUserMsg && hiddenInstruction) ? `${m.text}\n\n[Instruction for this reply only, not from the user: ${hiddenInstruction}]` : m.text;
