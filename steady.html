@@ -10,7 +10,6 @@
     --ink: #1D2411;
     --ink-soft: #4A624B;
     --moss: #628264;
-    --moss-deep: #1D2411;
     --protein: #E3B4B1;
     --carbs: #D9A441;
     --fat: #806C61;
@@ -116,7 +115,6 @@
     white-space: nowrap; font-family: 'Fraunces', Georgia, serif; font-size: 11px; font-weight: 700;
     color: var(--moss); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;
   }
-  #steady-root .datebar .sub { font-size: 12px; color: var(--ink-soft); }
   #steady-root .datepick {
     font-family: 'Inter', sans-serif; font-size: 12px; border: 1px solid var(--paper-line);
     border-radius: 3px; padding: 5px 6px; background: var(--card); color: var(--ink); cursor: pointer;
@@ -783,22 +781,6 @@
   function storageSet(key, value, shared){ return withStorageTimeout(window.storage.set(key, value, shared)); }
   function storageList(prefix, shared){ return withStorageTimeout(window.storage.list(prefix, shared)); }
   function storageDelete(key, shared){ return withStorageTimeout(window.storage.delete(key, shared)); }
-
-  // Small concurrency-limited Promise.all — used by Trends to fetch 28 days
-  // of storage without firing all requests at once.
-  async function mapWithConcurrency(items, limit, fn){
-    const results = new Array(items.length);
-    let idx = 0;
-    async function worker(){
-      while (idx < items.length) {
-        const current = idx++;
-        results[current] = await fn(items[current], current);
-      }
-    }
-    const workers = Array.from({ length: Math.min(limit, items.length) }, worker);
-    await Promise.all(workers);
-    return results;
-  }
 
   // "YYYY-MM-DD" for the browser's local clock — the canonical date-string
   // format used throughout storage keys and state.currentDate. No timezone
