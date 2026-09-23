@@ -14,8 +14,8 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 
 - **AI meal logging** — describe a meal in plain text, or add a photo (Take Photo or Choose from Library), and get AI-estimated calories and macros, shown for review before anything is saved
 - **Dynamic targets** — calorie/macro goals computed from the Mifflin-St Jeor formula, adjusted for your stated goal (recomposition, fat loss, muscle gain, maintenance), training frequency, and *today's* logged activity — built-in presets for Walk, Hike, Cardio, Strength, and Yoga, plus custom activities with an AI-estimated calorie rate
-- **A 1–10 goal-alignment score** on every meal tip, daily summary, and weekly summary — rating how well that meal, day, or week supports your goal (never an average of its parts; a day/week is judged as a whole pattern), not a moral judgment of the food
-- **AI nutritionist (Aino)** — a real back-and-forth conversation for today, re-grounded in your live data on every message, with the option to attach a photo for advice (never saved or logged — that's a separate path), and tap a chat icon on any meal tip to ask a follow-up question about that specific meal. Past days and the trailing 7 days each get a static, regeneratable summary instead of an ongoing conversation. Today's chat can be reset at any time, and is automatically cleared once the day it belongs to has passed.
+- **A 1–10 goal-alignment score** on every meal tip and daily summary — rating how well that meal or day supports your goal (never an average of its parts; a day is judged as a whole pattern), not a moral judgment of the food
+- **AI nutritionist (Aino)** — a real back-and-forth conversation for today, re-grounded in your live data on every message, with the option to attach a photo for advice (never saved or logged — that's a separate path), and tap a chat icon on any meal tip to ask a follow-up question about that specific meal. Past days get a static, regeneratable summary instead of an ongoing conversation. Today's chat can be reset at any time, and is automatically cleared once the day it belongs to has passed.
 - **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker (waist/bust/hips) with its own mini trend chart
 - **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with quick-tap re-logging and CSV export
 - **Data control** — a date-range CSV export for your daily totals, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
@@ -71,6 +71,7 @@ This app is built specifically as a **Claude artifact**, not a standalone static
 - AI estimates are unverified LLM output — editable, not fact-checked
 - No offline queueing — a failed save must be retried manually
 - Photo file inputs and custom web fonts may behave differently inside the Claude mobile app's built-in view than in a regular mobile browser (see Mobile note above)
+- No cache-busting — this is one HTML file with no versioned filename, so an already-open tab (or a normal, non-hard refresh) can keep running old code after an update. Hard refresh (or open a fresh tab) after any update to guarantee you're on the latest version.
 
 Full list and technical detail in [`steady-technical-documentation.md`](./steady-technical-documentation.md).
 
