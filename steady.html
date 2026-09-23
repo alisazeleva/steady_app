@@ -652,6 +652,18 @@
             </ul>
           </div>
         </details>
+        <details class="docsub">
+          <summary>Demo data</summary>
+          <div class="docsub-body">
+            <p>&ldquo;Try demo data&rdquo; fills the app with 4 weeks of realistic sample meals, activity, and trends, so you can explore before logging anything of your own.</p>
+            <ul>
+              <li>Today is genuinely real from the start &mdash; anything you add, edit, or delete for today is saved normally, exactly like it would be on your own account.</li>
+              <li>Edit a past demo day (delete a meal, change an activity) and that specific edit sticks too, the same as editing any real day would.</li>
+              <li>Want a clean slate again? &ldquo;Delete all data&rdquo; and &ldquo;Try demo data instead&rdquo; (both on the Profile page) each wipe everything, including any edits you've made, and give you a fresh, unmodified 4 weeks.</li>
+              <li>Ready to use the app for real? &ldquo;Switch to my own data&rdquo; clears the demo content and takes you to set up your own profile.</li>
+            </ul>
+          </div>
+        </details>
       </div>
     </details>
     <details class="dataprivacy" style="margin-top:10px; padding-top:0; border-top:none;">
@@ -668,6 +680,7 @@
   </div>
   <div id="steadyToast" class="toast"></div>
   <div id="measurementsModal" class="modal-overlay" style="display:none;"></div>
+  <div id="exportCsvModal" class="modal-overlay" style="display:none;"></div>
   <div id="consentModal" class="modal-overlay" style="display:none;"></div>
   <div id="confirmModal" class="modal-overlay" style="display:none;"></div>
   <div id="ainoProfileModal" class="modal-overlay" style="display:none;"></div>
@@ -731,6 +744,7 @@
     pinnedPage: 0,
     measurements: {},
     measurementsModalOpen: false,
+    exportModalFor: null,
     setupConsentAcknowledged: false,
     demoMode: false,
     demoToday: null,
@@ -3275,9 +3289,11 @@
   }
 
   // Exports the full sparse measurements object as one row per logged date.
-  function exportMeasurementsCSV(){
-    const dates = Object.keys(state.measurements).sort();
-    if (!dates.length) { showToast('No measurements to export yet.', true); return; }
+  function exportMeasurementsCSV(fromDate, toDate){
+    let dates = Object.keys(state.measurements).sort();
+    if (fromDate) dates = dates.filter(d => d >= fromDate);
+    if (toDate) dates = dates.filter(d => d <= toDate);
+    if (!dates.length) { showToast('No measurements in that range.', true); return; }
     const rows = [['date','waist_cm','bust_cm','hips_cm']];
     dates.forEach(d => {
       const m = state.measurements[d] || {};
@@ -3287,7 +3303,8 @@
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'steady-body-measurements.csv';
+    const rangeLabel = (fromDate || toDate) ? `${dates[0]}_to_${dates[dates.length-1]}` : 'all';
+    a.href = url; a.download = `steady-body-measurements-${rangeLabel}.csv`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -4280,13 +4297,6 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
           <h2 style="margin:0;">Last 4 weeks</h2>
           <button class="icon-btn" id="exportCsvBtn" title="Export CSV" aria-label="Export CSV"><svg width="26" height="26" viewBox="-7.5 -7.5 35 35" fill="none"><circle cx="10" cy="10" r="17.5" fill="#628264"/><path d="M10 3v10M10 13l-4-4M10 13l4-4" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v1.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V15" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/></svg></button>
         </div>
-        <div id="exportPickerPanel" style="display:none; margin-bottom:14px;">
-          <div class="row2">
-            <div class="field"><label>From</label><input type="date" id="exportFromDate" value="${data[0].date}" max="${todayStr()}"></div>
-            <div class="field"><label>To</label><input type="date" id="exportToDate" value="${todayStr()}" max="${todayStr()}"></div>
-          </div>
-          <button class="btn small" id="exportConfirmBtn">Download CSV</button>
-        </div>
         <p class="setup-note">Daily totals against your targets. The dashed line tracks each day&rsquo;s target &mdash; it steps up on days you logged training, since those targets adjust for activity.</p>
         <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:34px; font-size:11px; color:var(--ink-soft);">
           <div><span style="display:inline-block; width:10px; height:10px; background:var(--under); border-radius:2px; margin-right:4px;"></span>15%+ under</div>
@@ -4324,19 +4334,9 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
       </div>
     `;
     wireChartTooltips();
-    document.getElementById('exportCsvBtn').addEventListener('click', () => {
-      const panel = document.getElementById('exportPickerPanel');
-      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    });
-    document.getElementById('exportConfirmBtn').addEventListener('click', () => {
-      const from = document.getElementById('exportFromDate').value;
-      const to = document.getElementById('exportToDate').value;
-      if (!from || !to) { showToast('Pick both dates.', true); return; }
-      if (from > to) { showToast('The "From" date must be before the "To" date.', true); return; }
-      exportCSV(from, to);
-    });
+    document.getElementById('exportCsvBtn').addEventListener('click', () => openExportModal('macros'));
     renderMeasurementsCard();
-    document.getElementById('exportMeasBtn').addEventListener('click', exportMeasurementsCSV);
+    document.getElementById('exportMeasBtn').addEventListener('click', () => openExportModal('measurements'));
     updateAinoBubble();
   }
 
@@ -4475,6 +4475,55 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
   function closeMeasurementsModal(){
     state.measurementsModalOpen = false;
     document.getElementById('measurementsModal').style.display = 'none';
+  }
+
+  function openExportModal(kind){
+    state.exportModalFor = kind;
+    renderExportModal();
+    const overlay = document.getElementById('exportCsvModal');
+    overlay.style.display = 'flex';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeExportModal(); });
+  }
+
+  function closeExportModal(){
+    state.exportModalFor = null;
+    document.getElementById('exportCsvModal').style.display = 'none';
+  }
+
+  function renderExportModal(){
+    const overlay = document.getElementById('exportCsvModal');
+    if (!overlay || !state.exportModalFor) return;
+    const isMeasurements = state.exportModalFor === 'measurements';
+    const title = isMeasurements ? 'Export measurements' : 'Export daily totals';
+    const defaultFrom = isMeasurements
+      ? (Object.keys(state.measurements).sort()[0] || todayStr())
+      : shiftDate(todayStr(), -27);
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 style="margin:0;">${title}</h2>
+          <button class="modal-close" id="closeExportModalBtn" aria-label="Close">&times;</button>
+        </div>
+        <div class="row2">
+          <div class="field"><label>From</label><input type="date" id="exportModalFromDate" value="${defaultFrom}" max="${todayStr()}"></div>
+          <div class="field"><label>To</label><input type="date" id="exportModalToDate" value="${todayStr()}" max="${todayStr()}"></div>
+        </div>
+        <button class="btn small" id="exportModalConfirmBtn">Download CSV</button>
+      </div>
+    `;
+    document.getElementById('closeExportModalBtn').addEventListener('click', closeExportModal);
+    document.getElementById('exportModalConfirmBtn').addEventListener('click', () => {
+      const from = document.getElementById('exportModalFromDate').value;
+      const to = document.getElementById('exportModalToDate').value;
+      if (!from || !to) { showToast('Pick both dates.', true); return; }
+      if (from > to) { showToast('The "From" date must be before the "To" date.', true); return; }
+      if (state.exportModalFor === 'measurements') {
+        exportMeasurementsCSV(from, to);
+      } else {
+        exportCSV(from, to);
+      }
+      closeExportModal();
+    });
   }
 
   function renderMeasurementsModal(){
