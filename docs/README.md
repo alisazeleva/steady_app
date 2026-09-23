@@ -18,7 +18,7 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 - **AI nutritionist (Aino)** — a real back-and-forth conversation for today, re-grounded in your live data on every message, with the option to attach a photo for advice (never saved or logged — that's a separate path), and tap a chat icon on any meal tip to ask a follow-up question about that specific meal. Past days get a static, regeneratable summary instead of an ongoing conversation. Today's chat can be reset at any time, and is automatically cleared once the day it belongs to has passed.
 - **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker (waist/bust/hips) with its own mini trend chart
 - **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with quick-tap re-logging and CSV export
-- **Data control** — a date-range CSV export for your daily totals, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
+- **Data control** — a date-range CSV export for your daily totals and body measurements, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
 - **In-app documentation** — a "User guidelines" section (alongside Data & privacy, reachable from every screen) covering how the app works, the score, best practices, and troubleshooting
 
 ---
