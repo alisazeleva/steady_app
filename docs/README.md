@@ -19,7 +19,7 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 - **Trends** — 4-week charts with visible axes, per-day target lines that shift with logged activity, and a body-measurements tracker (waist/bust/hips) with its own mini trend chart
 - **Favorite recipes** — save frequent meals with full ingredient lists, searchable, with quick-tap re-logging and CSV export
 - **Data control** — a date-range CSV export for your daily totals and body measurements, a "keep last N days" retention tool, full-history deletion, and a self-diagnosing storage health check that tells you plainly if something isn't saving instead of failing silently
-- **In-app documentation** — a "User guidelines" section (alongside Data & privacy, reachable from every screen) covering how the app works, the score, best practices, and troubleshooting
+- **In-app documentation** — a "User guidelines" section (alongside Data & privacy, reachable from every screen) covering how the app works, the score, best practices, troubleshooting, and how demo data behaves
 
 ---
 
@@ -87,7 +87,7 @@ This was built as a demonstration of AI-assisted development — see [`ai-assist
 
 ## License
 
-*Not yet set*
+All rights reserved — see [`LICENSE.md`](./LICENSE.md). This code is public for viewing only; no permission is granted to use, copy, modify, or distribute it.
 
 ---
 

@@ -6,7 +6,7 @@ A single-file, client-side nutrition and body-recomposition tracker built as a C
 
 ## 1. Overview
 
-- **File**: one self-contained `.html` file (~4,500 lines) — inline `<style>`, inline `<script>`, no external dependencies except Google Fonts (Fraunces, Inter, JetBrains Mono).
+- **File**: one self-contained `.html` file (~5,000 lines) — inline `<style>`, inline `<script>`, no external dependencies except Google Fonts (Fraunces, Inter, JetBrains Mono).
 - **Runtime**: vanilla JavaScript, IIFE-wrapped, manual DOM string-templating (`innerHTML` re-renders, no virtual DOM).
 - **Persistence**: Anthropic's `window.storage` API — key/value, text/JSON only, personal (per-user, non-shared), active only once the artifact is **published**.
 - **AI**: calls `https://api.anthropic.com/v1/messages` directly from the browser (no API key required — handled by the platform), model `claude-sonnet-4-6`. Billed against the user's own Claude usage limits, not a separate cost.
@@ -149,7 +149,7 @@ Every estimate is shown for user review/edit before being committed to `state.me
 A meal can be starred (`toggleMealFavorite`), which creates a `favorites` entry and links back via `meal.favoriteRef`. Un-starring removes the link both ways; deleting a favorite from the Favorites page also clears the flag on any meal that referenced it, so the star state can't drift out of sync between the two views. Re-logging a favorite ("Log again") is a quick-tap action rather than truly one-tap: it opens a small confirmation modal (pre-filled with the recipe's typical portion) rather than logging instantly, so the amount can be adjusted first.
 
 ### 5.3 Trends (4-week view) and the `dailyTotals` cache
-`renderTrends()` shows the last 28 days. Early versions fetched every day's `meals:`/`activity:` fresh on every visit (`mapWithConcurrency(days, 6, ...)`), which worked but cost ~54-56 storage calls per visit — confirmed in production to trigger rate-limit errors for real users on every single Trends visit, not just a one-time cost. A first caching attempt (a pre-aggregated index, built incrementally) was tried and fully reverted after a partially-built cache could be mistaken for a complete one, silently dropping data — that failure is why this section previously described the plain fetch-everything approach with no caching at all.
+`renderTrends()` shows the last 28 days. Early versions fetched every day's `meals:`/`activity:` fresh on every visit (through a small custom concurrency-limited `Promise.all` helper, `mapWithConcurrency`, which was deleted as dead code once the cache replaced this approach), which worked but cost ~54-56 storage calls per visit — confirmed in production to trigger rate-limit errors for real users on every single Trends visit, not just a one-time cost. A first caching attempt (a pre-aggregated index, built incrementally) was tried and fully reverted after a partially-built cache could be mistaken for a complete one, silently dropping data — that failure is why this section previously described the plain fetch-everything approach with no caching at all.
 
 The current design (`dailyTotals`, see §3) avoids that failure mode by never distinguishing "partial" from "complete" — every read either finds a real cached value for a date or it doesn't, with no separate completeness flag to get out of sync:
 
@@ -257,7 +257,7 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 | Chat citations/photos | `citeTipInChat`, `buildCitationInstruction`, `onChatPhotoSelect`, `resetChat` |
 | Demo data | `getDemoOffsetData` (pure, offset-based formula), `loadDemoData` (seeds today for real, clears + reseeds on repeat calls), `DEMO_ACTIVITY_CYCLE` |
 | Data management | `onKeepDaysClick`, `onDeleteAllClick`, `deleteDataByPrefix` |
-| Utilities | `mapWithConcurrency`, `shiftDate`, `todayStr`, `fmtDateLabel`, `fmtShortDate`, `fmtDateWithYear`, `nowTimeString`, `timeStringTo24h`/`time24hToTimeString`, `escapeHtml`/`escapeAttr`, `csvEscape`, `showToast`, `resizeImageDataUrl` |
+| Utilities | `shiftDate`, `todayStr`, `fmtDateLabel`, `fmtShortDate`, `fmtDateWithYear`, `nowTimeString`, `timeStringTo24h`/`time24hToTimeString`, `escapeHtml`/`escapeAttr`, `csvEscape`, `showToast`, `resizeImageDataUrl` |
 
 ---
 
@@ -270,3 +270,9 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 - **New icons**: use hand-drawn SVG. For a circular icon button specifically, bake the circle into the same SVG as the icon (not a separate CSS `background`/`border-radius` on the button) — see §2 for why.
 - **New async generation function that writes to storage**: capture the target (date/view/array) at the start of the function, not read it fresh when the response arrives — see the race-condition note in §5.4.
 - **New async generation function with a loading state**: track ownership (the specific id/date the request is for), not a bare boolean, and clear it in a `finally` block gated on that ownership still holding — not on the user still being on the same view. `tipLoadingId`, `chatRequestId`, and `dailyNoteLoadingDate` all follow this pattern after two related bugs: a bare boolean gated on "same view" got permanently stuck if the user navigated away before the response arrived (nothing else ever reset it), and a bare id/boolean with no ownership check let a faster-finishing request wrongly clear a slower, still-in-flight one's state.
+
+---
+
+## 10. License
+
+All rights reserved — the source is published for viewing only, with no permission granted to use, copy, modify, or distribute it. See `LICENSE.md`; the same notice sits in a comment at the top of `steady.html` so it travels with the file if copied on its own. No license file is the legal default for a public repo anyway ("all rights reserved" applies automatically), but the explicit notice avoids anyone mistaking a missing license for an oversight. A Creative Commons non-commercial/share-alike license was considered and dropped when the goal changed from "usable non-commercially with credit" to "view only."
