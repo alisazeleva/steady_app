@@ -1,6 +1,6 @@
 Steady
 
-Copyright © 2026 [Your name]
+Copyright © 2026 Alisa Zeleva
 
 All rights reserved.
 
