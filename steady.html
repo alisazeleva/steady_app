@@ -3880,7 +3880,7 @@ Respond with ONLY raw JSON, no markdown fences, no commentary, matching exactly 
       const amountStr = meal.amountValue ? ` ${meal.amountValue}${meal.amountUnit || 'g'} portion.` : '';
       const ingredientsStr = meal.ingredients ? ` Ingredients: ${meal.ingredients}.` : '';
 
-      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Meal: ${meal.name} —${amountStr}${ingredientsStr} ${Math.round(meal.calories)} kcal, protein ${Math.round(meal.protein_g)}g, carbs ${Math.round(meal.carbs_g)}g, fat ${Math.round(meal.fat_g)}g.${earlierBlock}
+      const prompt = `${dietContext()}${bmiContext()}Meal: ${meal.name} —${amountStr}${ingredientsStr} ${Math.round(meal.calories)} kcal, protein ${Math.round(meal.protein_g)}g, carbs ${Math.round(meal.carbs_g)}g, fat ${Math.round(meal.fat_g)}g.${earlierBlock}
 Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (today's activity: ${activitiesLabel(state.activities)}). ${todayContextSummary() ? 'Context for today, worth factoring into your tip: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week.
 
 In under 90 words of plain text (no markdown, no emojis), give feedback on this meal:
@@ -4157,8 +4157,15 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     renderCoachChat();
   }
 
+  // Live chat only: meal tips and day summaries never get the name. In chat it
+  // is mentioned to the model on roughly one message in three, so Aino uses it
+  // occasionally. Every call is stateless, and a model that is always told the
+  // name will use it in every reply.
+  const NAME_USE_RATE = 0.3;
   function nameContext(){
-    return (state.profile && state.profile.nickname) ? `The person's name is ${state.profile.nickname} — you can address them by name where it feels natural. ` : '';
+    if (!(state.profile && state.profile.nickname)) return '';
+    if (Math.random() >= NAME_USE_RATE) return '';
+    return `The person's name is ${state.profile.nickname}. Use it once in this reply, only where it feels natural, such as a warm opening or closing. `;
   }
 
   function calculateBMI(p){
@@ -4295,7 +4302,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
     try {
       const sortedMeals = [...state.meals].sort((a, b) => timeStringTo24h(a.time || '').localeCompare(timeStringTo24h(b.time || '')));
       const mealsSummary = sortedMeals.map(m => `${m.name} at ${m.time}: ${Math.round(m.calories)} kcal, P${Math.round(m.protein_g)}g/C${Math.round(m.carbs_g)}g/F${Math.round(m.fat_g)}g`).join('; ');
-      const prompt = `${nameContext()}${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (that day's activity: ${activitiesLabel(state.activities)}). Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
+      const prompt = `${dietContext()}${bmiContext()}Day's targets: ${t.calories} kcal, ${t.proteinG}g protein, ${t.carbsG}g carbs, ${t.fatG}g fat (that day's activity: ${activitiesLabel(state.activities)}). Logged that day: ${mealsSummary}. Totals for the day: ${Math.round(totals.calories)} kcal, ${Math.round(totals.protein)}g protein, ${Math.round(totals.carbs)}g carbs, ${Math.round(totals.fat)}g fat. ${todayContextSummary() ? 'Context noted for that day, worth factoring into your reflection: ' + todayContextSummary() + '. ' : ''}Goal: ${GOAL_LABELS[state.profile.goal] || 'body recomposition'}, taken slowly and steadily, training ${state.profile.trainingsPerWeek ?? 0}x/week. This day has already passed, so write a short AI-nutritionist reflection looking BACK on it, not forward — do not suggest what to eat next or what to adjust going forward, since there's nothing left to act on for that day. Plain conversational text, no markdown, no headers, under 130 words total: first, a short paragraph on how the day went overall relative to the targets — whether they were met, and by roughly how much; second, a short paragraph on the overall food quality that day (how processed, nutrient-dense, or balanced the choices were, not just whether the macros lined up) — mention every specific, concrete point that genuinely applies, not just one, but skip anything that isn't actually worth flagging rather than padding the list.
 
 ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal scores — weigh total intake vs. target, protein distribution across the day, macro balance, and overall food quality together. The 130-word limit above applies only to your response text, not the SCORE line.`;
       const result = await callCoachText(prompt);
