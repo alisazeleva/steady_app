@@ -179,7 +179,7 @@
 
   /* ---- Forms ---- */
   #steady-root label { display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
-  #steady-root input[type=text], #steady-root input[type=number], #steady-root select, #steady-root textarea {
+  #steady-root input[type=text], #steady-root input[type=number], #steady-root #f-birth, #steady-root select, #steady-root textarea {
     width: 100%; font-family: 'Inter', sans-serif; font-size: 14px; padding: 9px 10px;
     border: 1px solid var(--paper-line); border-radius: 3px; background: var(--paper); color: var(--ink);
   }
@@ -1355,12 +1355,30 @@
     return Math.round((a.minutes || 0) * activityRatePerMin(a.type));
   }
 
+  // Age comes from the stored birth date ("YYYY-MM-DD") so it never needs a
+  // yearly update. Two older shapes still work: a birth month only
+  // ("YYYY-MM", counted from the 1st) and a plain `age` number from before
+  // either field existed. The age steps up on the birthday itself.
+  function profileAge(p){
+    if (!p) return null;
+    const m = p.birth && /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(p.birth);
+    if (m) {
+      const by = Number(m[1]), bm = Number(m[2]), bd = Number(m[3] || 1);
+      const now = new Date();
+      let age = now.getFullYear() - by;
+      const mo = now.getMonth() + 1;
+      if (mo < bm || (mo === bm && now.getDate() < bd)) age -= 1;
+      return age;
+    }
+    return p.age || null;
+  }
+
   function computeTargets(p, activities){
     activities = activities || [];
     // Mifflin-St Jeor BMR
     const wKg = p.unit === 'imperial' ? p.weight * 0.453592 : p.weight;
     const hCm = p.unit === 'imperial' ? p.height * 2.54 : p.height;
-    let bmr = 10*wKg + 6.25*hCm - 5*p.age + (p.sex === 'male' ? 5 : -161);
+    let bmr = 10*wKg + 6.25*hCm - 5*profileAge(p) + (p.sex === 'male' ? 5 : -161);
     const actMap = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
     const tdee = bmr * (actMap[p.activity] || 1.375);
     const adj = goalAdjustment(p.goal, p.trainingsPerWeek);
@@ -1917,6 +1935,16 @@
 
   function renderProfileFormInto(holder, existing){
     const p = existing || { unit: 'metric', sex: 'female', activity: 'light', goal: 'recomp', trainingsPerWeek: 3 };
+    const birthFull = (p.birth && /^\d{4}-\d{2}-\d{2}$/.test(p.birth)) ? p.birth : '';
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const hintStyle = 'font-size:11px; color:var(--ink-soft); margin-top:4px; line-height:1.4;';
+    let birthHint = '';
+    if (p.birth && /^\d{4}-\d{2}$/.test(p.birth)) {
+      const [hy, hm] = p.birth.split('-').map(Number);
+      birthHint = `<div style="${hintStyle}">Saved as ${monthNames[hm-1]} ${hy}. Add the day to be exact.</div>`;
+    } else if (!p.birth && p.age && !p.isDemo) {
+      birthHint = `<div style="${hintStyle}">Age ${Number(p.age)} is used until you add this.</div>`;
+    }
     holder.innerHTML = `
       <div class="formsection">About you</div>
       <div class="field">
@@ -1957,7 +1985,11 @@
             <option value="male" ${p.sex==='male'?'selected':''}>Male</option>
           </select>
         </div>
-        <div class="field"><label>Age</label><input type="number" id="f-age" value="${p.age ?? ''}" min="14" max="100"></div>
+        <div class="field">
+          <label>Born</label>
+          <input type="date" id="f-birth" value="${birthFull}" min="1900-01-01" max="${todayStr()}" style="width:100%; min-width:0; box-sizing:border-box;">
+          ${birthHint}
+        </div>
       </div>
       <div class="row2">
         <div class="field"><label id="f-weight-label">Weight (${p.unit==='imperial'?'lb':'kg'})</label><input type="number" id="f-weight" value="${p.weight ?? ''}" min="1"></div>
@@ -2027,21 +2059,30 @@
 
     document.getElementById('saveProfileBtn').addEventListener('click', async () => {
       const errEl = document.getElementById('profileErr');
+      const birthIn = document.getElementById('f-birth').value;
+      const birth = /^\d{4}-\d{2}-\d{2}$/.test(birthIn) ? birthIn : ((!birthIn && p.birth) ? p.birth : null);
       const newP = {
         nickname: document.getElementById('f-nickname').value.trim(),
         diet: document.getElementById('f-diet').value,
         dietNotes: document.getElementById('f-dietNotes').value.trim(),
         unit: document.getElementById('f-unit').value,
         sex: document.getElementById('f-sex').value,
-        age: Number(document.getElementById('f-age').value),
+        birth: birth || undefined,
+        age: birth ? undefined : (p.age || undefined),
         weight: Number(document.getElementById('f-weight').value),
         height: Number(document.getElementById('f-height').value),
         activity: document.getElementById('f-activity').value,
         trainingsPerWeek: Number(document.getElementById('f-trainings').value) || 0,
         goal: document.getElementById('f-goal').value,
       };
-      if (!newP.age || !newP.weight || !newP.height) {
-        errEl.textContent = 'Please fill in age, weight, and height.';
+      const ageNow = profileAge(newP);
+      if (!ageNow || !newP.weight || !newP.height) {
+        errEl.textContent = 'Please fill in your birth date, weight, and height.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (birth && (ageNow < 14 || ageNow > 100)) {
+        errEl.textContent = 'That birth date gives an age outside 14 to 100.';
         errEl.style.display = 'block';
         return;
       }
