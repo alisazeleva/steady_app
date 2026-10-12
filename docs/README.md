@@ -27,8 +27,9 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 
 Plain HTML/CSS/JavaScript — one self-contained file, no build step, no framework, no backend beyond the Claude artifact platform:
 
-- **Persistence**: Anthropic's `window.storage` API (personal, per-user key/value storage, 20MB cap)
-- **AI**: direct browser calls to `https://api.anthropic.com/v1/messages`, model `claude-sonnet-4-6` — no API key needed, billed against the user's own Claude usage
+- **Persistence**: the artifact's private per-user storage (the `db` capability) — one small document per saved item, kept in your own area and hidden even from the person who built the app
+- **AI**: the artifact's Claude access (the `sample` capability, including photos) — no API key needed, billed against the viewer's own Claude usage, and allowed by the viewer the first time it's used
+- **Downloads**: CSV exports go through the artifact's file-save prompt (the `downloads` capability)
 - **Rendering**: hand-written `innerHTML` templating, no virtual DOM, no React
 - **Charts**: hand-drawn inline SVG, no charting library
 - **Icons**: hand-drawn SVG throughout (not icon fonts or emoji), chosen deliberately after several icon-reliability bugs surfaced from relying on Unicode glyphs and browser-default rendering across platforms
@@ -40,22 +41,21 @@ See [`steady-technical-documentation.md`](./steady-technical-documentation.md) f
 
 ## Running this project
 
-This app is built specifically as a **Claude artifact**, not a standalone static site. It depends on two things only available inside that environment:
+This app is built specifically as a **Claude artifact**, not a standalone static site. It relies on four features that only exist inside a published artifact: private per-user storage, a way to ask Claude from the page, a file-save prompt for CSV exports, and the viewer's identity (which addresses your private storage area). Opened as a plain HTML file or on a generic static host, the UI loads but **nothing saves** and the AI features don't work.
 
-1. `window.storage` for persistence — this API doesn't exist in a regular browser, so opening the HTML file directly (e.g. via `file://` or a generic static host) will load the UI but **nothing will save**.
-2. Direct, unauthenticated calls to Claude's API — these work inside a published artifact because the platform handles auth; outside of it, the AI features (meal estimation, coach chat) won't function without wiring up your own API key and backend.
+**To use it**: open the artifact's published link while signed in to Claude. The first time you use an AI feature, Claude asks you to allow it, and each CSV export asks you to confirm the save.
 
-**To actually use it**: open it as a Claude artifact and **publish it** (required for storage to activate) — see [Anthropic's artifact docs](https://support.claude.com) for how publishing and persistent storage work. Once published, it's usable from web or desktop.
+**Development**: the published artifact is the source of truth. There is no separate local file to keep in sync; changes are made to the artifact and republished to the same link, which keeps everyone's stored data. The copy in this repository is a snapshot of it.
 
 **Mobile note**: the app works inside the Claude mobile app's built-in view for most features, but two known gaps exist there specifically (not in a regular mobile browser): photo file inputs may not open the camera/gallery picker reliably, and custom web fonts loaded from Google Fonts may fail to load, falling back to a generic serif for headers. Both are limitations of that specific embedded webview, not the app's code — opening the artifact's link in the phone's regular browser avoids both.
 
-**To adapt it elsewhere**: the calculation logic, UI, and rendering are all plain, portable JavaScript — only the `load*`/`save*` storage functions and the `fetch` calls (`callEstimate`, `callCoachText`, `callCoachChat`) are platform-specific and would need to be swapped for your own backend and API key handling.
+**To adapt it elsewhere**: the calculation logic, UI, and rendering are plain, portable JavaScript. Only the block at the top of the script that wraps storage, Claude calls and downloads (`getBridge`, the `kv*` and `storage*` functions, `aiFetch`, `saveCsv`) is platform-specific, and would need to be swapped for your own backend and API key handling.
 
 ---
 
 ## Privacy & data
 
-- All storage is **personal, per-user** (`shared: false` on every call) — nobody else who opens this artifact can see your data, and you can't see theirs.
+- Your data is stored in your own **private area** of the artifact's storage — nobody else who opens this artifact can see it, including the person who built it, and you can't see theirs.
 - Meal photos are **never persisted** — they're resized client-side, sent once for AI estimation, and discarded; only the resulting numeric estimate and a short AI-written description are saved.
 - Photos attached in the daily chat are held **only in memory** for that one message and discarded immediately after sending — never saved to storage, and not even kept for the rest of the conversation.
 - Chat conversations are inherently ephemeral: today's chat is the only one that's ever interactive, and once a day passes, its chat history is automatically deleted from storage (it was already never shown again in the UI even before that).
@@ -65,7 +65,8 @@ This app is built specifically as a **Claude artifact**, not a standalone static
 
 ## Known limitations
 
-- 20MB total storage cap per artifact (platform limit)
+- Storage limits: 256 KiB per stored item and 25,000 items per artifact across all viewers (platform limits), plus a per-viewer rate limit on storage calls
+- AI features need the viewer to allow Claude on first use; if you decline, they stay unavailable
 - Last-write-wins, no conflict resolution across multiple open tabs/devices
 - "Today" is your browser's local clock — no timezone handling
 - AI estimates are unverified LLM output — editable, not fact-checked

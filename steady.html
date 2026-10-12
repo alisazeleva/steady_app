@@ -1,5 +1,5 @@
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Steady</title>
 <!-- steady — a daily macro ledger for body recomposition -->
 <!--
   Steady © 2026 [Your name]
@@ -8,6 +8,7 @@
 -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  body { background: #F3F6EC; }
 
   #steady-root {
     --paper: #F3F6EC;
@@ -650,7 +651,7 @@
           <summary>Troubleshooting</summary>
           <div class="docsub-body">
             <ul>
-              <li>If you see &ldquo;Nothing you enter is being saved right now,&rdquo; it usually means the artifact isn't published &mdash; publish it and reload, or try a hard refresh if it's already published. If that doesn't help, it may be a temporary issue with the storage service itself, not something wrong with your data.</li>
+              <li>If you see &ldquo;Nothing you enter is being saved right now,&rdquo; it usually means you're signed out or this page can't save for your account &mdash; sign in and reload, or try a hard refresh. If that doesn't help, it may be a temporary issue with the storage service itself, not something wrong with your data.</li>
               <li>Photo logging may not work inside the Claude mobile app's built-in view &mdash; if &ldquo;Take Photo&rdquo; or &ldquo;Choose from Library&rdquo; does nothing when tapped, try opening this artifact's link in your phone's regular browser instead, or use text logging, which isn't affected.</li>
             </ul>
           </div>
@@ -776,16 +777,119 @@
   const STORAGE_TIMEOUT_MS = 8000;
   function withStorageTimeout(promise){
     // Race every storage call against a timeout — window.storage can hang
-    // silently (e.g. artifact not published) with no error otherwise.
+    // silently (e.g. signed-out viewer) with no error otherwise.
     return Promise.race([
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error('Storage request timed out — please try again.')), STORAGE_TIMEOUT_MS))
     ]);
   }
-  function storageGet(key, shared){ return withStorageTimeout(window.storage.get(key, shared)); }
-  function storageSet(key, value, shared){ return withStorageTimeout(window.storage.set(key, value, shared)); }
-  function storageList(prefix, shared){ return withStorageTimeout(window.storage.list(prefix, shared)); }
-  function storageDelete(key, shared){ return withStorageTimeout(window.storage.delete(key, shared)); }
+  // ---- Artifact runtime bridge ----------------------------------------------
+  // Published as an artifact, the page has no built-in key-value storage and cannot call
+  // the Claude API directly. Storage maps onto the viewer's private db
+  // documents (data/users/<id>/, one document per old storage key, body
+  // {k, v}); AI calls map onto the sample capability; CSV saves go through
+  // the downloads capability. Every call site below stays unchanged.
+  let bridgePromise = null;
+  function getBridge(){
+    if (!bridgePromise) {
+      bridgePromise = (async () => {
+        const c = window.claude;
+        if (!c || typeof c.use !== 'function') return {};
+        const [db, user, sample, downloads] = await Promise.all([c.use('db'), c.use('user'), c.use('sample'), c.use('downloads')]);
+        let uid = null;
+        try { uid = user ? await user.id() : null; } catch(e) {}
+        return { col: (db && uid) ? db.collection('data/users/' + uid) : null, sample, downloads };
+      })();
+    }
+    return bridgePromise;
+  }
+  // Document ids allow only letters, digits and _ - . ~ : @ + ; anything else
+  // (and ~ itself) is escaped, so distinct keys never collide.
+  function kvId(key){
+    return String(key).replace(/[^A-Za-z0-9_\-.:@+]/g, c => '~' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  }
+  async function kvCol(){
+    const b = await getBridge();
+    if (!b.col) throw new Error('Storage is not available in this view.');
+    return b.col;
+  }
+  async function kvGet(key){
+    const snap = await (await kvCol()).doc(kvId(key)).get();
+    if (!snap.exists) return null;
+    const d = snap.data() || {};
+    return { key, value: d.v, shared: false };
+  }
+  async function kvSet(key, value){
+    await (await kvCol()).doc(kvId(key)).set({ k: String(key), v: String(value) });
+    return { key, value, shared: false };
+  }
+  async function kvList(prefix){
+    let q = await kvCol();
+    if (prefix) q = q.where('k', '>=', prefix).where('k', '<', prefix + '\uffff');
+    const snap = await q.limit(1000).get();
+    return { keys: snap.docs.map(d => (d.data() || {}).k).filter(Boolean), prefix, shared: false };
+  }
+  async function kvDelete(key){
+    await (await kvCol()).doc(kvId(key)).delete();
+    return { key, deleted: true, shared: false };
+  }
+  function storageGet(key, shared){ return withStorageTimeout(kvGet(key)); }
+  function storageSet(key, value, shared){ return withStorageTimeout(kvSet(key, value)); }
+  function storageList(prefix, shared){ return withStorageTimeout(kvList(prefix)); }
+  function storageDelete(key, shared){ return withStorageTimeout(kvDelete(key)); }
+
+  // Same shape as a fetch() Response to the Messages API, built on the sample
+  // capability, so the five existing call sites only swap the function name.
+  function base64ToBlob(b64, type){
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: type || 'image/jpeg' });
+  }
+  function aiFailure(status, message){
+    return { ok: false, status, json: async () => ({ error: { message } }) };
+  }
+  async function aiFetch(_url, init){
+    const { sample } = await getBridge();
+    if (!sample) return aiFailure(503, 'Claude is not available in this view.');
+    const body = JSON.parse(init.body);
+    const turns = [];
+    if (body.system) turns.push({ role: 'user', content: 'Standing instructions for this whole conversation. Follow them in every reply:\n\n' + body.system });
+    const images = [];
+    const msgs = body.messages || [];
+    msgs.forEach((m, i) => {
+      let text = '';
+      if (typeof m.content === 'string') text = m.content;
+      else (m.content || []).forEach(b => {
+        if (b.type === 'text') text += (text ? '\n\n' : '') + b.text;
+        else if (b.type === 'image' && i === msgs.length - 1 && b.source && b.source.data) images.push(base64ToBlob(b.source.data, b.source.media_type));
+      });
+      if (text) turns.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content: text });
+    });
+    const opts = { cache: false, modelTier: (body.max_tokens && body.max_tokens <= 300) ? 'quick' : 'default' };
+    if (images.length) opts.images = images;
+    try {
+      const r = await sample(turns, opts);
+      return { ok: true, status: 200, json: async () => ({ content: [{ type: 'text', text: r.text }] }) };
+    } catch(e) {
+      const code = e && e.code;
+      if (code === 'not_granted') return aiFailure(403, 'Claude access was not allowed for this page. Allow it when asked, then try again.');
+      if (code === 'rate_limited') return aiFailure(429, "You've reached your Claude usage limit for now. Try again a little later.");
+      if (code === 'images_unavailable' || code === 'image_rejected') return aiFailure(400, "That photo couldn't be sent to Claude. Try a different image.");
+      return aiFailure(500, (e && e.message) || 'Request failed.');
+    }
+  }
+  async function saveCsv(filename, csv){
+    const { downloads } = await getBridge();
+    if (!downloads) { showToast('Saving files is not available in this view.', true); return false; }
+    try {
+      await downloads.save({ filename, data: csv });
+      return true;
+    } catch(e) {
+      if (!(e && e.code === 'declined')) showToast('Could not save that file — please try again.', true);
+      return false;
+    }
+  }
 
   // "YYYY-MM-DD" for the browser's local clock — the canonical date-string
   // format used throughout storage keys and state.currentDate. No timezone
@@ -1284,7 +1388,7 @@
     el.innerHTML = `
       <div class="storage-warning">
         <b>Nothing you enter is being saved right now.</b>
-        This usually means the artifact isn&rsquo;t published yet &mdash; saving only works once it is. Open the Publish controls for this artifact, publish it, then reload the page. If it&rsquo;s already published, try a hard refresh.
+        This usually means you&rsquo;re signed out, or this page can&rsquo;t save for your account. Sign in, then reload the page. If that doesn&rsquo;t help, try a hard refresh.
       </div>
     `;
   }
@@ -2332,7 +2436,7 @@
   // used to seed ACTIVITY_KCAL_PER_MIN-equivalent data for that activity.
   async function estimateActivityRate(name){
     const system = "You are a fitness estimation assistant. Given the name of a physical activity, estimate a reasonable average calories burned per minute for a typical adult doing it at moderate effort. Respond with ONLY raw JSON, no markdown fences, no commentary: {\"kcalPerMin\": number}. Use your best realistic estimate.";
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await aiFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -2621,7 +2725,7 @@
 
   async function callEstimate(contentBlocks){
     const system = "You are a careful nutrition estimation assistant inside a meal-logging app. Given a description and/or photo of a meal, estimate its nutrition. " + dietContext() + "When a meal description is ambiguous about ingredients (e.g. \"curry\", \"stir-fry\", \"burger\"), let any stated dietary requirements guide your assumption rather than defaulting to a meat-based version, and note that assumption. You must always estimate a portion amount and unit, even if not stated — use ml for anything drinkable (shakes, soups, beverages) and g for solid food; never omit these two fields. Respond with ONLY raw JSON (no markdown fences, no commentary) matching exactly this shape: {\"name\": \"short meal name, max 6 words\", \"ingredients\": \"a concise comma-separated list of the actual ingredients/components you can identify or infer, e.g. 'grilled salmon, avocado, mixed greens, olive oil dressing' — a few words each, not a full recipe\", \"amount\": number (always required, your best estimate if not stated), \"unit\": \"g\" or \"ml\" (always required), \"calories\": number, \"protein_g\": number, \"carbs_g\": number, \"fat_g\": number, \"confidence\": \"low\" | \"medium\" | \"high\", \"note\": \"one short sentence noting key assumptions or uncertainty\"}. Numbers should be your best realistic estimate, not zero.";
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await aiFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -2649,7 +2753,7 @@
 
   async function callRecipeEstimate(userPrompt){
     const system = "You are a careful nutrition estimation assistant helping build a recipe database entry. Do any step-by-step reasoning silently, internally — your visible response must be ONLY the raw JSON object requested, nothing before or after it. No markdown fences, no commentary, no explanation of your reasoning in the response text.";
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await aiFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -3267,12 +3371,7 @@
       f.ingredients || ''
     ]));
     const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'steady-favorite-recipes.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    saveCsv('steady-favorite-recipes.csv', csv);
   }
 
   // Exports the full sparse measurements object as one row per logged date.
@@ -3287,13 +3386,8 @@
       rows.push([d, m.waist ?? '', m.bust ?? '', m.hips ?? '']);
     });
     const csv = rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
     const rangeLabel = (fromDate || toDate) ? `${dates[0]}_to_${dates[dates.length-1]}` : 'all';
-    a.href = url; a.download = `steady-body-measurements-${rangeLabel}.csv`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    saveCsv(`steady-body-measurements-${rangeLabel}.csv`, csv);
   }
 
   function favEditFormHtml(f, idPrefix){
@@ -4082,7 +4176,7 @@ ${SCORE_INSTRUCTION} The 90-word limit above applies only to your response text,
       }
       return { role: m.role === 'coach' ? 'assistant' : 'user', content };
     });
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await aiFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4188,7 +4282,7 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
 
   async function callCoachText(userText){
     const system = "You are Aino, a supportive, knowledgeable AI-nutritionist inside a meal-tracking app, helping with gradual, steady progress toward the person's nutrition goal (which may be fat loss, muscle gain, weight maintenance, or body recomposition). If asked your name, you are Aino. Be warm but concise and concrete, and never suggest extreme restriction, rapid weight loss, or skipping meals. Do not use emojis. Respond in plain text only — no markdown, no headers, no bullet points.";
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await aiFetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4722,13 +4816,8 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
         Math.round(it.target.calories), Math.round(it.target.proteinG), Math.round(it.target.carbsG), Math.round(it.target.fatG)
       ]));
       const csv = rows.map(r => r.join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
       const rangeLabel = (fromDate || toDate) ? `${items[0].dateStr}_to_${items[items.length-1].dateStr}` : 'all';
-      a.href = url; a.download = `steady-daily-totals-${rangeLabel}.csv`;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      await saveCsv(`steady-daily-totals-${rangeLabel}.csv`, csv);
     } catch(e) {
       showToast('Could not export your data — please try again.', true);
     }
@@ -4996,3 +5085,5 @@ ${SCORE_INSTRUCTION} Score the day as a whole, not an average of individual meal
   })();
 })();
 </script>
+
+</body></html>

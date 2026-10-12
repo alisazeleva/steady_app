@@ -1,6 +1,6 @@
 # steady — Technical Documentation
 
-A single-file, client-side nutrition and body-recomposition tracker built as a Claude artifact. No build step, no framework, no backend beyond Anthropic's artifact storage and API proxy.
+A single-file, client-side nutrition and body-recomposition tracker built as a Claude artifact. No build step, no framework, no backend beyond the artifact platform's private storage and Claude access.
 
 ---
 
@@ -8,9 +8,11 @@ A single-file, client-side nutrition and body-recomposition tracker built as a C
 
 - **File**: one self-contained `.html` file (~5,000 lines) — inline `<style>`, inline `<script>`, no external dependencies except Google Fonts (Fraunces, Inter, JetBrains Mono).
 - **Runtime**: vanilla JavaScript, IIFE-wrapped, manual DOM string-templating (`innerHTML` re-renders, no virtual DOM).
-- **Persistence**: Anthropic's `window.storage` API — key/value, text/JSON only, personal (per-user, non-shared), active only once the artifact is **published**.
-- **AI**: calls `https://api.anthropic.com/v1/messages` directly from the browser (no API key required — handled by the platform), model `claude-sonnet-4-6`. Billed against the user's own Claude usage limits, not a separate cost.
-- **No backend, no database** — `window.storage` *is* the persistence layer.
+- **Persistence**: the artifact's `db` capability, used only inside each viewer's private area (`data/users/<id>/`) — one small document per old storage key, text/JSON only. See §10.
+- **AI**: the artifact's `sample` capability (including photos), asked from the page on the viewer's own Claude account, default model tier, no API key. The viewer allows it on first use. See §10.
+- **Downloads**: CSV exports use the `downloads` capability. See §10.
+- **No backend and no database of our own** — the artifact platform's storage *is* the persistence layer.
+- **Source of truth**: the published artifact. There is no separate local HTML to keep in sync; the file in the repo is a snapshot of it.
 
 ---
 
@@ -66,7 +68,7 @@ One follow-on regression from that refactor is worth noting for anyone touching 
 
 ## 3. Storage schema
 
-All keys use `shared: false` (personal, private per user). None are shared.
+Every key is stored as one private document in the viewer's own area (see §10 for the mapping). None are shared.
 
 | Key | Shape | Notes |
 |---|---|---|
@@ -140,7 +142,7 @@ All of this is one pure function, `computeTargets(profile, activities)`, called 
 
 ### 5.1 Meal logging
 Two input modes, both converge on the same AI call shape (`callEstimate`):
-- **Text**: description → `POST /v1/messages` with a system prompt demanding raw JSON output (`{name, calories, protein_g, carbs_g, fat_g, confidence, note}`).
+- **Text**: description → a Claude call through `aiFetch` with a system prompt (sent as standing instructions, see §10) demanding raw JSON output (`{name, calories, protein_g, carbs_g, fat_g, confidence, note}`).
 - **Photo**: two entry points — a "Take Photo" button (hidden `<input type="file" capture="environment">`) and a "Choose from Library" button (hidden plain `<input type="file">`), rather than a single combined file input. This split exists because a single plain file input's built-in "let the OS offer both camera and gallery" behavior has a confirmed regression on Android 14/15 in Chrome and Edge specifically, where the camera option silently disappears. Two explicit inputs sidestep that regression on every platform. The photo itself is resized client-side via `<canvas>` (max 1024px, JPEG q=0.82) before sending as a base64 `image` content block — this also strips EXIF metadata as a side effect. Photos are **never persisted**; only the AI's numeric estimate and a short text description are saved.
 
 Every estimate is shown for user review/edit before being committed to `state.meals` — the AI never writes directly to storage.
@@ -223,13 +225,13 @@ A global accordion, placed next to "Data & privacy" (both reachable from every s
 ---
 
 ## 6. Storage health check
-On `init()`, `checkStorageHealth()` writes and immediately reads back a probe value under `__healthcheck`. If the round-trip doesn't match, `state.storageOk = false` and a persistent red banner renders on every screen: *"Nothing you enter is being saved right now."* This exists because `window.storage` fails silently by default (per Anthropic's API — accessing/writing can throw without obvious cause, most commonly because the artifact isn't published), and the app previously had no way to distinguish "code bug" from "storage inactive."
+On `init()`, `checkStorageHealth()` writes and immediately reads back a probe value under `__healthcheck`. If the round-trip doesn't match, `state.storageOk = false` and a persistent red banner renders on every screen: *"Nothing you enter is being saved right now."* This exists because the storage layer can be unavailable without any error showing — for example a signed-out viewer, a viewer who isn't allowed to write on this artifact, or the storage capability not being served — and the app previously had no way to distinguish "code bug" from "storage inactive." The banner tells the viewer to sign in and reload.
 
 ---
 
 ## 7. Known limitations
 
-- **20MB total storage cap** per artifact (Anthropic platform limit), text/JSON only.
+- **Storage limits**: 256 KiB per document and 25,000 documents per artifact in total (shared across all viewers), text/JSON only, plus a per-viewer rate limit on storage calls. With one document per key, the Trends backfill is paced for that reason (§5.3).
 - **Last-write-wins**, no conflict resolution — concurrent edits from two open tabs/devices can silently overwrite each other.
 - **"Today" is the browser's local clock** — no timezone handling; logging near midnight or while traveling can misassign a date.
 - **No offline queueing** — a failed save is reported via toast, but there's no retry queue; the user must manually retry.
@@ -237,7 +239,7 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 - **Photo file inputs inside the Claude mobile app's built-in webview** may not reliably open — confirmed working in a regular mobile browser and on desktop; this is a platform/webview limitation, not something the app's code controls.
 - **Custom web fonts (Fraunces) may fail to load inside the same embedded webview** — a Google Fonts `@import` is a live network request, and that webview appears to have some restriction on external resource loading that a regular browser doesn't. Every Fraunces declaration includes a Georgia fallback specifically for this case, so headers degrade to a real (if different) serif rather than a generic one.
 - **`toLocaleDateString`/`toLocaleTimeString` are deliberately avoided** for anything functionally important (sorting, storage keys) after a real production bug: Finnish-locale time strings omit AM/PM, which silently broke a regex expecting it, causing meals to sort to the bottom of the list. All internal date/time formatting is now built manually from `Date` object fields (`nowTimeString()`, `fmtDateWithYear()`, etc.) rather than relying on locale-dependent browser formatting.
-- **No cache-busting on updates** — this is one HTML file with no versioned filename or build hash, so a browser tab that already has the page loaded (or a normal, non-hard refresh) can keep running old JavaScript indefinitely after the underlying file has been updated, completely independent of whether storage itself is working correctly. This produced real, confusing bug reports during development that looked like storage/logic failures but were actually just stale code still running — a hard refresh (or a fresh tab) is required after any update to guarantee the latest version is actually executing.
+- **Updates reach open tabs on the platform's schedule** — a republished artifact is delivered to viewers who already have it open at their next quiet moment, so a tab can run the previous version briefly after a publish. Reloading guarantees the latest version.
 
 ---
 
@@ -245,6 +247,7 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 
 | Area | Key functions |
 |---|---|
+| Runtime bridge | `getBridge`, `kvId`, `kvGet`/`kvSet`/`kvList`/`kvDelete` behind `storageGet`/`storageSet`/`storageList`/`storageDelete`, `aiFetch`, `saveCsv` |
 | Storage I/O | `loadProfile/saveProfile`, `loadMeals/saveMeals`, `loadActivities/saveActivities`, `loadDailyNote/saveDailyNote`, `loadChatMessages/saveChatMessages`, `loadFavorites/saveFavoritesStorage`, `loadMeasurements/saveMeasurementsStorage`, `loadDayContext/saveDayContext` |
 | `dailyTotals` caching | `ensureDailyTotalsCached` (entry point, with the concurrency guard), `runDailyTotalsCachePass` (the actual per-day resolution + batched fallback + backfill), `updateDailyTotalsCache` (called from `saveMeals`/`saveActivities`, demo-aware) |
 | Calculations | `computeTargets`, `goalAdjustment`, `totalsFromMeals`, `activitiesLabel`, `activityKcal` |
@@ -265,7 +268,7 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 
 - **New per-day data**: follow the `meals:<date>` / `activity:<date>` pattern — one key per date, loaded in both `switchDate()` and `init()`.
 - **New global data**: follow the `favorites` / `measurements` / `dailyTotals` pattern — one key, loaded once in `init()` (or lazily, for `dailyTotals`, via `ensureDailyTotalsCached`).
-- **New AI feature**: reuse `callCoachText`/`callCoachChat` rather than writing a new `fetch` call — they already handle error surfacing (`errBody.error.message`) consistently. If it needs a score, append `SCORE_INSTRUCTION` to the prompt and parse with `parseScoreFromResponse`.
+- **New AI feature**: reuse `callCoachText`/`callCoachChat` rather than calling `aiFetch` or `sample` directly — they already handle error surfacing (`errBody.error.message`) consistently. If it needs a score, append `SCORE_INSTRUCTION` to the prompt and parse with `parseScoreFromResponse`.
 - **Changing a data shape**: always write a normalizing branch in the corresponding `load*()` function (see §3.1) rather than assuming a single shape — this app has changed its activity data model three times, and every change required this pattern to avoid silently orphaning existing users' data.
 - **New icons**: use hand-drawn SVG. For a circular icon button specifically, bake the circle into the same SVG as the icon (not a separate CSS `background`/`border-radius` on the button) — see §2 for why.
 - **New async generation function that writes to storage**: capture the target (date/view/array) at the start of the function, not read it fresh when the response arrives — see the race-condition note in §5.4.
@@ -273,6 +276,17 @@ On `init()`, `checkStorageHealth()` writes and immediately reads back a probe va
 
 ---
 
-## 10. License
+## 10. Artifact runtime bridge
+
+A page published as an artifact has no `window.storage` and can't call the Claude API or start a file download by itself. One block near the top of the script (`getBridge()` and the functions under it) maps those three needs onto the artifact runtime, and the rest of the app still calls the same function names. The artifact declares four capabilities when published: `db`, `user`, `sample` (with images) and `downloads`.
+
+- **Storage (`db` + `user`).** Each old storage key becomes one document at `data/users/<id>/<encoded key>` with the body `{k: key, v: value}`, where `v` is the same JSON string the app always stored. `<id>` comes from `user.id()`. That area is private to each viewer, including from the artifact's owner. Characters outside letters, digits and `_ - . : @ +` (and `~` itself) in a key are escaped as `~` plus a four-digit hex code, so two keys can't collide. `storageList(prefix)` filters on the `k` field (`k >= prefix` and `k < prefix + '\uffff'`, limit 1000). `storageGet` returns `null` for a missing document, as before. With no viewer id or no `db`, the calls throw and the health check (§6) shows the banner.
+- **Claude calls (`sample`).** `aiFetch` takes the same request body the five call sites already build and returns an object shaped like a `fetch` response, so `callEstimate`, `callRecipeEstimate`, `callCoachChat`, `callCoachText` and `estimateActivityRate` only changed the function name. The platform gives the page no system prompt, so the `system` text is sent as a leading user turn labelled as standing instructions. Photos (meal and chat) go through the `images` option and are attached to the final turn only. The tier is `quick` when the old `max_tokens` was 300 or less (the activity-rate estimate) and `default` otherwise; no specific model is named and `max_tokens` can't be set. Caching is off (`cache: false`) because tips, summaries and chat must produce a fresh answer each time. The first call asks the viewer to allow Claude. `not_granted`, `rate_limited` and image errors are turned into readable messages; other failures show the platform's message.
+- **CSV downloads (`downloads`).** Scripted `<a download>` saves are blocked inside the viewer's frame, so `saveCsv(filename, csv)` calls `downloads.save` and the viewer confirms the file name each time. A declined prompt is silent; other failures show a toast.
+- **Other page-level differences.** The publish step supplies the charset and viewport tags, so the file starts with a `<title>`. `body` gets an explicit background because the viewer paints its own behind the page. Native `confirm()` returns false in the viewer, which is why the app's own `confirmDialog` is used throughout.
+
+---
+
+## 11. License
 
 All rights reserved — the source is published for viewing only, with no permission granted to use, copy, modify, or distribute it. See `LICENSE.md`; the same notice sits in a comment at the top of `steady.html` so it travels with the file if copied on its own. No license file is the legal default for a public repo anyway ("all rights reserved" applies automatically), but the explicit notice avoids anyone mistaking a missing license for an oversight. A Creative Commons non-commercial/share-alike license was considered and dropped when the goal changed from "usable non-commercially with credit" to "view only."
