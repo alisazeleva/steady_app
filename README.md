@@ -4,7 +4,7 @@
 
 A nutrition and body-recomposition tracker built as a Claude artifact — designed, built, and debugged entirely through conversation with Claude, with no manual coding. Log meals by text or photo, get AI-estimated macros, track daily and weekly trends, chat with an AI nutritionist grounded in your actual logged data, and keep it all private to your own account.
 
-[**Try the live app →**](#) *(a published claude.ai link will be added later)*
+---
 
 ## Preview
 
