@@ -56,21 +56,8 @@ Because implementation cost approached zero, I could try a color palette, reject
 
 ---
 
-## Applying this at work
-
-*[This is the section to make specific to you — a template, not a finished claim. A few honest starting points, worth replacing with your own real examples:]*
-
-- A recurring manual task in my role that I've automated or tooled around using this same request → review → verify loop
-- An internal tool, dashboard, or script I built to solve a team problem, where I drove the requirements and Claude handled implementation
-- A time I used AI assistance to debug or understand an unfamiliar codebase faster than I could have alone
-- How I evaluate AI-generated code before trusting it in a real system (the same instinct on display above: verify, don't assume)
-
-*(Steady is deliberately included here as the fullest, most inspectable example — because it's something a reviewer can actually open and try, not just take my word for.)*
-
----
-
 ## Tech notes
 
 Plain HTML/CSS/JavaScript, no build step or framework — runs entirely client-side, calls the Claude API directly for AI features, and uses a simple key-value persistence layer for data storage. Built and iterated entirely through conversation with Claude (Sonnet).
 
-*Built with Claude — [read more about how](https://claude.com) or [see the code](#).*
+*Built with Claude — [read more about how](https://claude.com).*
