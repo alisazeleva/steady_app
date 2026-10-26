@@ -2,7 +2,7 @@
 
 **How I use Claude to design, build, debug, and ship real software — for myself and at work.**
 
-[Try the live app →](#) *(replace with your published link)*
+[**Click here to try the live app**](https://claude.ai/artifact/4aX39ZtdWs875zq5fMK6jm)
 
 ---
 

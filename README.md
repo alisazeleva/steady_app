@@ -8,7 +8,7 @@ A nutrition and body-recomposition tracker built as a Claude artifact — design
 
 ## Preview
 
-[**Try the live app →**](#) *(a published claude.ai link will be added later)*
+[**Click here to try the live app**](https://claude.ai/artifact/4aX39ZtdWs875zq5fMK6jm)
 
 <p align="left">
   <img src="/docs/image.png" alt="steady screenshot" width="440">
