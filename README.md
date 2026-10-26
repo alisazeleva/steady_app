@@ -41,7 +41,7 @@ Plain HTML/CSS/JavaScript — one self-contained file, no build step, no framewo
 - **Icons**: hand-drawn SVG throughout (not icon fonts or emoji), chosen deliberately after several icon-reliability bugs surfaced from relying on Unicode glyphs and browser-default rendering across platforms
 - **Fonts**: Fraunces (display serif, with a Georgia fallback in case the Google Fonts request fails to load), Inter (body), JetBrains Mono (numbers) via Google Fonts `@import`
 
-See [`steady-technical-documentation.md`](./steady-technical-documentation.md) for the full architecture, storage schema, and calculation reference.
+See [`steady-technical-documentation.md`](./docs/steady-technical-documentation.md) for the full architecture, storage schema, and calculation reference.
 
 ---
 
@@ -80,13 +80,13 @@ This app is built specifically as a **Claude artifact**, not a standalone static
 - Photo file inputs and custom web fonts may behave differently inside the Claude mobile app's built-in view than in a regular mobile browser (see Mobile note above)
 - No cache-busting — this is one HTML file with no versioned filename, so an already-open tab (or a normal, non-hard refresh) can keep running old code after an update. Hard refresh (or open a fresh tab) after any update to guarantee you're on the latest version.
 
-Full list and technical detail in [`steady-technical-documentation.md`](./steady-technical-documentation.md).
+Full list and technical detail in [`steady-technical-documentation.md`](./docs/steady-technical-documentation.md).
 
 ---
 
 ## About this project
 
-This was built as a demonstration of AI-assisted development — see [`ai-assisted-coding-case-study.md`](./ai-assisted-coding-case-study.md) for a full writeup of the process: how requirements and design decisions were driven by product/QA judgment, real production bugs that were caught and fixed, and what that says about applying the same approach to other software work.
+This was built as a demonstration of AI-assisted development — see [`ai-assisted-coding-case-study.md`](./docs/ai-assisted-coding-case-study.md) for a full writeup of the process: how requirements and design decisions were driven by product/QA judgment, real production bugs that were caught and fixed, and what that says about applying the same approach to other software work.
 
 **Built by Alisa Zeleva** with [Claude](https://claude.com).
 
@@ -94,7 +94,7 @@ This was built as a demonstration of AI-assisted development — see [`ai-assist
 
 ## License
 
-All rights reserved — see [`LICENSE.md`](./LICENSE.md). This code is public for viewing only; no permission is granted to use, copy, modify, or distribute it.
+All rights reserved — see [`LICENSE.md`](./docs/LICENSE.md). This code is public for viewing only; no permission is granted to use, copy, modify, or distribute it.
 
 ---
 
