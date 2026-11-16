@@ -94,7 +94,7 @@ This was built as a demonstration of AI-assisted development — see [`ai-assist
 
 ## License
 
-All rights reserved — see [`LICENSE.md`](./docs/LICENSE.md). This code is public for viewing only; no permission is granted to use, copy, modify, or distribute it.
+All rights reserved — see [`LICENSE.md`](./LICENSE.md). This code is public for viewing only; no permission is granted to use, copy, modify, or distribute it.
 
 ---
 
